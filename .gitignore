@@ -21,3 +21,4 @@ docker-local/
 .ddev/
 .DS_Store
 ._*
+/public/assets/admin/js/theme.min.js
