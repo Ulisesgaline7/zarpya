@@ -22,3 +22,4 @@ docker-local/
 .DS_Store
 ._*
 /public/assets/admin/js/theme.min.js
+backup.sql

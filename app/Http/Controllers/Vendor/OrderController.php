@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\OrderPayment;
 use App\Traits\PlaceNewOrder;
-use App\CentralLogics\SMS_module;
 use Brian2694\Toastr\Facades\Toastr;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -379,26 +378,6 @@ class OrderController extends Controller
             Toastr::warning(translate('messages.push_notification_faild'));
         }
 
-
-        // Notificación WhatsApp al dueño de la tienda
-        try {
-            $store = $order->store;
-            $whatsapp_phone = $store->vendor->phone ?? null;
-            if ($whatsapp_phone) {
-                $statusLabels = [
-                    "confirmed"  => "✅ Confirmado",
-                    "processing" => "👨‍🍳 En preparación",
-                    "handover"   => "📦 Listo para entrega",
-                    "delivered"  => "🎉 Entregado",
-                    "canceled"   => "❌ Cancelado",
-                ];
-                $label = $statusLabels[$request->order_status] ?? $request->order_status;
-                $msg = "🛒 Pedido #" . $order->id . " — Estado: " . $label;
-                SMS_module::whatsapp($whatsapp_phone, $msg);
-            }
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("WhatsApp notify error: " . $e->getMessage());
-        }
         Toastr::success(translate('messages.order_status_updated'));
         return back();
     }

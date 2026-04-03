@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.admin_landing_pages') }}
@@ -66,7 +66,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_40_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span>
                                         <span class="form-label-secondary text-danger"
@@ -80,7 +80,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span>
                                         <span class="form-label-secondary text-danger"
@@ -120,7 +120,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_40_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="earning_title" type="text" maxlength="40" name="earning_title[]" class="form-control" value="{{ $earning_title_translate[$lang]['value']?? '' }}" placeholder="{{translate('messages.title_here...')}}">
@@ -130,7 +130,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="sub-title" type="text" maxlength="80" name="earning_sub_title[]" class="form-control" value="{{ $earning_sub_title_translate[$lang]['value']?? '' }}" placeholder="{{translate('messages.sub_title_here...')}}">
@@ -145,7 +145,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_40_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input  id="earning-title" type="text" maxlength="40" name="earning_title[]" class="form-control" placeholder="{{translate('messages.title_here...')}}">
@@ -155,7 +155,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="earning-sub-title" type="text" maxlength="80" name="earning_sub_title[]" class="form-control" placeholder="{{translate('messages.sub_title_here...')}}">
@@ -198,14 +198,14 @@
                                         <img  src="{{\App\CentralLogics\Helpers::get_full_url('earning', $earning_seller_image?->value?? '', $earning_seller_image?->storage[0]?->value ?? 'public','upload_image_4')}}"
 
 
-                                        data-onerror-image="{{asset('assets/admin/img/upload-4.png')}}"
+                                        data-onerror-image="{{asset('/public/assets/admin/img/upload-4.png')}}"
                                         class="vertical-img mw-100 vertical onerror-image" alt="">
 
                                     </div>
                                     <input class="upload-file__input single_file_input" accept="{{IMAGE_EXTENSION}}" type="file" name="earning_seller_image"  hidden>
                                     @if (isset($earning_seller_image['value']))
                                             <span id="earning_seller_img" class="remove_image_button remove-image dynamic-checkbox"
-                                            data-id="earning_seller_img" data-image-off="{{ asset('assets/admin/img/delete-confirmation.png') }}"
+                                            data-id="earning_seller_img" data-image-off="{{ asset('/public/assets/admin/img/delete-confirmation.png') }}"
                                             data-title="{{translate('Warning!')}}"
                                             data-text="<p>{{translate('Are_you_sure_you_want_to_remove_this_image_?')}}</p>"
                                                 > <i class="tio-clear"></i></span>
@@ -215,7 +215,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h5 class="card-title mb-2">
-                                    <img src="{{asset('assets/admin/img/playstore.png')}}" class="mr-2" alt="">
+                                    <img src="{{asset('public/assets/admin/img/playstore.png')}}" class="mr-2" alt="">
                                     {{translate('Playstore Button')}}
                                 </h5>
                                 <div class="__bg-F8F9FC-card">
@@ -231,8 +231,8 @@
                                                 <input type="checkbox" name="playstore_url_status"
                                                        data-id="play-store-seller-status"
                                                        data-type="toggle"
-                                                       data-image-on='{{asset('assets/admin/img/modal')}}/play-store-on.png'
-                                                       data-image-off="{{asset('assets/admin/img/modal')}}/play-store-off.png"
+                                                       data-image-on='{{asset('/public/assets/admin/img/modal')}}/play-store-on.png'
+                                                       data-image-off="{{asset('/public/assets/admin/img/modal')}}/play-store-off.png"
                                                        data-title-on="{{translate('Want_to_enable_the_Play_Store_button_for_Store_App?')}}"
                                                        data-title-off="{{translate('Want_to_disable_the_Play_Store_button_for_Store_App?')}}"
                                                        data-text-on="<p>{{translate('If_enabled,_the_Store_app_download_button_will_be_visible_on_the_Landing_page.')}}</p>"
@@ -249,7 +249,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h5 class="card-title mb-2">
-                                    <img src="{{asset('assets/admin/img/ios.png')}}" class="mr-2" alt="">
+                                    <img src="{{asset('public/assets/admin/img/ios.png')}}" class="mr-2" alt="">
                                     {{translate('App Store Button')}}
                                 </h5>
                                 <div class="__bg-F8F9FC-card">
@@ -266,8 +266,8 @@
 
                                                        data-id="apple-seller-status"
                                                        data-type="toggle"
-                                                       data-image-on='{{asset('assets/admin/img/modal')}}/apple-on.png'
-                                                       data-image-off="{{asset('assets/admin/img/modal')}}/apple-off.png"
+                                                       data-image-on='{{asset('/public/assets/admin/img/modal')}}/apple-on.png'
+                                                       data-image-off="{{asset('/public/assets/admin/img/modal')}}/apple-off.png"
                                                        data-title-on="{{translate('Want_to_enable_the_App_Store_button_for_Store_App?')}}"
                                                        data-title-off="{{translate('Want_to_disable_the_App_Store_button_for_Store_App')}}"
                                                        data-text-on="<p>{{translate('If_enabled,_the_Store_app_download_button_will_be_visible_on_the_Landing_page.')}}</p>"
@@ -329,13 +329,13 @@
 
                                         <img src="{{\App\CentralLogics\Helpers::get_full_url('earning', $earning_delivery_image?->value?? '', $earning_delivery_image?->storage[0]?->value ?? 'public','upload_image_4')}}"
 
-                                        data-onerror-image="{{asset('assets/admin/img/upload-4.png')}}" class="vertical-img mw-100 vertical onerror-image" alt="">
+                                        data-onerror-image="{{asset('/public/assets/admin/img/upload-4.png')}}" class="vertical-img mw-100 vertical onerror-image" alt="">
                                     </div>
                                         <input class="upload-file__input single_file_input" accept="{{IMAGE_EXTENSION}}" type="file" name="earning_delivery_image"  hidden>
                                             @if (isset($earning_delivery_image['value']))
                                             <span id="earning_delivery_img" class="remove_image_button  remove-image dynamic-checkbox"
                                                   data-id="earning_delivery_img"
-                                                  data-image-off="{{ asset('assets/admin/img/delete-confirmation.png') }}"
+                                                  data-image-off="{{ asset('/public/assets/admin/img/delete-confirmation.png') }}"
                                                   data-title="{{translate('Warning!')}}"
                                                   data-text="<p>{{translate('Are_you_sure_you_want_to_remove_this_image_?')}}</p>"
                                                 > <i class="tio-clear"></i></span>
@@ -345,7 +345,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h5 class="card-title mb-2">
-                                    <img src="{{asset('assets/admin/img/playstore.png')}}" class="mr-2" alt="">
+                                    <img src="{{asset('public/assets/admin/img/playstore.png')}}" class="mr-2" alt="">
                                     {{translate('Playstore Button')}}
                                 </h5>
                                 <div class="__bg-F8F9FC-card">
@@ -361,8 +361,8 @@
                                                 <input type="checkbox" name="playstore_url_status"
                                                        data-id="play-store-dm-status"
                                                        data-type="toggle"
-                                                       data-image-on="{{ asset('assets/admin/img/modal/play-store-on.png') }}"
-                                                       data-image-off="{{ asset('assets/admin/img/modal/play-store-off.png') }}"
+                                                       data-image-on="{{ asset('/public/assets/admin/img/modal/play-store-on.png') }}"
+                                                       data-image-off="{{ asset('/public/assets/admin/img/modal/play-store-off.png') }}"
                                                        data-title-on="{{ translate('Want_to_enable_the_Play_Store_button_for_Deliveryman_App?') }}"
                                                        data-title-off="{{ translate('Want_to_disable_the_Play_Store_button_for_Deliveryman_App?') }}"
                                                        data-text-on="<p>{{ translate('If_enabled,_the_Deliveryman_app_download_button_will_be_visible_on_the_Landing_page.') }}</p>"
@@ -383,7 +383,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h5 class="card-title mb-2">
-                                    <img src="{{asset('assets/admin/img/ios.png')}}" class="mr-2" alt="">
+                                    <img src="{{asset('public/assets/admin/img/ios.png')}}" class="mr-2" alt="">
                                     {{translate('App Store Button')}}
                                 </h5>
                                 <div class="__bg-F8F9FC-card">
@@ -399,8 +399,8 @@
                                                 <input type="checkbox" name="apple_store_url_status"
                                                        data-id="apple-dm-status"
                                                        data-type="toggle"
-                                                       data-image-on="{{ asset('assets/admin/img/modal/apple-on.png') }}"
-                                                       data-image-off="{{ asset('assets/admin/img/modal/apple-off.png') }}"
+                                                       data-image-on="{{ asset('/public/assets/admin/img/modal/apple-on.png') }}"
+                                                       data-image-off="{{ asset('/public/assets/admin/img/modal/apple-off.png') }}"
                                                        data-title-on="{{ translate('Want_to_enable_the_App_Store_button_for_Deliveryman_App?') }}"
                                                        data-title-off="{{ translate('Want_to_disable_the_App_Store_button_for_Deliveryman_App?') }}"
                                                        data-text-on="<p>{{ translate('If_enabled,_the_Deliveryman_app_download_button_will_be_visible_on_the_Landing_page.') }}</p>"

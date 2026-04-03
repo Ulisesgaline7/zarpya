@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -188,7 +188,7 @@ if (isset($header_tag_line->translations) && count($header_tag_line->translation
                                     <div class="position-relative">
                                     <div class="img">
                                         <img
-                                        src="{{\App\CentralLogics\Helpers::get_full_url('header_icon', $header_icon?->value?? '', $header_icon?->storage[0]?->value ?? 'public','aspect_1')}}" data-onerror-image="{{asset('assets/admin/img/aspect-1.png')}}" class="img__aspect-1 mw-100 min-w-135px onerror-image" alt="">
+                                        src="{{\App\CentralLogics\Helpers::get_full_url('header_icon', $header_icon?->value?? '', $header_icon?->storage[0]?->value ?? 'public','aspect_1')}}" data-onerror-image="{{asset('/public/assets/admin/img/aspect-1.png')}}" class="img__aspect-1 mw-100 min-w-135px onerror-image" alt="">
                                     </div>
                                     <input type="file"  name="image" hidden>
                                        @if (isset($header_icon['value']))
@@ -213,7 +213,7 @@ if (isset($header_tag_line->translations) && count($header_tag_line->translation
                                     <div class="position-relative">
                                     <div class="img">
                                         <img
-                                            src="{{\App\CentralLogics\Helpers::get_full_url('header_banner', $header_banner?->value?? '', $header_banner?->storage[0]?->value ?? 'public','aspect_1')}}" data-onerror-image="{{asset('assets/admin/img/aspect-1.png')}}"
+                                            src="{{\App\CentralLogics\Helpers::get_full_url('header_banner', $header_banner?->value?? '', $header_banner?->storage[0]?->value ?? 'public','aspect_1')}}" data-onerror-image="{{asset('/public/assets/admin/img/aspect-1.png')}}"
                                             class="img__aspect-1 mw-100 min-w-135px onerror-image" alt="">
                                     </div>
                                         <input type="file" name="banner_image"  hidden>

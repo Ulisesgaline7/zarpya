@@ -26,7 +26,7 @@
                                     <span class="bg-E7E6E8 border ctrlplusk d-md-block d-none font-bold fs-12 fw-bold lh-1 ms-1 px-1 rounded text-muted">Ctrl+K</span>
 
                                 </span>
-                                <img width="14" src="{{asset('assets/admin/img/new-img/search.svg')}}" class="svg" alt="">
+                                <img width="14" src="{{asset('/public/assets/admin/img/new-img/search.svg')}}" class="svg" alt="">
                             </div>
                         </button>
                     </li>
@@ -100,7 +100,7 @@
                                         <span class="card-text">{{\App\CentralLogics\Helpers::get_loggedin_user()->email}}</span>
                                     </div>
                                     <div class="avatar avatar-sm avatar-circle">
-                                        <img class="avatar-img  onerror-image aspect-1-1"  data-onerror-image="{{asset('assets/admin/img/160x160/img1.jpg')}}"
+                                        <img class="avatar-img  onerror-image aspect-1-1"  data-onerror-image="{{asset('public/assets/admin/img/160x160/img1.jpg')}}"
                                         src="{{ \App\CentralLogics\Helpers::get_loggedin_user()->toArray()['image_full_url'] }}"
                                             alt="Image Description">
                                         <span class="avatar-status avatar-sm-status avatar-status-success"></span>
@@ -113,7 +113,7 @@
                                 <div class="dropdown-item-text">
                                     <div class="media align-items-center">
                                         <div class="avatar avatar-sm avatar-circle mr-2">
-                                            <img class="avatar-img  onerror-image aspect-1-1 "  data-onerror-image="{{asset('assets/admin/img/160x160/img1.jpg')}}"
+                                            <img class="avatar-img  onerror-image aspect-1-1 "  data-onerror-image="{{asset('public/assets/admin/img/160x160/img1.jpg')}}"
                                             src="{{ \App\CentralLogics\Helpers::get_loggedin_user()->toArray()['image_full_url'] }}"
                                                  alt="Owner image">
                                         </div>
@@ -202,7 +202,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
 {{-- @if (data_get($store_data,'cancellation_rate')  >= \App\CentralLogics\Helpers::get_business_settings('order_cancelation_rate_warning_limit') && data_get($store_data,'cancellation_rate')  <= \App\CentralLogics\Helpers::get_business_settings('order_cancelation_rate_block_limit') && $store_data?->module?->module_type == 'rental' && addon_published_status('Rental') )
 
     <div class="alert __alert-2 alert-warning m-0 py-1 px-2" role="alert">
-        <img class="rounded mr-1"  width="25" src="{{ asset('assets/admin/img/header_warning.png') }}" alt="">
+        <img class="rounded mr-1"  width="25" src="{{ asset('/public/assets/admin/img/header_warning.png') }}" alt="">
         <div class="cont">
             <h4 class="m-0">{{ translate('Attentions_!') }} </h4>
             {{ translate('Your cancelation rate is getting higher. If cancelation rate is reach 20%, your account will automatically suspended.') }}
@@ -212,7 +212,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
 
 
     <div class="alert __alert-2 alert-warning m-0 py-1 px-2" role="alert">
-        <img class="rounded mr-1"  width="25" src="{{ asset('assets/admin/img/header_warning.png') }}" alt="">
+        <img class="rounded mr-1"  width="25" src="{{ asset('/public/assets/admin/img/header_warning.png') }}" alt="">
         <div class="cont">
             <h4 class="m-0">{{ translate('Attention_Please') }} </h4>
             {{ translate('Your account has been suspended due to high cancelation rate. Contact with admin.') }}
@@ -223,7 +223,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
 
 @if ($Payable_Balance == 1 &&  $cash_in_hand_overflow &&  $wallet?->balance < 0 &&  $val <=  abs($wallet?->collected_cash)  )
     <div class="alert __alert-2 alert-warning m-0 py-1 px-2" role="alert">
-        <img class="rounded mr-1"  width="25" src="{{ asset('assets/admin/img/header_warning.png') }}" alt="">
+        <img class="rounded mr-1"  width="25" src="{{ asset('/public/assets/admin/img/header_warning.png') }}" alt="">
         <div class="cont">
             <h4 class="m-0">{{ translate('Attention_Please') }} </h4>
             {{ translate('The_Cash_in_Hand_amount_is_about_to_exceed_the_limit._Please_pay_the_due_amount._If_the_limit_exceeds,_your_account_will_be_suspended.') }}
@@ -233,7 +233,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
 
 @if ($Payable_Balance == 1 &&  $cash_in_hand_overflow &&  $wallet?->balance < 0 &&  $cash_in_hand_overflow_store_amount < $wallet?->collected_cash)
     <div class="alert __alert-2 alert-warning m-0 py-1 px-2" role="alert">
-        <img class="mr-1"  width="25" src="{{ asset('assets/admin/img/header_warning.png') }}" alt="">
+        <img class="mr-1"  width="25" src="{{ asset('/public/assets/admin/img/header_warning.png') }}" alt="">
         <div class="cont">
             <h4 class="m-0">{{ translate('Attention_Please') }} </h4>{{ translate('The_Cash_in_Hand_amount_limit_is_exceeded._Your_account_is_now_suspended._Please_pay_the_due_amount_to_receive_new_order_requests_again.') }}<a href="{{ route('vendor.wallet.index') }}" class="alert-link"> &nbsp; {{ translate('Pay_the_due') }}</a>
         </div>
@@ -265,7 +265,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
                 <div class="renew-badge mb-20" id="renew-badge">
                     <div class="renew-content d-flex align-items-center">
 
-                        <img src="{{asset('assets/admin/img/timer.svg')}}" alt="">
+                        <img src="{{asset('/public/assets/admin/img/timer.svg')}}" alt="">
                         <div class="txt">
                             {{ $subscription_deadline_warning_message != null ?  $subscription_deadline_warning_message : translate('Your subscription ending soon. Please renew to continue access') }}
                         </div>
@@ -283,7 +283,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
                 <div class="renew-badge mb-20 hide-warning" id="renew-badge">
                     <div class="renew-content d-flex align-items-center">
 
-                        <img src="{{asset('assets/admin/img/timer.svg')}}" alt="">
+                        <img src="{{asset('/public/assets/admin/img/timer.svg')}}" alt="">
                         <div class="txt">
                             {{ $subscription_deadline_warning_message != null ?  $subscription_deadline_warning_message : translate('Your subscription ending soon. Please renew to continue access') }}
                         </div>
@@ -308,7 +308,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
         <div class="free-trial trial success-bg">
             <div class="inner-div">
                 <div class="left">
-                    <img src="{{asset('assets/admin/img/icon-puck.svg')}}" alt="">
+                    <img src="{{asset('/public/assets/admin/img/icon-puck.svg')}}" alt="">
                     <div class="left-content">
                         <h6>{{ translate('Get the best experience of on demand service business') }}</h6>
                         <div>{{ translate('Run your on demand business with the most popular platform') }}</div>
@@ -349,12 +349,12 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
                                 </p>
                                 <a href="{{route('vendor.subscriptionackage.subscriberDetail' ,['open_plans' => true])}}" class="btn btn--primary">{{ translate('Choose Subscription Plan') }} <i class="tio-arrow-forward"></i></a>
                                 <div class="blocked-subscription mt-5">
-                                    <img src="{{asset('assets/admin/img/WarningOctagon.svg')}}" alt="">
+                                    <img src="{{asset('/public/assets/admin/img/WarningOctagon.svg')}}" alt="">
                                     <span>{{ translate('All Access to service has been blocked due to no active subscription') }}</span>
                                 </div>
                             </div>
                             <div class="trial-ended-modal-img d-none d-md-block">
-                                <img src="{{asset('assets/admin/img/trial-ended-bg.png')}}" alt="">
+                                <img src="{{asset('/public/assets/admin/img/trial-ended-bg.png')}}" alt="">
                             </div>
                         </div>
                     </div>
@@ -367,7 +367,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
         <div class="free-trial trial danger-bg">
             <div class="inner-div">
                 <div class="left">
-                    <img src="{{asset('assets/admin/img/timer-2.svg')}}" alt="">
+                    <img src="{{asset('/public/assets/admin/img/timer-2.svg')}}" alt="">
                     <div class="left-content">
                         <h6>{{ translate('Free_Trial_Has_Been_Ended') }}</h6>
                         <div>{{ translate('Get_a_subscription_plan_to_continue_with_your_business') }}</div>
@@ -382,7 +382,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
         <div class="free-trial trial danger-bg">
             <div class="inner-div">
                 <div class="left">
-                    <img src="{{asset('assets/admin/img/timer-2.svg')}}" alt="">
+                    <img src="{{asset('/public/assets/admin/img/timer-2.svg')}}" alt="">
                     <div class="left-content">
                         <h6>{{ translate('Your_Subscription_Has_Been_Cnaceled_by') }} {{ $store_data?->store_sub?->canceled_by == 'admin' ? translate($store_data?->store_sub?->canceled_by) : translate('Yourself') }}</h6>
                         <div>{{ translate('You_can_not_consume_your_subscription_after') }} {{ \App\CentralLogics\Helpers::date_format($store_data?->store_sub?->expiry_date_parsed) }}</div>
@@ -395,7 +395,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
                                 <circle r="70" cx="80" cy="80" fill="transparent" stroke="#ffffff20" stroke-width="12px"></circle>
                                 <circle r="70" cx="80" cy="80" fill="transparent" stroke="#ffffff" stroke-width="12px" stroke-dasharray="439.6px" stroke-dashoffset="{{ $pers }}px"></circle>
                             </svg>
-                            {{ Carbon\Carbon::now()->diffInDays($store_data?->store_sub?->expiry_date_parsed->format('Y-m-d'), false) }}
+                            {{ (int)Carbon\Carbon::now()->diffInDays($store_data?->store_sub?->expiry_date_parsed->format('Y-m-d'), false) }}
                         </span>
                         {{translate('Days_left_in_this_subscription')}}
                     </a>
@@ -411,7 +411,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
         <div class="free-trial trial danger-bg">
             <div class="inner-div">
                 <div class="left">
-                    <img src="{{asset('assets/admin/img/timer-2.svg')}}" alt="">
+                    <img src="{{asset('/public/assets/admin/img/timer-2.svg')}}" alt="">
                     <div class="left-content">
                         <h6>{{ translate('Your_Current_Subscription_Package_has_been_Disable_By_Admin.') }} </h6>
                         <div>{{ translate('You_can_not_renew_this_Package_after') }} {{ \App\CentralLogics\Helpers::date_format($store_data?->store_sub?->expiry_date_parsed) }}. {{ translate('to_continue_your_subscription_please_chose_another_package.')  }}</div>
@@ -424,7 +424,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
                                 <circle r="70" cx="80" cy="80" fill="transparent" stroke="#ffffff20" stroke-width="12px"></circle>
                                 <circle r="70" cx="80" cy="80" fill="transparent" stroke="#ffffff" stroke-width="12px" stroke-dasharray="439.6px" stroke-dashoffset="{{ $pers }}px"></circle>
                             </svg>
-                            {{ Carbon\Carbon::now()->diffInDays($store_data?->store_sub?->expiry_date_parsed->format('Y-m-d'), false) }}
+                            {{ (int)Carbon\Carbon::now()->diffInDays($store_data?->store_sub?->expiry_date_parsed->format('Y-m-d'), false) }}
                         </span>
                         {{translate('Days_left_in_this_subscription')}}
                     </a>
@@ -441,7 +441,7 @@ $val= (string) ($cash_in_hand_overflow_store_amount - (($cash_in_hand_overflow_s
         <div class="free-trial trial danger-bg">
             <div class="inner-div">
                 <div class="left">
-                    <img src="{{asset('assets/admin/img/timer-2.svg')}}" alt="">
+                    <img src="{{asset('/public/assets/admin/img/timer-2.svg')}}" alt="">
                     <div class="left-content">
                         <h6>{{ translate('Your_Subscription_Has_Been_Expired_on') }} {{  \App\CentralLogics\Helpers::date_format($store_data?->store_sub_update_application?->expiry_date_parsed) }} </h6>
                         <div>{{ translate('Purchase a subscription plan or contact with the admin to settle the payment and unblock the access to service') }} </div>

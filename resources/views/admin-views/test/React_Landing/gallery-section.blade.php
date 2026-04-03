@@ -13,7 +13,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -142,7 +142,7 @@
                                                         accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                                 <label class="upload-file__wrapper ratio-1 m-0">
                                                     <div class="upload-file-textbox text-center">
-                                                        <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                                        <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                                         <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                             <span class="theme-clr">Click to upload</span>
                                                             <br>
@@ -207,7 +207,7 @@
                                                         accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                                 <label class="upload-file__wrapper ratio-1 m-0">
                                                     <div class="upload-file-textbox text-center">
-                                                        <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                                        <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                                         <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                             <span class="theme-clr">Click to upload</span>
                                                             <br>
@@ -272,7 +272,7 @@
                                                         accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                                 <label class="upload-file__wrapper ratio-1 m-0">
                                                     <div class="upload-file-textbox text-center">
-                                                        <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                                        <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                                         <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                             <span class="theme-clr">Click to upload</span>
                                                             <br>
@@ -337,7 +337,7 @@
                                                         accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                                 <label class="upload-file__wrapper ratio-1 m-0">
                                                     <div class="upload-file-textbox text-center">
-                                                        <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                                        <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                                         <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                             <span class="theme-clr">Click to upload</span>
                                                             <br>
@@ -406,24 +406,24 @@
                         <div class="row g-xl-20 g-1">
                             <div class="col-xl-4 col-lg-6 col-6">
                                 <div class="bg-ECEEF1 w-100 gallery-thumb-h-450 rounded-10">
-                                    <img src="{{ asset('assets/admin/img/400x400/ract-gallery1.jpg') }}" alt="" class="rounded-10 w-100 h-100">
+                                    <img src="{{ asset('/public/assets/admin/img/400x400/ract-gallery1.jpg') }}" alt="" class="rounded-10 w-100 h-100">
                                 </div>
                             </div>
                             <div class="col-xl-8 col-lg-6 col-6">
                                 <div class="row g-xl-20 g-1">
                                     <div class="col-xl-6 col-6">
                                         <div class="bg-ECEEF1 w-100 gallery-thumb-h-220 rounded-10">
-                                            <img src="{{ asset('assets/admin/img/400x400/ract-gallery2.jpg') }}" alt="" class="rounded-10 w-100 h-100">
+                                            <img src="{{ asset('/public/assets/admin/img/400x400/ract-gallery2.jpg') }}" alt="" class="rounded-10 w-100 h-100">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-6">
                                         <div class="bg-ECEEF1 w-100 gallery-thumb-h-220 rounded-10">
-                                            <img src="{{ asset('assets/admin/img/400x400/ract-gallery3.jpg') }}" alt="" class="rounded-10 w-100 h-100">
+                                            <img src="{{ asset('/public/assets/admin/img/400x400/ract-gallery3.jpg') }}" alt="" class="rounded-10 w-100 h-100">
                                         </div>
                                     </div>
                                     <div class="col-xl-12">
                                         <div class="bg-ECEEF1 w-100 gallery-thumb-h-220 rounded-10">
-                                            <img src="{{ asset('assets/admin/img/400x400/ract-gallery4.jpg') }}" alt="" class="rounded-10 w-100 h-100">
+                                            <img src="{{ asset('/public/assets/admin/img/400x400/ract-gallery4.jpg') }}" alt="" class="rounded-10 w-100 h-100">
                                         </div>
                                     </div>
                                 </div>

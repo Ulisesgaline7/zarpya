@@ -6,6 +6,7 @@ use App\CentralLogics\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\AnalyticScript;
 use App\Models\BusinessSetting;
+use App\Models\Category;
 use App\Models\Currency;
 use App\Models\DataSetting;
 use App\Models\DMVehicle;
@@ -13,6 +14,7 @@ use App\Models\FAQ;
 use App\Models\FlutterSpecialCriteria;
 use App\Models\Module;
 use App\Models\OfflinePaymentMethod;
+use App\Models\PageSeoData;
 use App\Models\ParcelCancellationReason;
 use App\Models\ReactPromotionalBanner;
 use App\Models\ReactTestimonial;
@@ -67,7 +69,6 @@ class ConfigController extends Controller
             'app_minimum_version_android_deliveryman',
             'app_minimum_version_android_store',
             'app_url_android_deliveryman',
-            'customer_verification',
             'schedule_order',
             'order_delivery_verification',
             'show_dm_earning',
@@ -80,9 +81,8 @@ class ConfigController extends Controller
             'schedule_order_slot_duration',
             'parcel_per_km_shipping_charge',
             'parcel_minimum_shipping_charge',
-            'web_app_landing_page_settings',
             'footer_text',
-            'landing_page_links',
+
             'loyalty_point_exchange_rate',
             'loyalty_point_item_purchase_point',
             'loyalty_point_status',
@@ -170,7 +170,7 @@ class ConfigController extends Controller
         $settings = Cache::rememberForever($cacheKey, function () use ($key) {
             return array_column(BusinessSetting::whereIn('key', $key)->get()->toArray(), 'value', 'key');
         });
-        $image_key = ['logo', 'icon', 'web_app_landing_page_settings'];
+        $image_key = ['logo', 'icon'];
         $data = [];
         $openAIStatus = isset($settings['openai_config']) ? json_decode($settings['openai_config'], true) : [];
         $openAIStatus = isset($openAIStatus['status']) && $openAIStatus['status'] == 1 ? 1 : 0;
@@ -187,11 +187,7 @@ class ConfigController extends Controller
                 ->toArray();
         });
         $DataSetting = isset($DataSetting['download_user_app_links']) ? json_decode($DataSetting['download_user_app_links'], true) : [];
-        $landing_page_links = isset($settings['landing_page_links']) ? json_decode($settings['landing_page_links'], true) : [];
-        $landing_page_links['app_url_android_status'] = data_get($DataSetting, 'playstore_url_status', null);
-        $landing_page_links['app_url_android'] = data_get($DataSetting, 'playstore_url', null);
-        $landing_page_links['app_url_ios_status'] = data_get($DataSetting, 'apple_store_url_status', null);
-        $landing_page_links['app_url_ios'] = data_get($DataSetting, 'apple_store_url', null);
+
 
         $currency_symbol = Cache::rememberForever('business_settings_currency_symbol', function () {
             return Currency::where(['currency_code' => Helpers::currency_code()])->first()->currency_symbol;
@@ -259,7 +255,7 @@ class ConfigController extends Controller
             $published_status = $payment_published_status[0]['is_published'];
         }
 
-        $active_addon_payment_lists = $published_status == 1 ? $this->getPaymentMethods() : $this->getDefaultPaymentMethods();
+        $active_addon_payment_lists = Helpers::getActivePaymentGateways();
 
         $digital_payment_infos = [
             'digital_payment' => (bool)($digital_payment['status'] == 1 ? true : false),
@@ -303,7 +299,6 @@ class ConfigController extends Controller
                 });
             }
         }
-        $systemTax = null;
         if (addon_published_status('TaxModule')) {
             $systemTax = \Modules\TaxModule\Entities\SystemTaxSetup::where('is_active', 1)->where('is_default', 1)->first();
         }
@@ -332,7 +327,6 @@ class ConfigController extends Controller
             'app_url_android_deliveryman' => (isset($settings['app_url_android_deliveryman']) ? $settings['app_url_android_deliveryman'] : null),
             'app_minimum_version_ios_deliveryman' => (float)(isset($settings['app_minimum_version_ios_deliveryman']) ? $settings['app_minimum_version_ios_deliveryman'] : 0),
             'app_url_ios_deliveryman' => (isset($settings['app_url_ios_deliveryman']) ? $settings['app_url_ios_deliveryman'] : null),
-            'customer_verification' => (bool)$settings['customer_verification'],
             'prescription_order_status' => isset($settings['prescription_order_status']) ? (bool)$settings['prescription_order_status'] : false,
             'schedule_order' => (bool)$settings['schedule_order'],
             'order_delivery_verification' => (bool)$settings['order_delivery_verification'],
@@ -365,7 +359,6 @@ class ConfigController extends Controller
             'cookies_text' => isset($settings['cookies_text']) ? $settings['cookies_text'] : '',
             'fav_icon' => $settings['icon'],
             'fav_icon_full_url' => Helpers::get_full_url('business', $settings['icon'], $data['icon_storage'] ?? 'public'),
-            'landing_page_links' => $landing_page_links,
             // Added Business Setting
             'dm_tips_status' => (int)(isset($settings['dm_tips_status']) ? $settings['dm_tips_status'] : 0),
             'loyalty_point_exchange_rate' => (int)(isset($settings['loyalty_point_item_purchase_point']) ? $settings['loyalty_point_exchange_rate'] : 0),
@@ -437,7 +430,8 @@ class ConfigController extends Controller
             'is_sms_active' => (bool)Setting::whereJsonContains('live_values->status', '1')->where('settings_type', 'sms_config')->exists(),
             'is_mail_active' => (bool)config('mail.status'),
             'system_tax_type' => $systemTax?->tax_type ?? null,
-            'system_tax_include_status' => (int)($systemTax?->is_included ?? 0),
+            'system_tax_include_status' => (int)$systemTax?->is_included,
+
             'parcel_cancellation_status' => (int)(1),
             'parcel_cancellation_basic_setup' => isset($settings['parcel_cancellation_basic_setup']) ? json_decode($settings['parcel_cancellation_basic_setup']) : null,
             'parcel_return_time_fee' => isset($settings['parcel_return_time_fee']) ? json_decode($settings['parcel_return_time_fee']) : null,
@@ -446,6 +440,8 @@ class ConfigController extends Controller
 
             'dm_loyality_point_data' => $dm_loyality_point_data,
             'dm_referral_data' => $dm_referral_data,
+            'seo_page_list' => Helpers::seoPageList(),
+            'download_user_app_links' => $DataSetting
         ]);
     }
 
@@ -618,43 +614,6 @@ class ConfigController extends Controller
         return $response->json();
     }
 
-    public function landing_page()
-    {
-        $key = [
-            'react_header_banner',
-            'banner_section_full',
-            'banner_section_half',
-            'footer_logo',
-            'app_section_image',
-            'react_feature',
-            'app_download_button',
-            'discount_banner',
-            'landing_page_links',
-            'delivery_service_section',
-            'hero_section',
-            'download_app_section',
-            'landing_page_text',
-        ];
-        $settings = array_column(BusinessSetting::whereIn('key', $key)->get()->toArray(), 'value', 'key');
-
-        return response()->json(
-            [
-                'react_header_banner' => (isset($settings['react_header_banner'])) ? $settings['react_header_banner'] : null,
-                'app_section_image' => (isset($settings['app_section_image'])) ? $settings['app_section_image'] : null,
-                'footer_logo' => (isset($settings['footer_logo'])) ? $settings['footer_logo'] : null,
-                'banner_section_full' => (isset($settings['banner_section_full'])) ? json_decode($settings['banner_section_full'], true) : null,
-                'banner_section_half' => (isset($settings['banner_section_half'])) ? json_decode($settings['banner_section_half'], true) : [],
-                'react_feature' => (isset($settings['react_feature'])) ? json_decode($settings['react_feature'], true) : [],
-                'app_download_button' => (isset($settings['app_download_button'])) ? json_decode($settings['app_download_button'], true) : [],
-                'discount_banner' => (isset($settings['discount_banner'])) ? json_decode($settings['discount_banner'], true) : null,
-                'landing_page_links' => (isset($settings['landing_page_links'])) ? json_decode($settings['landing_page_links'], true) : null,
-                'hero_section' => (isset($settings['hero_section'])) ? json_decode($settings['hero_section'], true) : null,
-                'delivery_service_section' => (isset($settings['delivery_service_section'])) ? json_decode($settings['delivery_service_section'], true) : null,
-                'download_app_section' => (isset($settings['download_app_section'])) ? json_decode($settings['download_app_section'], true) : null,
-                'landing_page_text' => (isset($settings['landing_page_text'])) ? json_decode($settings['landing_page_text'], true) : null,
-            ]
-        );
-    }
 
     public function extra_charge(Request $request)
     {
@@ -720,7 +679,7 @@ class ConfigController extends Controller
         $promotional_banners = [];
         $promotional_banners_data = ReactPromotionalBanner::where('status', 1)->get();
         foreach ($promotional_banners_data as $value) {
-            $promotional_banners[] = Helpers::get_full_url('promotional_banner', $value->image, 'public');
+            $promotional_banners[] = $value->image_full_url;
         }
 
         $zones = Zone::where('status', 1)->get();
@@ -1002,60 +961,6 @@ class ConfigController extends Controller
         );
     }
 
-    private function getPaymentMethods()
-    {
-        if (!Schema::hasTable('addon_settings')) {
-            return [];
-        }
-
-        $methods = Setting::where('is_active', 1)->where('settings_type', 'payment_config')->get();
-        $env = env('APP_ENV') == 'live' ? 'live' : 'test';
-        $credentials = $env . '_values';
-
-        $data = [];
-        foreach ($methods as $method) {
-            $credentialsData = $method->$credentials;
-            $additional_data = json_decode($method->additional_data);
-            if ($credentialsData && $credentialsData['status'] == 1) {
-                $data[] = [
-                    'gateway' => $method->key_name,
-                    'gateway_title' => $additional_data?->gateway_title,
-                    'gateway_image' => $additional_data?->gateway_image,
-                    'gateway_image_full_url' => Helpers::get_full_url('payment_modules/gateway_image', $additional_data?->gateway_image, $additional_data?->storage ?? 'public'),
-                ];
-            }
-        }
-
-        return $data;
-    }
-
-    private function getDefaultPaymentMethods()
-    {
-        if (!Schema::hasTable('addon_settings')) {
-            return [];
-        }
-
-        $methods = Setting::where('is_active', 1)->whereIn('settings_type', ['payment_config'])->whereIn('key_name', ['ssl_commerz', 'paypal', 'stripe', 'razor_pay', 'senang_pay', 'paytabs', 'paystack', 'paymob_accept', 'paytm', 'flutterwave', 'liqpay', 'bkash', 'mercadopago'])->get();
-
-        $env = env('APP_ENV') == 'live' ? 'live' : 'test';
-        $credentials = $env . '_values';
-
-        $data = [];
-        foreach ($methods as $method) {
-            $credentialsData = $method->$credentials;
-            $additional_data = json_decode($method->additional_data);
-            if ($credentialsData && $credentialsData['status'] == 1) {
-                $data[] = [
-                    'gateway' => $method->key_name,
-                    'gateway_title' => $additional_data?->gateway_title,
-                    'gateway_image' => $additional_data?->gateway_image,
-                    'gateway_image_full_url' => Helpers::get_full_url('payment_modules/gateway_image', $additional_data?->gateway_image, $additional_data?->storage ?? 'public'),
-                ];
-            }
-        }
-
-        return $data;
-    }
 
     public function offline_payment_method_list(Request $request)
     {
@@ -1182,5 +1087,32 @@ class ConfigController extends Controller
         });
 
         return response()->json($analytics ?? [], 200);
+    }
+
+    public function getPageMetaData(Request $request)
+    {
+        $pages = Helpers::seoPageList();
+
+        if ($request->page_name && in_array($request->page_name, $pages)) {
+            if ($request->page_name == 'category_list' && $request->id) {
+                $data = Category::where(fn($q) =>$q->where('id', request('id'))->orWhere('slug', request('id')))->select(['id', 'name', 'meta_title', 'meta_description', 'meta_image', 'meta_data'])->first();
+                $data = $this->formateSeoData($data);
+            } else {
+                $data = PageSeoData::where('status', 1)->where('page_name',$request->page_name)->select(['id', 'title', 'description', 'image', 'meta_data'])->first();
+                $data = $this->formateSeoData($data, 'pageData');
+            }
+        }
+        return response()->json($data ?? [], 200);
+    }
+
+    private function formateSeoData($data, $type = null)
+    {
+        $data = [
+            'title' => $type == 'pageData' ? $data?->title : $data?->meta_title ?? null,
+            'description' => $type == 'pageData' ? $data?->description : $data?->meta_description ?? null,
+            'image_full_url' => $type == 'pageData' ?  $data?->image_full_url : $data?->meta_image_full_url,
+            'meta_data' => $data?->meta_data ?? [],
+        ];
+        return $data;
     }
 }

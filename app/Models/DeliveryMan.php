@@ -8,10 +8,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Scopes\ZoneScope;
+use App\Traits\DemoMaskable;
 
 class DeliveryMan extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable,DemoMaskable;
 
     protected $casts = [
         'zone_id' => 'integer',

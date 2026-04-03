@@ -13,7 +13,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -70,8 +70,8 @@
                     </form>
                     <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                         <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                               data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                               data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                               data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                               data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -119,7 +119,7 @@
                                         <div class="upload-file-textbox text-center"
                                              style="{{ $banner?->value ? 'display: none;' : '' }}">
                                             <img width="22" class="svg"
-                                                 src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                 src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                  alt="upload-placeholder">
                                             <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                 <span class="theme-clr">Click to upload</span><br>Or drag and drop
@@ -193,7 +193,7 @@
                                     <img  height="80"
                                         src="{{ $banner?->value
                                                  ? \App\CentralLogics\Helpers::get_full_url('banner_section', $banner->value, $banner->storage[0]?->value ?? 'public', 'aspect_1')
-                                                 :asset('assets/admin/img/400x400/react-landing-banner.png') }}"
+                                                 :asset('/public/assets/admin/img/400x400/react-landing-banner.png') }}"
                                         alt="" class="rounded-10 initial--28">
                                 </div>
                             </div>

@@ -17,6 +17,7 @@ use App\Models\EcommerceItemDetails;
 use App\Models\EmailTemplate;
 use App\Models\FlutterSpecialCriteria;
 use App\Models\Item;
+use App\Models\PageSeoData;
 use App\Models\NotificationMessage;
 use App\Models\NotificationSetting;
 use App\Models\OrderCancelReason;
@@ -41,76 +42,161 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class BusinessSettingsController extends Controller
 {
     use Processor;
 
-    public function business_index(Request $request, $tab = 'business')
-    {
-        if (!Helpers::module_permission_check('settings')) {
-            Toastr::error(translate('messages.access_denied'));
+    public function business_index(Request $request, string $tab = 'business')
+{
+    if (!Helpers::module_permission_check('settings')) {
+        Toastr::error(translate('messages.access_denied'));
+        return back();
+    }
 
-            return back();
-        }
-        $type = $request->type;
-        if ($tab == 'business') {
-            return view('admin-views.business-settings.business-index');
-        } elseif ($tab == 'customer') {
-            $data = BusinessSetting::where('key', 'like', 'wallet_%')
-                ->orWhere('key', 'like', 'loyalty_%')
-                ->orWhere('key', 'like', 'ref_earning_%')
-                ->orWhere('key', 'like', 'add_fund_status%')
-                ->orWhere('key', 'like', 'customer_%')
-                ->orWhere('key', 'like', 'new_customer_discount_%')
-                ->orWhere('key', 'like', 'ref_earning_%')->get();
-            $data = array_column($data->toArray(), 'value', 'key');
+   $keys = ['landing_page_text'  ,'landing_page_links','speciality','join_as_images','download_app_section','counter_section',
+            'promotion_banner','module_section','feature','testimonial','landing_page_images','web_app_landing_page_settings',
+            'react_header_banner','hero_section','app_download_button','banner_section_full','delivery_service_section',
+            'discount_banner','banner_section_half','app_section_image','footer_logo','react_feature','about_us','privacy_policy',
+            'terms_and_conditions','tax','tax_included','shipping_policy','refund','cancelation','minimum_shipping_charge','per_km_shipping_charge',
+            'order_pending_message','order_confirmation_msg','order_processing_message','out_for_delivery_message','order_delivered_message',
+            'delivery_boy_assign_message','delivery_boy_start_message','delivery_boy_delivered_message','customer_verification','order_handover_message',
+            'order_cancled_message','order_refunded_message'];
 
-            return view('admin-views.business-settings.customer-index', compact('data'));
-        } elseif ($tab == 'deliveryman') {
-            return view('admin-views.business-settings.deliveryman-index');
-        } elseif ($tab == 'order') {
-            $reasons = OrderCancelReason::when($request->type && ($request->type != 'all'), function ($query) use ($request) {
-                $query->where('user_type', $request->type);
-            })->latest()->paginate(config('default_pagination'));
+    BusinessSetting::whereIn('key',$keys)->delete();
 
-            return view('admin-views.business-settings.order-index', compact('reasons', 'type'));
-        } elseif ($tab == 'store') {
-            return view('admin-views.business-settings.store-index');
-        } elseif ($tab == 'refund-settings') {
-            $refund_active_status = BusinessSetting::where(['key' => 'refund_active_status'])->first();
-            $reasons = RefundReason::orderBy('id', 'desc')
-                ->paginate(config('default_pagination'));
+    $language = getWebConfig('language');
+    $type = $request->input('type');
+    $search = $request->input('search');
 
-            return view('admin-views.business-settings.refund-index', compact('refund_active_status', 'reasons'));
-        } elseif ($tab == 'landing-page') {
-            $landing = BusinessSetting::where('key', 'landing_page')->exists();
-            if (!$landing) {
-                Helpers::insert_business_settings_key('landing_page', '1');
-                Helpers::insert_business_settings_key('landing_integration_type', 'none');
-            }
+    switch ($tab) {
+        case 'business':
+            return view('admin-views.business-settings.settings.business-index');
 
-            return view('admin-views.business-settings.landing-index');
-        } elseif ($tab == 'websocket') {
-            return view('admin-views.business-settings.websocket-index');
-        } elseif ($tab == 'disbursement') {
-            return view('admin-views.business-settings.disbursement-index');
-        } elseif ($tab == 'priority') {
-            return view('admin-views.business-settings.priority-index');
-        } elseif ($tab == 'automated-message') {
-            $key = explode(' ', $request['search']);
-            $messages = AutomatedMessage::orderBy('id', 'desc')
-                ->when($request?->search, function ($query) use ($key) {
-                    foreach ($key as $value) {
-                        $query->where('message', 'like', "%{$value}%");
+        case 'customer':
+            $keys = [
+                'guest_checkout_status',
+                'toggle_veg_non_veg',
+                'wallet_status',
+                'wallet_add_refund',
+                'add_fund_status',
+                'loyalty_point_status',
+                'loyalty_point_exchange_rate',
+                'loyalty_point_item_purchase_point',
+                'loyalty_point_minimum_point',
+                'ref_earning_status',
+                'ref_earning_exchange_rate',
+                'new_customer_discount_status',
+                'new_customer_discount_amount_type',
+                'new_customer_discount_validity_type',
+                'new_customer_discount_amount',
+                'new_customer_discount_amount_validity',
+            ];
+
+            $data = BusinessSetting::whereIn('key', $keys)
+                ->pluck('value', 'key')
+                ->toArray();
+
+            return view('admin-views.business-settings.settings.customer-index', compact('data'));
+
+        case 'payment':
+            $digital_payment_methods_count = Setting::whereIn('settings_type', ['payment_config'])
+                ->whereIn('key_name', ['ssl_commerz', 'paypal', 'stripe', 'razor_pay', 'senang_pay', 'paytabs', 'paystack', 'paymob_accept', 'paytm', 'flutterwave', 'liqpay', 'bkash', 'mercadopago'])
+                ->where('is_active', 1)
+                ->count();
+            $offline_payment_methods_count = \App\Models\OfflinePaymentMethod::where('status', 1)->count();
+            $cash_on_delivery_status = optional(
+                json_decode(
+                    BusinessSetting::where('key', 'cash_on_delivery')->value('value'),
+                    true
+                )
+            )['status'] ?? null;
+            $digital_payment_status = optional(
+                json_decode(
+                    BusinessSetting::where('key', 'digital_payment')->value('value'),
+                    true
+                )
+            )['status'] ?? null;
+            $offline_payment_status = BusinessSetting::where('key', 'offline_payment_status')->first()->value;
+            return view('admin-views.business-settings.settings.payment-index', compact('digital_payment_methods_count', 'offline_payment_methods_count', 'cash_on_delivery_status', 'digital_payment_status', 'offline_payment_status'));
+
+        case 'deliveryman':
+            return view('admin-views.business-settings.settings.deliveryman-index');
+
+        case 'order':
+            $reasons = OrderCancelReason::when(
+                $type && $type !== 'all',
+                fn ($query) => $query->where('user_type', $type)
+            )
+            ->latest()
+            ->paginate(config('default_pagination'));
+
+            return view(
+                'admin-views.business-settings.settings.order-index',
+                compact('reasons', 'type', 'language')
+            );
+
+        case 'store':
+            return view('admin-views.business-settings.settings.store-index');
+
+        case 'refund-settings':
+            $refund_active_status = Helpers::get_business_settings('refund_active_status');
+            $keywords = $search ? explode(' ', $search) : [];
+
+            $reasons = RefundReason::latest()
+                ->when($keywords, function ($query) use ($keywords) {
+                    foreach ($keywords as $word) {
+                        $query->where('reason', 'like', "%{$word}%");
                     }
                 })
                 ->paginate(config('default_pagination'));
-            $language = getWebConfig('language');
 
-            return view('admin-views.business-settings.automated_message', compact('messages', 'language'));
-        }
+            return view(
+                'admin-views.business-settings.settings.refund-index',
+                compact('refund_active_status', 'reasons', 'language')
+            );
+
+        case 'landing-page':
+            BusinessSetting::firstOrCreate(
+                ['key' => 'landing_page'],
+                ['value' => '1']
+            );
+
+            BusinessSetting::firstOrCreate(
+                ['key' => 'landing_integration_type'],
+                ['value' => 'none']
+            );
+
+            return view('admin-views.business-settings.landing-index');
+
+        case 'disbursement':
+            return view('admin-views.business-settings.settings.disbursement-index');
+
+        case 'priority':
+            return view('admin-views.business-settings.settings.priority-index');
+
+        case 'automated-message':
+            $keywords = $search ? explode(' ', $search) : [];
+
+            $messages = AutomatedMessage::latest()
+                ->when($keywords, function ($query) use ($keywords) {
+                    foreach ($keywords as $word) {
+                        $query->where('message', 'like', "%{$word}%");
+                    }
+                })
+                ->paginate(config('default_pagination'));
+
+            return view(
+                'admin-views.business-settings.settings.automated-message',
+                compact('messages', 'language')
+            );
+
+        default:
+            abort(404);
     }
+}
+
 
     public function update_priority(Request $request)
     {
@@ -193,28 +279,6 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
-    public function update_websocket(Request $request)
-    {
-        if (env('APP_MODE') == 'demo') {
-            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
-
-            return back();
-        }
-        Helpers::businessUpdateOrInsert(['key' => 'websocket_status'], [
-            'value' => $request['websocket_status'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'websocket_url'], [
-            'value' => $request['websocket_url'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'websocket_port'], [
-            'value' => $request['websocket_port'],
-        ]);
-
-        Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
-
-        return back();
-    }
 
     public function update_store(Request $request)
     {
@@ -258,10 +322,10 @@ class BusinessSettingsController extends Controller
         ]);
 
         $values = [
-            'Update_product_price' => $request->Update_product_price ?? 0,
+            'Update_product_price' => $request->update_existing_products ? ($request->Update_product_price ?? 0) : 0,
             'Add_new_product' => $request->Add_new_product ?? 0,
-            'Update_product_variation' => $request->Update_product_variation ?? 0,
-            'Update_anything_in_product_details' => $request->Update_anything_in_product_details ?? 0,
+            'Update_product_variation' => $request->update_existing_products ? ($request->Update_product_variation ?? 0) : 0,
+            'Update_anything_in_product_details' => $request->update_existing_products ? ($request->Update_anything_in_product_details ?? 0) : 0,
         ];
 
         Helpers::businessUpdateOrInsert(['key' => 'product_approval_datas'], [
@@ -296,7 +360,7 @@ class BusinessSettingsController extends Controller
             'home_delivery_status' => 'home_delivery_status',
             'takeaway_status' => 'takeaway_status',
             'schedule_order_slot_duration_time_format' => 'schedule_order_slot_duration_time_format',
-            'takeaway_status' => 'takeaway_status',
+            'extra_packaging_charge_status' => 'extra_packaging_charge_status',
         ];
 
         if ($request->order_cancelation_rate_limit_status && $request->order_cancelation_rate_warning_limit > $request->order_cancelation_rate_block_limit) {
@@ -369,78 +433,50 @@ class BusinessSettingsController extends Controller
             return back();
         }
 
-        Helpers::businessUpdateOrInsert(['key' => 'disbursement_type'], [
-            'value' => $request['disbursement_type'],
-        ]);
+        $keys = [
+            'disbursement_type',
+            'store_disbursement_time_period',
+            'store_disbursement_week_start',
+            'store_disbursement_waiting_time',
+            'store_disbursement_create_time',
+            'store_disbursement_min_amount',
+            'dm_disbursement_time_period',
+            'dm_disbursement_week_start',
+            'dm_disbursement_waiting_time',
+            'dm_disbursement_create_time',
+            'dm_disbursement_min_amount',
+            'system_php_path',
+        ];
 
-        Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_time_period'], [
-            'value' => $request['store_disbursement_time_period'],
-        ]);
 
-        Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_week_start'], [
-            'value' => $request['store_disbursement_week_start'],
-        ]);
+        foreach ($keys as $key) {
+            Helpers::businessUpdateOrInsert(['key' => $key], [
+                'value' => $request->$key ?? 0,
+            ]);
+        }
 
-        Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_waiting_time'], [
-            'value' => $request['store_disbursement_waiting_time'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_create_time'], [
-            'value' => $request['store_disbursement_create_time'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_min_amount'], [
-            'value' => $request['store_disbursement_min_amount'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_time_period'], [
-            'value' => $request['dm_disbursement_time_period'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_week_start'], [
-            'value' => $request['dm_disbursement_week_start'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_waiting_time'], [
-            'value' => $request['dm_disbursement_waiting_time'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_create_time'], [
-            'value' => $request['dm_disbursement_create_time'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_min_amount'], [
-            'value' => $request['dm_disbursement_min_amount'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'system_php_path'], [
-            'value' => $request['system_php_path'],
-        ]);
+        $data = self::generateCronCommand(disbursement_type: $request['disbursement_type']);
 
         if (function_exists('exec')) {
-            $data = self::generateCronCommand(disbursement_type: $request['disbursement_type']);
-            $scriptPath = 'script.sh';
+           $scriptPath = 'script.sh';
             exec('sh ' . $scriptPath);
-            Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_command'], [
-                'value' => $data['storeCronCommand'],
-            ]);
-            Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_command'], [
-                'value' => $data['dmCronCommand'],
-            ]);
-            Toastr::success(translate('messages.successfully_updated_disbursement_functionality'));
-
-            return back();
-        } else {
-            $data = self::generateCronCommand(disbursement_type: $request['disbursement_type']);
-            Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_command'], [
-                'value' => $data['storeCronCommand'],
-            ]);
-            Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_command'], [
-                'value' => $data['dmCronCommand'],
-            ]);
-            if ($request['disbursement_type'] == 'automated') {
-                Session::flash('disbursement_exec', true);
-                Toastr::warning(translate('messages.Servers_PHP_exec_function_is_disabled_check_dependencies_&_start_cron_job_manualy_in_server'));
-            }
-            Toastr::success(translate('messages.successfully_updated_disbursement_functionality'));
-
-            return back();
+        } elseif ($request['disbursement_type'] === 'automated') {
+            Session::flash('disbursement_exec', true);
+            Toastr::warning(
+                translate('messages.Servers_PHP_exec_function_is_disabled_check_dependencies_&_start_cron_job_manualy_in_server')
+            );
         }
+
+           Helpers::businessUpdateOrInsert(['key' => 'store_disbursement_command'], [
+                'value' => $data['storeCronCommand'],
+            ]);
+            Helpers::businessUpdateOrInsert(['key' => 'dm_disbursement_command'], [
+                'value' => $data['dmCronCommand'],
+            ]);
+
+        Toastr::success(translate('messages.successfully_updated_disbursement_functionality'));
+
+        return back();
     }
 
     private function dmSchedule()
@@ -511,204 +547,54 @@ class BusinessSettingsController extends Controller
 
     private function generateCronCommand($disbursement_type = 'automated')
     {
-        $system_php_path = BusinessSetting::where('key', 'system_php_path')->first();
-        $system_php_path = $system_php_path ? $system_php_path->value : '/usr/bin/php';
-        $dmSchedule = self::dmSchedule();
-        $storeSchedule = self::storeSchedule();
-        $scriptFilename = $_SERVER['SCRIPT_FILENAME'];
-        $rootPath = dirname($scriptFilename);
-        $phpCommand = $system_php_path;
-        $dmScriptPath = $rootPath . '/artisan dm:disbursement';
-        $storeScriptPath = $rootPath . '/artisan store:disbursement';
-        $dmClearCronCommand = "(crontab -l | grep -v \"$phpCommand $dmScriptPath\") | crontab -";
-        $dmCronCommand = $disbursement_type == 'automated' ? "(crontab -l ; echo \"$dmSchedule $phpCommand $dmScriptPath\") | crontab -" : '';
-        $storeClearCronCommand = "(crontab -l | grep -v \"$phpCommand $storeScriptPath\") | crontab -";
-        $storeCronCommand = $disbursement_type == 'automated' ? "(crontab -l ; echo \"$storeSchedule $phpCommand $storeScriptPath\") | crontab -" : '';
-        $scriptContent = "#!/bin/bash\n";
-        $scriptContent .= $dmClearCronCommand . "\n";
-        $scriptContent .= $dmCronCommand . "\n";
-        $scriptContent .= $storeClearCronCommand . "\n";
-        $scriptContent .= $storeCronCommand . "\n";
-        $scriptFilePath = $rootPath . '/script.sh';
-        file_put_contents($scriptFilePath, $scriptContent);
+        try {
+            $system_php_path = BusinessSetting::where('key', 'system_php_path')->first();
+            $system_php_path = $system_php_path ? $system_php_path->value : '/usr/bin/php';
+            $dmSchedule = self::dmSchedule();
+            $storeSchedule = self::storeSchedule();
+            $scriptFilename = $_SERVER['SCRIPT_FILENAME'];
+            $rootPath = dirname($scriptFilename);
+            $phpCommand = $system_php_path;
+            $dmScriptPath = $rootPath . '/artisan dm:disbursement';
+            $storeScriptPath = $rootPath . '/artisan store:disbursement';
+            $dmClearCronCommand = "(crontab -l | grep -v \"$phpCommand $dmScriptPath\") | crontab -";
+            $dmCronCommand = $disbursement_type == 'automated' ? "(crontab -l ; echo \"$dmSchedule $phpCommand $dmScriptPath\") | crontab -" : '';
+            $storeClearCronCommand = "(crontab -l | grep -v \"$phpCommand $storeScriptPath\") | crontab -";
+            $storeCronCommand = $disbursement_type == 'automated' ? "(crontab -l ; echo \"$storeSchedule $phpCommand $storeScriptPath\") | crontab -" : '';
+            $scriptContent = "#!/bin/bash\n";
+            $scriptContent .= $dmClearCronCommand . "\n";
+            $scriptContent .= $dmCronCommand . "\n";
+            $scriptContent .= $storeClearCronCommand . "\n";
+            $scriptContent .= $storeCronCommand . "\n";
+            $scriptFilePath = $rootPath . '/script.sh';
+            file_put_contents($scriptFilePath, $scriptContent);
+
+        } catch (\Exception $exception) {
+              info($exception->getMessage());
+        }
 
         return [
-            'dmCronCommand' => $dmCronCommand,
-            'storeCronCommand' => $storeCronCommand,
+            'dmCronCommand' => $dmCronCommand ?? '',
+            'storeCronCommand' => $storeCronCommand ?? '',
         ];
     }
 
     public function business_setup(Request $request)
     {
-
-        if (env('APP_MODE') == 'demo') {
+        if (getEnvMode() == 'demo')
+        {
             Toastr::info(translate('messages.update_option_is_disable_for_demo'));
-
             return back();
         }
 
-        Helpers::businessUpdateOrInsert(['key' => 'business_name'], [
-            'value' => $request['store_name'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'currency'], [
-            'value' => $request['currency'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'timezone'], [
-            'value' => $request['timezone'],
-        ]);
-
-        $curr_logo = BusinessSetting::firstOrNew(['key' => 'logo']);
-        if ($request->has('logo')) {
-            $image_name = Helpers::update('business/', $curr_logo->value, 'png', $request->file('logo'));
-        } else {
-            $image_name = $curr_logo['value'];
-        }
-        $curr_logo->value = $image_name;
-        $curr_logo->save();
-
-        $fav_icon = BusinessSetting::firstOrNew(['key' => 'icon']);
-        if ($request->has('icon')) {
-            $image_name = Helpers::update('business/', $fav_icon->save, 'png', $request->file('icon'));
-        } else {
-            $image_name = $fav_icon['value'];
-        }
-        $fav_icon->value = $image_name;
-        $fav_icon->save();
-
-        Config::set('currency', $request['currency']);
-        Config::set('currency_symbol_position', $request['currency_symbol_position']);
-
-        Helpers::businessUpdateOrInsert(['key' => 'site_direction'], [
-            'value' => $request['site_direction'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'phone'], [
-            'value' => $request['phone'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'email_address'], [
-            'value' => $request['email'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'address'], [
-            'value' => $request['address'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'footer_text'], [
-            'value' => $request['footer_text'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'cookies_text'], [
-            'value' => $request['cookies_text'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'currency_symbol_position'], [
-            'value' => $request['currency_symbol_position'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'partial_payment_status'], [
-            'value' => $request['partial_payment_status'],
-        ]);
-        Helpers::businessUpdateOrInsert(['key' => 'partial_payment_method'], [
-            'value' => $request['partial_payment_method'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'admin_commission'], [
-            'value' => $request['admin_commission'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'country'], [
-            'value' => $request['country'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'default_location'], [
-            'value' => json_encode(['lat' => $request['latitude'], 'lng' => $request['longitude']]),
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'additional_charge_status'], [
-            'value' => $request['additional_charge_status'] ? $request['additional_charge_status'] : null,
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'additional_charge_name'], [
-            'value' => $request['additional_charge_name'] ? $request['additional_charge_name'] : null,
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'additional_charge'], [
-            'value' => $request['additional_charge'] ? $request['additional_charge'] : null,
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'timeformat'], [
-            'value' => $request['time_format'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'digit_after_decimal_point'], [
-            'value' => $request['digit_after_decimal_point'],
-        ]);
-
-        Helpers::businessUpdateOrInsert(['key' => 'delivery_charge_comission'], [
-            'value' => $request['admin_comission_in_delivery_charge'],
-        ]);
-        // dd( $request['commission_business_model']);
-
-        if (!isset($request->subscription_business_model) && !isset($request->commission_business_model)) {
-            Toastr::error(translate('You_must_select_at_least_one_business_model_between_commission_and_subscription'));
-
-            return back();
-        }
-
-        // For subscription Model
-        if (isset($request->subscription_business_model) && !isset($request->commission_business_model)) {
-            Helpers::businessUpdateOrInsert(['key' => 'subscription_business_model'], [
-                'value' => $request['subscription_business_model'] ?? 1,
-            ]);
-
-            Helpers::businessUpdateOrInsert(['key' => 'commission_business_model'], [
-                'value' => $request['commission_business_model'] ?? 0,
-            ]);
-
-            if (Helpers::commission_check() == 0) {
-                Store::where('store_business_model', 'commission')
-                    ->update([
-                        'store_business_model' => 'unsubscribed',
-                        'status' => 0,
-                    ]);
-            }
-        } // For commission model
-        elseif (isset($request->commission_business_model) && !isset($request->subscription_business_model)) {
-
-            if (StoreSubscription::where('status', 1)->count() > 0) {
-                Toastr::warning(translate('You_need_to_switch_your_subscribers_to_commission_first'));
-
-                return back();
-            }
-            Helpers::businessUpdateOrInsert(['key' => 'commission_business_model'], [
-                'value' => $request['commission_business_model'] ?? 1,
-            ]);
-            Helpers::businessUpdateOrInsert(['key' => 'subscription_business_model'], [
-                'value' => $request['subscription_business_model'] ?? 0,
-            ]);
-
-            if (Helpers::subscription_check() == 0) {
-                Store::query()->update(['store_business_model' => 'commission']);
-            }
-        } else {
-            Helpers::businessUpdateOrInsert(['key' => 'commission_business_model'], [
-                'value' => $request['commission_business_model'] ?? 1,
-            ]);
-            if (!isset($request->subscription_business_model) && StoreSubscription::where('status', 1)->count() > 0) {
-                Toastr::warning(translate('You_need_to_switch_your_subscribers_to_commission_first'));
-
-                return back();
-            }
-            Helpers::businessUpdateOrInsert(['key' => 'subscription_business_model'], [
-                'value' => $request['subscription_business_model'] ?? 1,
-            ]);
-        }
+        $this->updateBasicSettings($request);
+        $this->updateImages($request);
+        $this->updatePaymentSettings($request);
+        $this->updateLocationSettings($request);
+        $this->updateAdditionalChargeSettings($request);
+        $this->updateBusinessModelSettings($request);
 
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
-
         return back();
     }
 
@@ -784,7 +670,7 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
-    public function payment_index()
+    public function payment_index(Request $request)
     {
         $published_status = 0; // Set a default value
         $payment_published_status = config('get_payment_publish_status');
@@ -804,7 +690,12 @@ class BusinessSettingsController extends Controller
                 }
             }
         }
-        $data_values = Setting::whereIn('settings_type', ['payment_config'])->whereIn('key_name', ['ssl_commerz', 'paypal', 'stripe', 'razor_pay', 'senang_pay', 'paytabs', 'paystack', 'paymob_accept', 'paytm', 'flutterwave', 'liqpay', 'bkash', 'mercadopago'])->get();
+        $data_values = Setting::whereIn('settings_type', ['payment_config'])
+            ->whereIn('key_name', ['ssl_commerz', 'paypal', 'stripe', 'razor_pay', 'senang_pay', 'paytabs', 'paystack', 'paymob_accept', 'paytm', 'flutterwave', 'liqpay', 'bkash', 'mercadopago'])
+            ->when($request->has('search'), function ($query) use ($request) {
+                $query->where('key_name', 'like', "%{$request->search}%");
+            })
+            ->paginate(config('default_pagination'));
 
         return view('admin-views.business-settings.payment-index', compact('published_status', 'payment_url', 'data_values'));
     }
@@ -1160,6 +1051,10 @@ class BusinessSettingsController extends Controller
             return back();
         }
 
+        if($request->payment_method_status){
+            return $this->paymentMethodStatusUpdate($request);
+        }
+
         $request['status'] = $request->status ?? 0;
 
         $validation = [
@@ -1167,55 +1062,126 @@ class BusinessSettingsController extends Controller
             'mode' => 'required|in:live,test',
         ];
 
+        $settings = Setting::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->first();
+        $additional_data_image = $settings['additional_data'] != null ? json_decode($settings['additional_data']) : null;
+        $validator_image_rule = 'required';
+
+        if ($additional_data_image != null && isset($additional_data_image->gateway_image)) {
+            $validator_image_rule = 'nullable';
+        }
+
+
         $additional_data = [];
+        $validation_messages = [];
+        $maxFileSizeInMB = MAX_FILE_SIZE * 1024;
 
         if ($request['gateway'] == 'ssl_commerz') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'store_id' => 'required_if:status,1',
                 'store_password' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'store_id.required_if' => translate('Store ID is required when payment status is ON'),
+                'store_password.required_if' => translate('Store Password is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'paypal') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'client_id' => 'required_if:status,1',
                 'client_secret' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'client_id.required_if' => translate('Client ID is required when payment status is ON'),
+                'client_secret.required_if' => translate('Client Secret is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'stripe') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'api_key' => 'required_if:status,1',
                 'published_key' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'api_key.required_if' => translate('Api Key is required when payment status is ON'),
+                'published_key.required_if' => translate('Published Key is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'razor_pay') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'api_key' => 'required_if:status,1',
                 'api_secret' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'api_key.required_if' => translate('Api Key is required when payment status is ON'),
+                'api_secret.required_if' => translate('Api Secret is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'senang_pay') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'callback_url' => 'required_if:status,1',
                 'secret_key' => 'required_if:status,1',
                 'merchant_id' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'callback_url.required_if' => translate('Callback Url is required when payment status is ON'),
+                'secret_key.required_if' => translate('Secret Key is required when payment status is ON'),
+                'merchant_id.required_if' => translate('Merchant Id is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'paytabs') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'profile_id' => 'required_if:status,1',
                 'server_key' => 'required_if:status,1',
                 'base_url' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'profile_id.required_if' => translate('Profile Id is required when payment status is ON'),
+                'server_key.required_if' => translate('Server Key is required when payment status is ON'),
+                'base_url.required_if' => translate('Base Url is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'paystack') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'public_key' => 'required_if:status,1',
                 'secret_key' => 'required_if:status,1',
                 'merchant_email' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'public_key.required_if' => translate('Public Key is required when payment status is ON'),
+                'secret_key.required_if' => translate('Secret Key is required when payment status is ON'),
+                'merchant_email.required_if' => translate('Merchant Email is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'paymob_accept') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'callback_url' => 'required_if:status,1',
                 'api_key' => 'required_if:status,1',
@@ -1223,44 +1189,99 @@ class BusinessSettingsController extends Controller
                 'integration_id' => 'required_if:status,1',
                 'hmac' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'callback_url.required_if' => translate('Callback Url is required when payment status is ON'),
+                'api_key.required_if' => translate('Api Key is required when payment status is ON'),
+                'iframe_id.required_if' => translate('Iframe Id is required when payment status is ON'),
+                'integration_id.required_if' => translate('Integration Id is required when payment status is ON'),
+                'hmac.required_if' => translate('HMAC is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'mercadopago') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'access_token' => 'required_if:status,1',
                 'public_key' => 'required_if:status,1',
                 'supported_country' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'access_token.required_if' => translate('Access Token is required when payment status is ON'),
+                'public_key.required_if' => translate('Public Key is required when payment status is ON'),
+                'supported_country.required_if' => translate('Supported Country is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'liqpay') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'private_key' => 'required_if:status,1',
                 'public_key' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'private_key.required_if' => translate('Private Key is required when payment status is ON'),
+                'public_key.required_if' => translate('Public Key is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'flutterwave') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'secret_key' => 'required_if:status,1',
                 'public_key' => 'required_if:status,1',
                 'hash' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'secret_key.required_if' => translate('Secret Key is required when payment status is ON'),
+                'public_key.required_if' => translate('Public Key is required when payment status is ON'),
+                'hash.required_if' => translate('Hash is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'paytm') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'merchant_key' => 'required_if:status,1',
                 'merchant_id' => 'required_if:status,1',
                 'merchant_website_link' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'merchant_key.required_if' => translate('Merchant Key is required when payment status is ON'),
+                'merchant_id.required_if' => translate('Merchant Id is required when payment status is ON'),
+                'merchant_website_link.required_if' => translate('Merchant Website Link is required when payment status is ON'),
+            ];
         } elseif ($request['gateway'] == 'bkash') {
             $additional_data = [
+                'gateway_image' => $validator_image_rule . '|image|max:' . $maxFileSizeInMB . '|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
                 'status' => 'required|in:1,0',
                 'app_key' => 'required_if:status,1',
                 'app_secret' => 'required_if:status,1',
                 'username' => 'required_if:status,1',
                 'password' => 'required_if:status,1',
             ];
+            $validation_messages = [
+                'gateway_image.required' => translate('Gateway image is required'),
+                'gateway_image.max' => translate('Gateway image size should not be greater than ' . $maxFileSizeInMB . 'MB'),
+                'gateway_image.mimes' => translate('Gateway image must be a ' . IMAGE_FORMAT_FOR_VALIDATION),
+                'app_key.required_if' => translate('App Key is required when payment status is ON'),
+                'app_secret.required_if' => translate('App Secret is required when payment status is ON'),
+                'username.required_if' => translate('Username is required when payment status is ON'),
+                'password.required_if' => translate('Password is required when payment status is ON'),
+            ];
         }
 
-        $request->validate(array_merge($validation, $additional_data));
+        $request->validate(array_merge($validation, $additional_data), $validation_messages);
 
         $settings = Setting::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->first();
 
@@ -1337,7 +1358,7 @@ class BusinessSettingsController extends Controller
 
                 $response = Http::post($driveMondBaseUrl->value . '/api/store-configurations', [
                     'mart_business_name' => $name->value ?? '6amMart',
-                    'mart_business_logo' => \App\CentralLogics\Helpers::get_full_url('business', $logo?->value ?? '', $logo?->storage[0]?->value ?? 'public', 'favicon') ?? asset('assets/admin/img/160x160/img2.jpg'),
+                    'mart_business_logo' => \App\CentralLogics\Helpers::get_full_url('business', $logo?->value ?? '', $logo?->storage[0]?->value ?? 'public', 'favicon') ?? asset('public/assets/admin/img/160x160/img2.jpg'),
                     'mart_app_minimum_version_android' => $app_minimum_version_android,
                     'mart_app_url_android' => $app_url_android,
                     'mart_app_minimum_version_ios' => $app_minimum_version_ios,
@@ -1394,559 +1415,6 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
-    public function update_landing_page_settings(Request $request, $tab)
-    {
-        if (env('APP_MODE') == 'demo') {
-            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
-
-            return back();
-        }
-
-        if ($tab == 'text') {
-            Helpers::businessUpdateOrInsert(['key' => 'landing_page_text'], [
-                'value' => json_encode([
-                    'header_title_1' => $request['header_title_1'],
-                    'header_title_2' => $request['header_title_2'],
-                    'header_title_3' => $request['header_title_3'],
-                    'about_title' => $request['about_title'],
-                    'why_choose_us' => $request['why_choose_us'],
-                    'why_choose_us_title' => $request['why_choose_us_title'],
-                    'module_section_title' => $request['module_section_title'],
-                    'module_section_sub_title' => $request['module_section_sub_title'],
-                    'refer_section_title' => $request['refer_section_title'],
-                    'refer_section_sub_title' => $request['refer_section_sub_title'],
-                    'refer_section_description' => $request['refer_section_description'],
-                    'joinus_section_title' => $request['joinus_section_title'],
-                    'joinus_section_sub_title' => $request['joinus_section_sub_title'],
-                    'download_app_section_title' => $request['download_app_section_title'],
-                    'download_app_section_sub_title' => $request['download_app_section_sub_title'],
-                    'testimonial_title' => $request['testimonial_title'],
-                    'mobile_app_section_heading' => $request['mobile_app_section_heading'],
-                    'mobile_app_section_text' => $request['mobile_app_section_text'],
-                    'feature_section_description' => $request['feature_section_description'],
-                    'feature_section_title' => $request['feature_section_title'],
-                    'newsletter_title' => $request['newsletter_title'],
-                    'newsletter_sub_title' => $request['newsletter_sub_title'],
-                    'contact_us_title' => $request['contact_us_title'],
-                    'contact_us_sub_title' => $request['contact_us_sub_title'],
-                    'footer_article' => $request['footer_article'],
-                ]),
-            ]);
-            Toastr::success(translate('messages.landing_page_text_updated'));
-        } elseif ($tab == 'links') {
-            Helpers::businessUpdateOrInsert(['key' => 'landing_page_links'], [
-                'value' => json_encode([
-                    'app_url_android_status' => $request['app_url_android_status'],
-                    'app_url_android' => $request['app_url_android'],
-                    'app_url_ios_status' => $request['app_url_ios_status'],
-                    'app_url_ios' => $request['app_url_ios'],
-                    'web_app_url_status' => $request['web_app_url_status'],
-                    'web_app_url' => $request['web_app_url'],
-                    'seller_app_url_status' => $request['seller_app_url_status'],
-                    'seller_app_url' => $request['seller_app_url'],
-                    'deliveryman_app_url_status' => $request['deliveryman_app_url_status'],
-                    'deliveryman_app_url' => $request['deliveryman_app_url'],
-                ]),
-            ]);
-            Toastr::success(translate('messages.landing_page_links_updated'));
-        } elseif ($tab == 'speciality') {
-            $data = [];
-            $imageName = null;
-            $speciality = BusinessSetting::where('key', 'speciality')->first();
-            if ($speciality) {
-                $data = json_decode($speciality->value, true);
-            }
-            if ($request->has('image')) {
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->image->move(public_path('assets/landing/image'), $imageName);
-            }
-            array_push($data, [
-                'img' => $imageName,
-                'title' => $request->speciality_title,
-            ]);
-
-            Helpers::businessUpdateOrInsert(['key' => 'speciality'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_speciality_updated'));
-        } elseif ($tab == 'joinas') {
-            $data = [];
-            $joinas = BusinessSetting::where('key', 'join_as_images')->first();
-            if ($joinas) {
-                $data = json_decode($joinas->value, true);
-            }
-            if ($request->has('seller_banner_bg')) {
-                if (isset($data['seller_banner_bg']) && file_exists(public_path('assets/landing/image/' . $data['seller_banner_bg']))) {
-                    unlink(public_path('assets/landing/image/' . $data['seller_banner_bg']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->seller_banner_bg->move(public_path('assets/landing/image'), $imageName);
-                $data['seller_banner_bg'] = $imageName;
-            }
-
-            if ($request->has('deliveryman_banner_bg')) {
-                if (isset($data['deliveryman_banner_bg']) && file_exists(public_path('assets/landing/image/' . $data['deliveryman_banner_bg']))) {
-                    unlink(public_path('assets/landing/image/' . $data['deliveryman_banner_bg']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->deliveryman_banner_bg->move(public_path('assets/landing/image'), $imageName);
-                $data['deliveryman_banner_bg'] = $imageName;
-            }
-            Helpers::businessUpdateOrInsert(['key' => 'join_as_images'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_image_updated'));
-        } elseif ($tab == 'download-section') {
-            $data = [];
-            $imageName = null;
-            $download = BusinessSetting::where('key', 'download_app_section')->first();
-            if ($download) {
-                $data = json_decode($download->value, true);
-            }
-            if ($request->has('image')) {
-                if (isset($data['img']) && file_exists(public_path('assets/landing/image/' . $data['img']))) {
-                    unlink(public_path('assets/landing/image/' . $data['img']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->image->move(public_path('assets/landing/image'), $imageName);
-                $data['img'] = $imageName;
-            }
-
-            if ($request->has('description')) {
-                $data['description'] = $request->description;
-            }
-
-            Helpers::businessUpdateOrInsert(['key' => 'download_app_section'], [
-                'value' => json_encode($data),
-            ]);
-
-            Toastr::success(translate('messages.landing_page_download_app_section_updated'));
-        } elseif ($tab == 'counter-section') {
-            Helpers::businessUpdateOrInsert(['key' => 'counter_section'], [
-                'value' => json_encode([
-                    'app_download_count_numbers' => $request['app_download_count_numbers'],
-                    'seller_count_numbers' => $request['seller_count_numbers'],
-                    'deliveryman_count_numbers' => $request['deliveryman_count_numbers'],
-                ]),
-            ]);
-
-            Toastr::success(translate('messages.landing_page_counter_section_updated'));
-        } elseif ($tab == 'promotion-banner') {
-            $data = [];
-            $imageName = null;
-            $promotion_banner = BusinessSetting::where('key', 'promotion_banner')->first();
-            if ($promotion_banner) {
-                $data = json_decode($promotion_banner->value, true);
-            }
-            if (count($data) >= 6) {
-                Toastr::error(translate('messages.you_have_already_added_maximum_banner_image'));
-
-                return back();
-            }
-            if ($request->has('image')) {
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->image->move(public_path('assets/landing/image'), $imageName);
-            }
-            array_push($data, [
-                'img' => $imageName,
-                'title' => $request->title,
-                'sub_title' => $request->sub_title,
-            ]);
-
-            Helpers::businessUpdateOrInsert(['key' => 'promotion_banner'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_promotion_banner_updated'));
-        } elseif ($tab == 'module-section') {
-            $request->validate([
-                'module' => 'required',
-                'description' => 'required',
-            ]);
-            $data = [];
-            $imageName = null;
-            $preImageName = null;
-            $module_section = BusinessSetting::where('key', 'module_section')->first();
-            if ($module_section) {
-                $data = json_decode($module_section->value, true);
-                if (isset($data[$request->module]['img'])) {
-                    $preImageName = $data[$request->module]['img'];
-                }
-            }
-
-            if ($request->has('image')) {
-                if ($preImageName && file_exists(public_path('assets/landing/image') . $preImageName)) {
-                    unlink(public_path('assets/landing/image') . $preImageName);
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->image->move(public_path('assets/landing/image'), $imageName);
-            }
-
-            $data[$request->module] = [
-                'description' => $request->description,
-                'img' => $imageName ?? $preImageName,
-            ];
-
-            Helpers::businessUpdateOrInsert(['key' => 'module_section'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_module_section_updated'));
-        } elseif ($tab == 'feature') {
-            $data = [];
-            $imageName = null;
-            $feature = BusinessSetting::where('key', 'feature')->first();
-            if ($feature) {
-                $data = json_decode($feature->value, true);
-            }
-            if ($request->has('image')) {
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->image->move(public_path('assets/landing/image'), $imageName);
-            }
-            array_push($data, [
-                'img' => $imageName,
-                'title' => $request->feature_title,
-                'feature_description' => $request->feature_description,
-            ]);
-
-            Helpers::businessUpdateOrInsert(['key' => 'feature'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_feature_updated'));
-        } elseif ($tab == 'testimonial') {
-            $data = [];
-            $imageName = null;
-            $brandImageName = null;
-            $testimonial = BusinessSetting::where('key', 'testimonial')->first();
-            if ($testimonial) {
-                $data = json_decode($testimonial->value, true);
-            }
-            if ($request->has('image')) {
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->image->move(public_path('assets/landing/image'), $imageName);
-            }
-            if ($request->has('brand_image')) {
-                $brandImageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->brand_image->move(public_path('assets/landing/image'), $brandImageName);
-            }
-            array_push($data, [
-                'img' => $imageName,
-                'brand_image' => $brandImageName,
-                'name' => $request->reviewer_name,
-                'position' => $request->reviewer_designation,
-                'detail' => $request->review,
-            ]);
-
-            Helpers::businessUpdateOrInsert(['key' => 'testimonial'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_testimonial_updated'));
-        } elseif ($tab == 'image') {
-            $data = [];
-            $images = BusinessSetting::where('key', 'landing_page_images')->first();
-            if ($images) {
-                $data = json_decode($images->value, true);
-            }
-            if ($request->has('top_content_image')) {
-                if (isset($data['top_content_image']) && file_exists(public_path('assets/landing/image/' . $data['top_content_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['top_content_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->top_content_image->move(public_path('assets/landing/image'), $imageName);
-                $data['top_content_image'] = $imageName;
-            }
-            if ($request->has('about_us_image')) {
-                if (isset($data['about_us_image']) && file_exists(public_path('assets/landing/image/' . $data['about_us_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['about_us_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->about_us_image->move(public_path('assets/landing/image'), $imageName);
-                $data['about_us_image'] = $imageName;
-            }
-
-            if ($request->has('feature_section_image')) {
-                if (isset($data['feature_section_image']) && file_exists(public_path('assets/landing/image/' . $data['feature_section_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['feature_section_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->feature_section_image->move(public_path('assets/landing/image'), $imageName);
-                $data['feature_section_image'] = $imageName;
-            }
-            if ($request->has('mobile_app_section_image')) {
-                if (isset($data['mobile_app_section_image']) && file_exists(public_path('assets/landing/image/' . $data['mobile_app_section_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['mobile_app_section_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->mobile_app_section_image->move(public_path('assets/landing/image'), $imageName);
-                $data['mobile_app_section_image'] = $imageName;
-            }
-
-            if ($request->has('contact_us_image')) {
-                if (isset($data['contact_us_image']) && file_exists(public_path('assets/landing/image/' . $data['contact_us_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['contact_us_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->contact_us_image->move(public_path('assets/landing/image'), $imageName);
-                $data['contact_us_image'] = $imageName;
-            }
-
-            Helpers::businessUpdateOrInsert(['key' => 'landing_page_images'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_image_updated'));
-        } elseif ($tab == 'background-change') {
-            Helpers::businessUpdateOrInsert(['key' => 'backgroundChange'], [
-                'value' => json_encode([
-                    'primary_1_hex' => $request['header-bg'],
-                    'primary_1_rgb' => Helpers::hex_to_rbg($request['header-bg']),
-                    'primary_2_hex' => $request['footer-bg'],
-                    'primary_2_rgb' => Helpers::hex_to_rbg($request['footer-bg']),
-                ]),
-            ]);
-            Toastr::success(translate('messages.background_updated'));
-        } elseif ($tab == 'web-app') {
-            $data = [];
-            $images = BusinessSetting::where('key', 'web_app_landing_page_settings')->first();
-            if ($images) {
-                $data = json_decode($images->value, true);
-            }
-            if ($request->has('top_content_image')) {
-                if (isset($data['top_content_image']) && file_exists(public_path('assets/landing/image/' . $data['top_content_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['top_content_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->top_content_image->move(public_path('assets/landing/image'), $imageName);
-                $data['top_content_image'] = ['img' => $imageName, 'storage' => Helpers::getDisk()];
-            }
-
-            if ($request->has('mobile_app_section_image')) {
-                if (isset($data['mobile_app_section_image']) && file_exists(public_path('assets/landing/image/' . $data['mobile_app_section_image']))) {
-                    unlink(public_path('assets/landing/image/' . $data['mobile_app_section_image']));
-                }
-                $imageName = \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-                $request->mobile_app_section_image->move(public_path('assets/landing/image'), $imageName);
-                $data['mobile_app_section_image'] = ['img' => $imageName, 'storage' => Helpers::getDisk()];
-            }
-            Helpers::businessUpdateOrInsert(['key' => 'web_app_landing_page_settings'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.web_app_landing_page_settings'));
-        } elseif ($tab == 'react_header') {
-            $data = null;
-            $image = BusinessSetting::firstOrNew(['key' => 'react_header_banner']);
-            if ($image) {
-                $data = $image->value;
-            }
-            $image_name = $data ?? \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-            if ($request->has('react_header_banner')) {
-                // $image_name = ;
-                $data = Helpers::update('react_landing/', $image_name, 'png', $request->file('react_header_banner')) ?? null;
-            }
-
-            $image->value = $data;
-            $image->save();
-
-            Toastr::success(translate('Landing page header banner updated'));
-        } elseif ($tab == 'hero-section') {
-            $data = [];
-            $hero_section = BusinessSetting::where('key', 'hero_section')->first();
-            $data = [
-                'hero_section_heading' => $request->hero_section_heading ?? $hero_section['hero_section_heading'],
-                'hero_section_slogan' => $request->hero_section_slogan ?? $hero_section['hero_section_slogan'],
-                'hero_section_short_description' => $request->hero_section_short_description ?? $hero_section['hero_section_short_description'],
-            ];
-            Helpers::businessUpdateOrInsert(['key' => 'hero_section'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.landing_page_hero_section_updated'));
-        } elseif ($tab == 'full-banner') {
-            $data = [];
-            $banner_section_full = BusinessSetting::firstOrNew(['key' => 'banner_section_full']);
-            $imageName = null;
-            if ($banner_section_full) {
-                $data = json_decode($banner_section_full->value, true);
-                $imageName = $data['banner_section_img_full'] ?? null;
-            }
-            if ($request->has('banner_section_img_full')) {
-                if (empty($imageName)) {
-                    $imageName = Helpers::upload('react_landing/', 'png', $request->file('banner_section_img_full'));
-                } else {
-                    $imageName = Helpers::update('react_landing/', $data['banner_section_img_full'], 'png', $request->file('banner_section_img_full'));
-                }
-            }
-            $data = [
-                'banner_section_img_full' => $imageName,
-                'full_banner_section_title' => $request->full_banner_section_title ?? $banner_section_full['full_banner_section_title'],
-                'full_banner_section_sub_title' => $request->full_banner_section_sub_title ?? $banner_section_full['full_banner_section_sub_title'],
-            ];
-            $banner_section_full->value = json_encode($data);
-
-            $banner_section_full->save();
-            Toastr::success(translate('messages.landing_page_banner_section_updated'));
-        } elseif ($tab == 'delivery-service-section') {
-            $data = [];
-            $delivery_service_section = BusinessSetting::firstOrNew(['key' => 'delivery_service_section']);
-            $imageName = null;
-            if ($delivery_service_section) {
-                $data = json_decode($delivery_service_section->value, true);
-                $imageName = $data['delivery_service_section_image'] ?? null;
-            }
-            if ($request->has('delivery_service_section_image')) {
-                if (empty($imageName)) {
-                    $imageName = Helpers::upload('react_landing/', 'png', $request->file('delivery_service_section_image'));
-                } else {
-                    $imageName = Helpers::update('react_landing/', $data['delivery_service_section_image'], 'png', $request->file('delivery_service_section_image'));
-                }
-            }
-            $data = [
-                'delivery_service_section_image' => $imageName,
-                'delivery_service_section_title' => $request->delivery_service_section_title ?? $delivery_service_section['delivery_service_section_title'],
-                'delivery_service_section_description' => $request->delivery_service_section_description ?? $delivery_service_section['delivery_service_section_description'],
-            ];
-            $delivery_service_section->value = json_encode($data);
-
-            $delivery_service_section->save();
-            Toastr::success(translate('messages.landing_page_delivery_service_section_updated'));
-        } elseif ($tab == 'discount-banner') {
-            $data = [];
-            $discount_banner = BusinessSetting::firstOrNew(['key' => 'discount_banner']);
-            $imageName = null;
-            if ($discount_banner) {
-                $data = json_decode($discount_banner->value, true);
-                $imageName = $data['img'] ?? null;
-            }
-            if ($request->has('img')) {
-                if (empty($imageName)) {
-                    $imageName = Helpers::upload('react_landing/', 'png', $request->file('img'));
-                } else {
-                    $imageName = Helpers::update('react_landing/', $data['img'], 'png', $request->file('img'));
-                }
-            }
-            $data = [
-                'img' => $imageName,
-                'title' => $request->title ?? $discount_banner['title'],
-                'sub_title' => $request->sub_title ?? $discount_banner['sub_title'],
-            ];
-            $discount_banner->value = json_encode($data);
-
-            $discount_banner->save();
-            Toastr::success(translate('messages.landing_page_discount_banner_section_updated'));
-        } elseif ($tab == 'banner-section-half') {
-
-            $data = [];
-            $imageName = null;
-            $banner_section_half = BusinessSetting::firstOrNew(['key' => 'banner_section_half']);
-            if ($banner_section_half) {
-                $data = json_decode($banner_section_half->value, true);
-            }
-
-            foreach ($request->banner_section_half as $key => $value) {
-
-                if ($request->hasfile("banner_section_half.{$key}.img")) {
-                    if (isset($data[$key]['img'])) {
-                        Helpers::check_and_delete('react_landing/', $data[$key]['img']);
-                    }
-
-                    $value['img'] = Helpers::upload('react_landing/', 'png', $request->file("banner_section_half.{$key}.img"));
-                } elseif (isset($data[$key]['img'])) {
-                    $value['img'] = $data[$key]['img'];
-                } else {
-                    $value['img'] = null;
-                }
-                $data[$key] = $value;
-            }
-            $banner_section_half->value = json_encode($data);
-
-            $banner_section_half->save();
-            Toastr::success(translate('messages.landing_page_banner_section_updated'));
-        } elseif ($tab == 'app_section_image') {
-            $data = null;
-            $image = BusinessSetting::firstOrNew(['key' => 'app_section_image']);
-            if ($image) {
-                $data = $image->value;
-            }
-            $image_name = $data ?? \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-            if ($request->has('app_section_image')) {
-                $data = Helpers::update('react_landing/', $image_name, 'png', $request->file('app_section_image')) ?? null;
-            }
-            $image->value = $data;
-            $image->save();
-            Toastr::success(translate('App section image updated'));
-        } elseif ($tab == 'footer_logo') {
-            $data = null;
-            $image = BusinessSetting::firstOrNew(['key' => 'footer_logo']);
-            if ($image) {
-                $data = $image->value;
-            }
-            $image_name = $data ?? \Carbon\Carbon::now()->toDateString() . '-' . uniqid() . '.png';
-            if ($request->has('footer_logo')) {
-                $data = Helpers::update('react_landing/', $image_name, 'png', $request->file('footer_logo')) ?? null;
-            }
-            $image->value = $data;
-            $image->save();
-            Toastr::success(translate('Footer logo updated'));
-        } elseif ($tab == 'react-feature') {
-            $data = [];
-            $imageName = null;
-            $feature = BusinessSetting::firstOrNew(['key' => 'react_feature']);
-            if ($feature) {
-                $data = json_decode($feature->value, true);
-            }
-            if ($request->has('image')) {
-                $imageName = Helpers::upload('react_landing/feature/', 'png', $request->file('image'));
-            }
-            array_push($data, [
-                'img' => $imageName,
-                'title' => $request->feature_title,
-                'feature_description' => $request->feature_description,
-            ]);
-            $feature->value = json_encode($data);
-            $feature->save();
-            Toastr::success(translate('messages.landing_page_feature_updated'));
-        } elseif ($tab == 'app-download-button') {
-            $data = [];
-            $feature = BusinessSetting::where('key', 'app_download_button')->first();
-            if ($feature) {
-                $data = json_decode($feature->value, true);
-            }
-            array_push($data, [
-                'button_text' => $request->button_text,
-                'link' => $request->link,
-            ]);
-
-            Helpers::businessUpdateOrInsert(['key' => 'app_download_button'], [
-                'value' => json_encode($data),
-            ]);
-            Toastr::success(translate('messages.app_download_button_updated'));
-        }
-
-        return back();
-    }
-
-    public function delete_landing_page_settings($tab, $key)
-    {
-        if (env('APP_MODE') == 'demo') {
-            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
-
-            return back();
-        }
-
-        $item = BusinessSetting::where('key', $tab)->first();
-        $data = $item ? json_decode($item->value, true) : null;
-        if ($data && array_key_exists($key, $data)) {
-            if (isset($data[$key]['img']) && file_exists(public_path('assets/landing/image') . $data[$key]['img'])) {
-                unlink(public_path('assets/landing/image') . $data[$key]['img']);
-            }
-            array_splice($data, $key, 1);
-
-            $item->value = json_encode($data);
-            $item->save();
-            Toastr::success(translate('messages.' . $tab) . ' ' . translate('messages.deleted'));
-
-            return back();
-        }
-        Toastr::error(translate('messages.not_found'));
-
-        return back();
-    }
 
     public function currency_index()
     {
@@ -3064,7 +2532,7 @@ class BusinessSettingsController extends Controller
             abort(404);
         }
         if ($tab == 'meta-data') {
-            $landingData = DataSetting::withoutGlobalScope('translate')->with('translations')->where('type', 'admin_landing_page')->whereIn('key', ['meta_title', 'meta_description', 'meta_image'])->get()->keyBy('key') ?? [];
+            $landingData = DataSetting::withoutGlobalScope('translate')->where('type', 'admin_landing_page')->whereIn('key', ['meta_title', 'meta_description', 'meta_image','meta_data'])->get()->keyBy('key') ?? [];
             $language = Helpers::get_business_settings('language');
         }
 
@@ -4260,16 +3728,6 @@ class BusinessSettingsController extends Controller
             ]);
             Toastr::success(translate('messages.background_updated'));
         } elseif ($tab == 'meta-data') {
-            $request->validate([
-                'meta_title' => 'nullable|max:50',
-                'meta_description' => 'nullable|max:200',
-                'image' => 'nullable|max:2048',
-            ]);
-            if ($request->meta_title[array_search('default', $request->lang)] == '') {
-                Toastr::error(translate('default_data_is_required'));
-
-                return back();
-            }
             $this->landingPageMetaDataUpdate($request, 'admin');
             Toastr::success(translate('messages.meta_data_updated_successfully'));
 
@@ -4287,7 +3745,8 @@ class BusinessSettingsController extends Controller
             'key' => 'meta_title',
         ]);
 
-        $meta_title->value = $request->meta_title[array_search('default', $request->lang)];
+
+        $meta_title->value = $request->meta_title;
         $meta_title->save();
 
         $meta_description = DataSetting::firstOrNew([
@@ -4295,7 +3754,7 @@ class BusinessSettingsController extends Controller
             'key' => 'meta_description',
         ]);
 
-        $meta_description->value = $request->meta_description[array_search('default', $request->lang)];
+        $meta_description->value = $request->meta_description;
         $meta_description->save();
 
         $meta_image = DataSetting::firstOrNew([
@@ -4303,11 +3762,22 @@ class BusinessSettingsController extends Controller
             'key' => 'meta_image',
         ]);
 
-        $meta_image->value = $request->has('image') ? Helpers::update('landing/meta_image/', $meta_image?->value, 'png', $request->file('image')) : $meta_image?->value;
+        if ($request->has('meta_image_deleted') && $request->meta_image_deleted == 1) {
+            Helpers::check_and_delete('landing/meta_image/', $meta_image?->value);
+            $meta_image->value = null;
+        }
+
+        $meta_image->value = $request->has('meta_image') ? Helpers::update('landing/meta_image/', $meta_image?->value, 'png', $request->file('meta_image')) : $meta_image?->value;
         $meta_image->save();
 
-        Helpers::add_or_update_translations(request: $request, key_data: 'meta_title', name_field: 'meta_title', model_name: 'DataSetting', data_id: $meta_title->id, data_value: $meta_title->value);
-        Helpers::add_or_update_translations(request: $request, key_data: 'meta_description', name_field: 'meta_description', model_name: 'DataSetting', data_id: $meta_description->id, data_value: $meta_description->value);
+        $meta_data = DataSetting::firstOrNew([
+            'type' => $type . '_landing_page',
+            'key' => 'meta_data',
+        ]);
+        $old_value = $meta_data->exists ? $meta_data->getRawOriginal('value') : null;
+        $old_meta = $old_value ? json_decode($old_value, true) : [];
+        $meta_data->value = json_encode(Helpers::formatMetaData($request->all(), $old_meta));
+        $meta_data->save();
 
         return true;
 
@@ -4716,9 +4186,6 @@ class BusinessSettingsController extends Controller
             'faq' => 'react-landing-page-faq',
             'footer' => 'react-landing-page-footer',
             'meta-data' => 'react-landing-meta-data',
-            //            'company-intro' => 'react-landing-page-company',
-//            'earn-money' => 'react-landing-earn-money',
-//            'business-section' => 'react-landing-business',
         ];
 
         if (!isset($views[$tab])) {
@@ -4726,7 +4193,7 @@ class BusinessSettingsController extends Controller
         }
 
         if ($tab == 'meta-data') {
-            $landingData = DataSetting::withoutGlobalScope('translate')->with('translations')->where('type', 'react_landing_page')->whereIn('key', ['meta_title', 'meta_description', 'meta_image'])->get()->keyBy('key') ?? [];
+            $landingData = DataSetting::withoutGlobalScope('translate')->where('type', 'react_landing_page')->whereIn('key', ['meta_title', 'meta_description', 'meta_image','meta_data'])->get()->keyBy('key') ?? [];
             $language = Helpers::get_business_settings('language');
         }
 
@@ -5906,16 +5373,6 @@ class BusinessSettingsController extends Controller
 
             Toastr::success(translate('messages.landing_page_newsletter_content_updated'));
         } elseif ($tab == 'meta-data') {
-            $request->validate([
-                'meta_title' => 'nullable|max:50',
-                'meta_description' => 'nullable|max:200',
-                'image' => 'nullable|max:2048',
-            ]);
-            if ($request->meta_title[array_search('default', $request->lang)] == '') {
-                Toastr::error(translate('default_data_is_required'));
-
-                return back();
-            }
             $this->landingPageMetaDataUpdate($request, 'react');
             Toastr::success(translate('messages.meta_data_updated_successfully'));
 
@@ -7173,75 +6630,196 @@ class BusinessSettingsController extends Controller
 
     public function landing_page_settings_update(Request $request)
     {
-        // dd($request->all());
-        $validator = Validator::make($request->all(), [
-            'landing_integration_via' => 'required',
-            'redirect_url' => 'required_if:landing_integration_via,url',
-            'file_upload' => 'mimes:zip',
-        ]);
-
-        if (!File::exists('resources/views/layouts/landing/custom/index.blade.php') && ($request->landing_integration_via == 'file_upload') && (!$request->file('file_upload'))) {
-            $validator->getMessageBag()->add('file_upload', translate('messages.zip_file_is_required'));
+        if ($request->choose_admin_landing === 'default') {
+            return $this->storeDefaultLandingPage($request);
         }
 
-        if ($validator->errors()->count() > 0) {
-            $error = Helpers::error_processor($validator);
-
-            return response()->json(['status' => 'error', 'message' => $error[0]['message']]);
-        }
-
-        Helpers::businessUpdateOrInsert(['key' => 'landing_integration_type'], [
-            'value' => $request['landing_integration_via'],
-        ]);
-        $status = 'success';
-        $message = translate('updated_successfully!');
-
-        if ($request->landing_integration_via == 'file_upload') {
-
-            $file = $request->file('file_upload');
-            if ($file) {
-
-                $filename = $file->getClientOriginalName();
-                $tempPath = $file->storeAs('temp', $filename);
-                $zip = new \ZipArchive;
-                if ($zip->open(storage_path('app/' . $tempPath)) === true) {
-                    // Extract the contents to a directory
-                    $extractPath = base_path('resources/views/layouts/landing/custom');
-                    $zip->extractTo($extractPath);
-                    $zip->close();
-                    // dd(File::exists($extractPath.'/index.blade.php'));
-                    if (File::exists($extractPath . '/index.blade.php')) {
-                        Toastr::success(translate('file_upload_successfully!'));
-                        $status = 'success';
-                        $message = translate('file_upload_successfully!');
-                    } else {
-                        File::deleteDirectory($extractPath);
-                        $status = 'error';
-                        $message = translate('invalid_file!');
-                    }
-                } else {
-                    $status = 'error';
-                    $message = translate('file_upload_fail!');
-                }
-
-                Storage::delete($tempPath);
-            }
-        }
-
-        if ($request->landing_integration_via == 'url') {
-            Helpers::businessUpdateOrInsert(['key' => 'landing_page_custom_url'], [
-                'value' => $request['redirect_url'],
-            ]);
-
-            $status = 'success';
-            $message = translate('url_saved_successfully!');
+        if ($request->choose_admin_landing === 'custom') {
+            return $this->storeCustomLandingPage($request);
         }
 
         return response()->json([
-            'status' => $status,
-            'message' => $message,
+            'status' => 'error',
+            'message' => translate('invalid_request'),
         ]);
     }
+
+    private function storeDefaultLandingPage(Request $request)
+    {
+        Helpers::businessUpdateOrInsert(
+            ['key' => 'landing_page'],
+            ['value' => 1]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => translate('updated_successfully!'),
+        ]);
+    }
+
+    private function storeCustomLandingPage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'landing_integration_via' => 'required|in:url,file_upload,none',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator);
+        }
+
+        $response = match ($request->landing_integration_via) {
+            'url' => $this->handleIfUrl($request),
+            'file_upload' => $this->handleIfFileUpload($request),
+            'none' => $this->handleIfNone($request),
+        };
+
+        if (
+            !isset($response->original['status']) ||
+            $response->original['status'] !== 'success'
+        ) {
+            return $response;
+        }
+
+        Helpers::businessUpdateOrInsert(
+            ['key' => 'landing_page'],
+            ['value' => 0]
+        );
+
+        Helpers::businessUpdateOrInsert(
+            ['key' => 'landing_integration_type'],
+            ['value' => $request->landing_integration_via]
+        );
+
+        return $response;
+    }
+
+
+    private function handleIfUrl(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'redirect_url' => 'required|url',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator);
+        }
+
+        Helpers::businessUpdateOrInsert(
+            ['key' => 'landing_page_custom_url'],
+            ['value' => $request->redirect_url]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => translate('url_saved_successfully!'),
+        ]);
+    }
+
+    private function handleIfFileUpload(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file_upload' => 'required_if:file_exist,0|mimes:zip',
+        ],[
+            'file_upload.required_if' => translate('messages.zip_file_is_required'),
+        ]);
+
+        if (
+            !File::exists('resources/views/layouts/landing/custom/index.blade.php') &&
+            !$request->hasFile('file_upload')
+        ) {
+            $validator->errors()->add(
+                'file_upload',
+                translate('messages.zip_file_is_required,_upload_zip_file_first')
+            );
+        }
+
+        if ($validator->fails()) {
+            return $this->validationErrorResponse($validator);
+        }
+
+        return $this->processLandingZip($request);
+    }
+
+    private function processLandingZip(Request $request)
+    {
+        if (!$request->hasFile('file_upload')) {
+            return response()->json([
+                'status' => 'success',
+                'message' => translate('updated_successfully!'),
+            ]);
+        }
+
+        $file = $request->file('file_upload');
+        $filename = $file->getClientOriginalName();
+        $tempZipPath = $file->storeAs('temp', $filename);
+
+        $zipPath = storage_path('app/' . $tempZipPath);
+        $extractPath = base_path('resources/views/layouts/landing/custom');
+        $tempExtractPath = storage_path('app/temp/landing_extract');
+
+        try {
+            File::deleteDirectory($tempExtractPath);
+            File::makeDirectory($tempExtractPath, 0755, true);
+
+            $zip = new \ZipArchive;
+
+            if ($zip->open($zipPath) !== true) {
+                throw new \Exception('Failed to open zip file');
+            }
+
+            $zip->extractTo($tempExtractPath);
+            $zip->close();
+
+            $indexFile = collect(File::allFiles($tempExtractPath))
+                ->first(fn($file) => $file->getFilename() === 'index.blade.php');
+
+            if (!$indexFile) {
+                throw new \Exception('index.blade.php not found');
+            }
+
+            File::deleteDirectory($extractPath);
+            File::makeDirectory($extractPath, 0755, true);
+            File::copyDirectory($indexFile->getPath(), $extractPath);
+
+            File::deleteDirectory($tempExtractPath);
+            Storage::delete($tempZipPath);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => translate('file_upload_successfully!'),
+            ]);
+
+        } catch (\Exception $e) {
+            File::deleteDirectory($tempExtractPath);
+            Storage::delete($tempZipPath);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => translate('file_upload_fail!') . ' ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+
+    private function handleIfNone(Request $request)
+    {
+        return response()->json([
+            'status' => 'success',
+            'message' => translate('updated_successfully!'),
+        ]);
+    }
+
+    private function validationErrorResponse($validator)
+    {
+        $error = Helpers::error_processor($validator);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => $error[0]['message'],
+        ]);
+    }
+
+
 
     public function delete_custom_landing_page()
     {
@@ -7684,6 +7262,314 @@ class BusinessSettingsController extends Controller
         $ReactPromotionalBanner->save();
         Toastr::success(translate('messages.React_promotional_banner_status_updated'));
         return back();
+    }
+
+    public function pageMetaData(Request $request)
+    {
+        $pages = Helpers::seoPageList();
+
+        if ($request->page_name && in_array($request->page_name, $pages)) {
+            $language = Helpers::get_business_settings('language');
+            $pageMetaData = PageSeoData::where('page_name', $request->page_name)->first();
+            return view('admin-views.business-settings.seo-settings.page-meta-data-edit', compact('language', 'pageMetaData'));
+        }
+
+        if($request->has('search')){
+            $key = explode(' ', $request['search']);
+            $pages = $pages = collect($pages)->filter(function ($item) use ($key) {
+                foreach ($key as $k) {
+                    if (stripos($item, $k) !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            })->values()->all();
+        }
+        $pageMetaData = PageSeoData::whereIn('page_name', $pages)->select(['id', 'page_name'])->get()->groupBy('page_name');
+        return view('admin-views.business-settings.seo-settings.page-meta-data', compact('pages', 'pageMetaData'));
+    }
+    public function pageMetaDataUpdate(Request $request)
+    {
+        $pages = Helpers::seoPageList();
+
+        if ($request->page_name && in_array($request->page_name, $pages)) {
+            $pageMetaData = PageSeoData::firstOrNew([
+                'page_name' => $request->page_name,
+            ]);
+
+            if ($request->has('meta_image_deleted') && $request->meta_image_deleted == 1) {
+                Helpers::check_and_delete('page_meta_data/', $pageMetaData->image);
+                $pageMetaData->image = null;
+            }
+
+            $imageFile = $request->hasFile('meta_image') ? $request->file('meta_image') : $pageMetaData->image;
+            $originalExtension = $request->hasFile('meta_image') ? $imageFile->getClientOriginalExtension() : 'png';
+
+            $pageMetaData->title = $request->meta_title;
+            $pageMetaData->description = $request->meta_description;
+            $pageMetaData->image = $request->file('meta_image') ? Helpers::upload(dir: 'page_meta_data/', format: $originalExtension, image: $imageFile) : $pageMetaData->image;
+            $pageMetaData->meta_data = Helpers::formatMetaData($request->all(), $pageMetaData->meta_data);
+
+            $slug = Str::slug($pageMetaData->title);
+            $pageMetaData->slug = $pageMetaData->slug ?: "{$slug}{$pageMetaData->id}";
+            $pageMetaData->save();
+
+            Toastr::success(translate('messages.page_meta_data_updated_successfully'));
+        } else {
+            Toastr::error(translate('messages.invalid_page_name'));
+        }
+
+        return redirect()->route('admin.business-settings.seo-settings.pageMetaData');
+    }
+
+    public function websocket()
+    {
+        return view('admin-views.business-settings.websocket-index');
+    }
+
+    public function update_websocket(Request $request)
+    {
+        if (env('APP_MODE') == 'demo') {
+            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
+
+            return back();
+        }
+        $request->validate([
+            'websocket_url' => [
+                'required',
+                'regex:/^(ws|wss):\/\/[^\s\/$.?#].[^\s]*$/'
+            ],
+        ], [
+            'websocket_url.regex' =>
+                translate('messages.Please_enter_a_valid_WebSocket_URL'),
+        ]);
+
+        $settings = [
+            'websocket_status' => $request['websocket_status'],
+            'websocket_url' => $request['websocket_url'],
+            'websocket_port' => $request['websocket_port'],
+        ];
+        foreach ($settings as $key => $value) {
+            Helpers::businessUpdateOrInsert(['key' => $key], [
+                'value' => $value,
+            ]);
+        }
+
+        Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
+
+        return back();
+    }
+
+    public function paymentMethodStatusUpdate(Request $request)
+    {
+        $request['status'] = $request->status ?? 0;
+        $settings = Setting::firstOrNew(['key_name' => $request['gateway'], 'settings_type' => 'payment_config']);
+
+        if ($request['status'] == 1) {
+            $additional_data = json_decode($settings->additional_data, true);
+            $live_values = $settings->live_values;
+
+            if (empty($additional_data) || empty($live_values)) {
+                Toastr::error(translate('messages.please_fill_all_required_fields_in_setup_first'));
+                return back();
+            }
+
+            if (empty($additional_data['gateway_title']) || empty($additional_data['gateway_image'])) {
+                Toastr::error(translate('messages.please_fill_all_required_fields_in_setup_first'));
+                return back();
+            }
+
+            foreach ($live_values as $key => $value) {
+                if ($key != 'mode' && $key != 'status' && $key != 'gateway' && empty($value)) {
+                    Toastr::error(translate('messages.please_fill_all_required_fields_in_setup_first'));
+                    return back();
+                }
+            }
+        }
+
+        $settings->is_active = $request['status'];
+        $settings->save();
+
+        Toastr::success(translate('messages.payment_method_status_updated'));
+
+        return back();
+    }
+
+    public function updatePaymentSetup(Request $request)
+    {
+        $partialMethods = $request->partial_payment_method ?? [];
+
+        $partialPaymentMethod = null;
+        if($request->boolean('partial_payment_status') && empty($partialMethods)){
+            Toastr::error(translate('messages.combined_payment_method_is_required'));
+            return back();
+        }
+
+        if (!empty($partialMethods)) {
+            if (count(array_intersect($partialMethods, ['cod', 'digital_payment'])) === 2) {
+                $partialPaymentMethod = 'both';
+            } else {
+                $partialPaymentMethod = $partialMethods[0];
+            }
+        }
+
+        $keysToUpdate = [
+            'cash_on_delivery'       => $request->boolean('cash_on_delivery'),
+            'digital_payment'        => $request->boolean('digital_payment'),
+            'offline_payment_status' => $request->boolean('offline_payment'),
+            'partial_payment_status' => $request->boolean('partial_payment_status'),
+            'partial_payment_method' => $partialPaymentMethod,
+        ];
+
+        foreach ($keysToUpdate as $key => $value) {
+
+            Helpers::businessUpdateOrInsert(['key' => $key], [
+                'value' => $key == 'cash_on_delivery' || $key == 'digital_payment' ? json_encode(['status' => $value]) : $value,
+                'updated_at' => now(),
+            ]);
+        }
+
+        Toastr::success(translate('messages.payment_settings_updated'));
+        return back();
+    }
+
+    // Business setup
+    private function updateBasicSettings(Request $request): void
+    {
+                $settings = [
+                'business_name' => $request->business_name,
+                'currency' => $request->currency,
+                'timezone' => $request->timezone,
+                'site_direction' => $request->site_direction,
+                'phone' => $request->phone,
+                'email_address' => $request->email_address,
+                'address' => $request->address,
+                'footer_text' => $request->footer_text,
+                'cookies_text' => $request->cookies_text,
+                'currency_symbol_position' => $request->currency_symbol_position,
+                'admin_commission' => $request->admin_commission,
+                'country' => $request->country,
+                'country_picker_status' => $request->country_picker_status ?? 0,
+                'timeformat' => $request->timeformat,
+                'digit_after_decimal_point' => $request->digit_after_decimal_point,
+                'delivery_charge_comission' => $request->delivery_charge_comission,
+            ];
+
+            foreach ($settings as $key => $value) {
+                Helpers::businessUpdateOrInsert(['key' => $key], ['value' => $value]);
+            }
+
+            Config::set('currency', $request->currency);
+            Config::set('currency_symbol_position', $request->currency_symbol_position);
+    }
+
+    private function updateImages(Request $request): void
+    {
+        $this->updateImage('logo', $request->file('logo'));
+        $this->updateImage('icon', $request->file('icon'));
+    }
+
+    private function updateImage(string $key, $file = null): void
+    {
+        $setting = BusinessSetting::firstOrNew(['key' => $key]);
+
+        if ($file) {
+            $setting->value = Helpers::update('business/', $setting->value, 'png', $file);
+        }
+
+        $setting->save();
+    }
+
+    private function updatePaymentSettings(Request $request): void
+    {
+        $settings = [
+            'partial_payment_status' => $request->partial_payment_status,
+            'partial_payment_method' => $request->partial_payment_method,
+        ];
+
+        foreach ($settings as $key => $value) {
+            Helpers::businessUpdateOrInsert(['key' => $key], ['value' => $value]);
+        }
+    }
+
+    private function updateLocationSettings(Request $request): void
+    {
+        Helpers::businessUpdateOrInsert(
+            ['key' => 'default_location'],
+            ['value' => json_encode([
+                'lat' => $request->latitude,
+                'lng' => $request->longitude,
+            ])]
+        );
+    }
+
+    private function updateAdditionalChargeSettings(Request $request): void
+    {
+        $settings = [
+            'additional_charge_status' => $request->additional_charge_status ?: null,
+            'additional_charge_name' => $request->additional_charge_name ?: null,
+            'additional_charge' => $request->additional_charge ?: null,
+        ];
+
+        foreach ($settings as $key => $value) {
+            Helpers::businessUpdateOrInsert(['key' => $key], ['value' => $value]);
+        }
+    }
+
+    private function updateBusinessModelSettings(Request $request): void
+    {
+            if (!$request->subscription_business_model && !$request->commission_business_model) {
+                Toastr::error(translate(
+                    'You_must_select_at_least_one_business_model_between_commission_and_subscription'
+                ));
+                back()->throwResponse();
+            }
+
+            if ($request->subscription_business_model && !$request->commission_business_model) {
+                $this->handleSubscriptionOnlyModel($request);
+            } elseif ($request->commission_business_model && !$request->subscription_business_model) {
+                $this->handleCommissionOnlyModel($request);
+            } else {
+                $this->handleBothBusinessModels($request);
+            }
+    }
+    private function handleSubscriptionOnlyModel(Request $request): void
+    {
+            Helpers::businessUpdateOrInsert(['key' => 'subscription_business_model'], ['value' => 1]);
+            Helpers::businessUpdateOrInsert(['key' => 'commission_business_model'], ['value' => 0]);
+
+            if (Helpers::commission_check() === 0) {
+                Store::where('store_business_model', 'commission')
+                    ->update(['store_business_model' => 'unsubscribed', 'status' => 0]);
+            }
+    }
+
+    private function handleCommissionOnlyModel(Request $request): void
+    {
+        if (StoreSubscription::where('status', 1)->exists()) {
+            Toastr::warning(translate('You_need_to_switch_your_subscribers_to_commission_first'));
+            back()->throwResponse();
+        }
+
+        Helpers::businessUpdateOrInsert(['key' => 'commission_business_model'], ['value' => 1]);
+        Helpers::businessUpdateOrInsert(['key' => 'subscription_business_model'], ['value' => 0]);
+
+        if (Helpers::subscription_check() === 0) {
+            Store::query()->update(['store_business_model' => 'commission']);
+        }
+    }
+
+    private function handleBothBusinessModels(Request $request): void
+    {
+        Helpers::businessUpdateOrInsert(['key' => 'commission_business_model'], ['value' => 1]);
+
+        if (!$request->subscription_business_model &&
+            StoreSubscription::where('status', 1)->exists()) {
+            Toastr::warning(translate('You_need_to_switch_your_subscribers_to_commission_first'));
+            back()->throwResponse();
+        }
+
+        Helpers::businessUpdateOrInsert(['key' => 'subscription_business_model'], ['value' => 1]);
     }
 
 }

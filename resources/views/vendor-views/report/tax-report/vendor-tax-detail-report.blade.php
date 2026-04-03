@@ -38,14 +38,14 @@
                 <div class="row g-lg-4 g-3">
                     <div class="col-md-6 col-xl-3">
                         <div class="bg-opacity-warning-5 h-100 rounded p-24">
-                            <img src="{{ asset('assets/admin/img/tax/1.png') }}" alt="img" class="mb-20">
+                            <img src="{{ asset('/public/assets/admin/img/tax/1.png') }}" alt="img" class="mb-20">
                             <h2 class="cus-warning-clr mb-1">{{ $totalOrders }}</h2>
                             <span class="font-medium mb-0">{{ translate('Total Orders') }}</span>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="bg-opacity-primary-5 h-100 rounded p-24">
-                            <img src="{{ asset('assets/admin/img/tax/2.png') }}" alt="img" class="mb-20">
+                            <img src="{{ asset('/public/assets/admin/img/tax/2.png') }}" alt="img" class="mb-20">
                             <h2 class="theme-clr mb-1"> {{ \App\CentralLogics\Helpers::format_currency($totalOrderAmount) }}
                             </h2>
                             <span class="font-medium mb-0">{{ translate('Total Order Amount') }}</span>
@@ -54,7 +54,7 @@
                     <div class="col-lg-12 col-xl-6">
                         <div class="bg-opacity-warning-5 h-100 rounded p-24 d-flex flex-sm-nowrap flex-wrap gap-3">
                             <div class="w-xxl-100 w-sm-50">
-                                <img src="{{ asset('assets/admin/img/tax/3.png') }}" alt="img" class="mb-20">
+                                <img src="{{ asset('/public/assets/admin/img/tax/3.png') }}" alt="img" class="mb-20">
                                 <h2 class="text-success mb-1">{{ \App\CentralLogics\Helpers::format_currency($totalTax) }}
                                 </h2>
                                 <span class="font-medium mb-0">{{ translate('Total Tax Amount') }}</span>
@@ -113,14 +113,14 @@
                                 <a id="export-excel" class="dropdown-item"
                                     href="{{ route('vendor.report.vendorTaxExport', ['export_type' => 'excel', request()->getQueryString()]) }}">
                                     <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                        src="{{ asset('assets/admin') }}/svg/components/excel.svg"
+                                        src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
                                         alt="Image Description">
                                     {{ translate('messages.excel') }}
                                 </a>
                                 <a id="export-csv" class="dropdown-item"
                                     href="{{ route('vendor.report.vendorTaxExport', ['export_type' => 'csv', request()->getQueryString()]) }}">
                                     <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                        src="{{ asset('assets/admin') }}/svg/components/placeholder-csv-format.svg"
+                                        src="{{ asset('public/assets/admin') }}/svg/components/placeholder-csv-format.svg"
                                         alt="Image Description">
                                     .{{ translate('messages.csv') }}
                                 </a>
@@ -250,7 +250,7 @@
                 </div>
                 @if (count($orders) === 0)
                     <div class="empty--data">
-                        <img src="{{ asset('assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
+                        <img src="{{ asset('/public/assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
                         <h5>
                             {{ translate('no_data_found') }}
                         </h5>
@@ -306,7 +306,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('assets/admin') }}/js/offcanvas.js"></script>
+    <script src="{{ asset('public/assets/admin') }}/js/offcanvas.js"></script>
     <script>
         "use strict";
 

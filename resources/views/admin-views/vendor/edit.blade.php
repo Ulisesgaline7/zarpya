@@ -10,7 +10,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{ asset('assets/admin/img/edit.png') }}" class="w--26" alt="">
+                    <img src="{{ asset('public/assets/admin/img/edit.png') }}" class="w--26" alt="">
                 </span>
                 <span>{{ translate('messages.update_store') }}</span>
             </h1>
@@ -273,7 +273,7 @@
                                                 </div>
                                     </div>
                                    <div id="outOfZone" class="map-alert bg-dark d-flex align-items-center rounded-8 py-2 px-2 fs-12 text-white mb-2">
-                                        <img class="" src="{{asset('assets/admin/img/icons/warning-cus.png')}}" alt="img"> {{ translate('Please place the marker inside the available zones.') }}
+                                        <img class="" src="{{asset('public/assets/admin/img/icons/warning-cus.png')}}" alt="img"> {{ translate('Please place the marker inside the available zones.') }}
                                    </div>
                                 </div>
                             </div>
@@ -321,7 +321,7 @@
                                             <label class="upload-file__wrapper w-100 h-100 m-0">
                                                 <div class="upload-file-textbox text-center" style="">
                                                     <img width="22" class="svg"
-                                                            src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                            src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                             alt="img">
                                                     <h6
                                                         class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
@@ -330,7 +330,7 @@
                                                          {{ translate('Ratio (2:1)') }}
                                                     </h6>
                                                 </div>
-                                                <img class="upload-file-img" loading="lazy" src="{{ $store->cover_photo_full_url ?? asset('assets/admin/img/upload-img.png') }}"
+                                                <img class="upload-file-img" loading="lazy" src="{{ $store->cover_photo_full_url ?? asset('public/assets/admin/img/upload-img.png') }}"
                                                         data-default-src="" alt="" style="display: none;">
                                             </label>
                                             <div class="overlay">
@@ -364,7 +364,7 @@
                                             <label class="upload-file__wrapper w-100 h-100 m-0">
                                                 <div class="upload-file-textbox text-center" style="">
                                                     <img width="22" class="svg"
-                                                            src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                            src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                             alt="img">
                                                     <h6
                                                         class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
@@ -373,7 +373,7 @@
                                                        {{ translate('Ratio (1:1)') }}
                                                     </h6>
                                                 </div>
-                                                <img class="upload-file-img" loading="lazy" src="{{ $store->logo_full_url ?? asset('assets/admin/img/upload-img.png') }}"
+                                                <img class="upload-file-img" loading="lazy" src="{{ $store->logo_full_url ?? asset('public/assets/admin/img/upload-img.png') }}"
                                                         data-default-src="" alt="" style="display: none;">
                                             </label>
                                             <div class="overlay">
@@ -567,9 +567,9 @@
                                                 <i class="tio-edit"></i>
                                             </button>
                                             <div id="file-assets"
-                                                data-picture-icon="{{ asset('assets/admin/img/picture.svg') }}"
-                                                data-document-icon="{{ asset('assets/admin/img/document.svg') }}"
-                                                data-blank-thumbnail="{{ asset('assets/admin/img/picture.svg') }}">
+                                                data-picture-icon="{{ asset('public/assets/admin/img/picture.svg') }}"
+                                                data-document-icon="{{ asset('public/assets/admin/img/document.svg') }}"
+                                                data-blank-thumbnail="{{ asset('public/assets/admin/img/picture.svg') }}">
                                             </div>
                                             <div class="d-flex justify-content-center" id="pdf-container">
                                                 <div class="document-upload-wrapper d-none" id="doc-upload-wrapper">
@@ -577,7 +577,7 @@
                                                         class="document_input" accept=".doc, .pdf, .jpg, .png, .jpeg">
                                                     <div class="textbox">
                                                         <img width="40" height="40" class="svg"
-                                                            src="{{ asset('assets/admin/img/doc-uploaded.png') }}"
+                                                            src="{{ asset('public/assets/admin/img/doc-uploaded.png') }}"
                                                             alt="">
                                                         <p class="fs-12 mb-0">
                                                             {{ translate('messages.Select_a_file_or') }} <span
@@ -586,11 +586,11 @@
                                                     </div>
                                                 </div>
                                                 <div class="pdf-single" data-file-name="${file.name}"
-                                                    data-file-url="{{ $store->tin_certificate_image_full_url ?? asset('assets/admin/img/upload-cloud.png') }}">
+                                                    data-file-url="{{ $store->tin_certificate_image_full_url ?? asset('public/assets/admin/img/upload-cloud.png') }}">
                                                     <div class="pdf-frame">
-                                                        @php($imgPath = $store->tin_certificate_image_full_url ?? asset('assets/admin/img/upload-cloud.png'))
+                                                        @php($imgPath = $store->tin_certificate_image_full_url ?? asset('public/assets/admin/img/upload-cloud.png'))
                                                         @if (Str::endsWith($imgPath, ['.pdf', '.doc', '.docx']))
-                                                            @php($imgPath = asset('assets/admin/img/document.svg'))
+                                                            @php($imgPath = asset('public/assets/admin/img/document.svg'))
                                                         @endif
                                                         <img class="pdf-thumbnail-alt" src="{{ $imgPath }}"
                                                             alt="File Thumbnail">
@@ -598,10 +598,10 @@
                                                     <div class="overlay">
                                                         <div class="pdf-info">
                                                             @if (Str::endsWith($imgPath, ['.pdf', '.doc', '.docx']))
-                                                                <img src="{{ asset('assets/admin/img/document.svg') }}"
+                                                                <img src="{{ asset('public/assets/admin/img/document.svg') }}"
                                                                     width="34" alt="File Type Logo">
                                                             @else
-                                                                <img src="{{ asset('assets/admin/img/picture.svg') }}"
+                                                                <img src="{{ asset('public/assets/admin/img/picture.svg') }}"
                                                                     width="34" alt="File Type Logo">
                                                             @endif
                                                             <div class="file-name-wrapper">
@@ -669,12 +669,12 @@
         };
     </script>
 
-    <script src="{{ asset('assets/admin/js/file-preview/pdf.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/file-preview/pdf-worker.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/file-preview/edit-multiple-document-upload.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/view-pages/map-functionality.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/file-preview/pdf.min.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/file-preview/pdf-worker.min.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/file-preview/edit-multiple-document-upload.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/view-pages/map-functionality.js') }}"></script>
 
-    <script src="{{ asset('assets/admin/js/spartan-multi-image-picker.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/spartan-multi-image-picker.js') }}"></script>
     <script
         src="https://maps.googleapis.com/maps/api/js?key={{ \App\CentralLogics\Helpers::get_business_settings('map_api_key') }}&libraries=drawing,places,marker,geometry&v=3.61&language={{ str_replace('_', '-', app()->getLocale()) }}&callback=initMap"
         async defer>

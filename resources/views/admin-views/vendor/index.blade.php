@@ -10,7 +10,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{ asset('assets/admin/img/store.png') }}" class="w--26" alt="">
+                    <img src="{{ asset('public/assets/admin/img/store.png') }}" class="w--26" alt="">
                 </span>
                 <span>
                     {{ translate('messages.add_new_store') }}
@@ -203,7 +203,7 @@
                                                 </div>
                                     </div>
                                    <div id="outOfZone" class="map-alert bg-dark d-flex align-items-center rounded-8 py-2 px-2 fs-12 text-white mb-2">
-                                        <img class="" src="{{asset('assets/admin/img/icons/warning-cus.png')}}" alt="img"> {{ translate('Please place the marker inside the available zones.') }}
+                                        <img class="" src="{{asset('public/assets/admin/img/icons/warning-cus.png')}}" alt="img"> {{ translate('Please place the marker inside the available zones.') }}
                                    </div>
                                 </div>
                             </div>
@@ -246,7 +246,7 @@
                                             <label class="upload-file__wrapper w-100 h-100 m-0">
                                                 <div class="upload-file-textbox text-center" style="">
                                                     <img width="22" class="svg"
-                                                            src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                            src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                             alt="img">
                                                     <h6
                                                         class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
@@ -288,7 +288,7 @@
                                             <label class="upload-file__wrapper w-100 h-100 m-0">
                                                 <div class="upload-file-textbox text-center" style="">
                                                     <img width="22" class="svg"
-                                                            src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                            src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                             alt="img">
                                                     <h6
                                                         class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
@@ -401,7 +401,7 @@
                                             for="signupSrPassword">{{ translate('messages.password') }}<span
                                                 class="form-label-secondary" data-toggle="tooltip" data-placement="right"
                                                 data-original-title="{{ translate('messages.Must_contain_at_least_one_number_and_one_uppercase_and_lowercase_letter_and_symbol,_and_at_least_8_or_more_characters') }}"><img
-                                                    src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                    src="{{ asset('/public/assets/admin/img/info-circle.svg') }}"
                                                     alt="{{ translate('messages.Must_contain_at_least_one_number_and_one_uppercase_and_lowercase_letter_and_symbol,_and_at_least_8_or_more_characters') }}"></span>
                                             <span class="form-label-secondary text-danger" data-toggle="tooltip"
                                                 data-placement="right"
@@ -515,9 +515,9 @@
                                         </button>
                                         
                                         <div id="file-assets"
-                                            data-picture-icon="{{ asset('assets/admin/img/picture.svg') }}"
-                                            data-document-icon="{{ asset('assets/admin/img/document.svg') }}"
-                                            data-blank-thumbnail="{{ asset('assets/admin/img/picture.svg') }}">
+                                            data-picture-icon="{{ asset('public/assets/admin/img/picture.svg') }}"
+                                            data-document-icon="{{ asset('public/assets/admin/img/document.svg') }}"
+                                            data-blank-thumbnail="{{ asset('public/assets/admin/img/picture.svg') }}">
                                         </div>
                                         <!-- Upload box -->
                                         <div class="d-flex justify-content-center mb-2" id="pdf-container">
@@ -527,7 +527,7 @@
                                                     data-max-size="2mb">
                                                 <div class="textbox">
                                                     <img width="40" height="40" class="svg"
-                                                        src="{{ asset('assets/admin/img/doc-uploaded.png') }}"
+                                                        src="{{ asset('public/assets/admin/img/doc-uploaded.png') }}"
                                                         alt="">
                                                     <p class="fs-12 mb-0 px-1 text-center">
                                                         {{ translate('messages.Select_a_file_or') }} <span
@@ -588,12 +588,12 @@
     </script>
 
 
-    <script src="{{ asset('assets/admin/js/file-preview/pdf.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/file-preview/pdf-worker.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/file-preview/add-multiple-document-upload.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/view-pages/map-functionality.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/file-preview/pdf.min.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/file-preview/pdf-worker.min.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/file-preview/add-multiple-document-upload.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/view-pages/map-functionality.js') }}"></script>
 
-    <script src="{{ asset('assets/admin/js/spartan-multi-image-picker.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/spartan-multi-image-picker.js') }}"></script>
     <script
         src="https://maps.googleapis.com/maps/api/js?key={{ \App\CentralLogics\Helpers::get_business_settings('map_api_key') }}&libraries=drawing,places,marker,geometry&v=3.61&language={{ str_replace('_', '-', app()->getLocale()) }}&callback=initMap"
         async defer>

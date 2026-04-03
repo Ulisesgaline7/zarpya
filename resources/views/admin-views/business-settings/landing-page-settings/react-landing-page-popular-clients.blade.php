@@ -13,7 +13,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -70,8 +70,8 @@
                         </form>
                         <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                             <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                   data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                   data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                   data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                   data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                    data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                    data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                    data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -115,7 +115,7 @@
                         ->get()
                         ->map(function ($item) {
                             return [
-                                'url' => Helpers::get_full_url('popular_client_section/', $item->value, 'react_landing_page'),
+                                'url' => Helpers::get_full_url('popular_client_section', $item->value,$item?->storage[0]?->value ?? 'public' ,'react_landing_page'),
                                 'filename' => $item->value,
                                 'path' => 'popular_client_section/'
                             ];
@@ -320,7 +320,7 @@
                             {{--                                                            <div class="upload-file-textbox text-center"--}}
                             {{--                                                                 style="{{ $popular_client_image?->value ? 'display: none;' : '' }}">--}}
                             {{--                                                                <img width="22" class="svg"--}}
-                            {{--                                                                     src="{{asset('assets/admin/img/document-upload.svg')}}"--}}
+                            {{--                                                                     src="{{asset('public/assets/admin/img/document-upload.svg')}}"--}}
                             {{--                                                                     alt="img">--}}
                             {{--                                                                <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">--}}
                             {{--                                                                    <span class="theme-clr">Click to upload</span>--}}
@@ -431,7 +431,7 @@
                                         <div class="items__">
                                             <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                                 <img width="110" height="100"
-                                                     src="{{ $popular_client_image['url'] ?? asset('assets/admin/img/400x400/react-new-slide1.jpg') }}"
+                                                     src="{{ $popular_client_image['url'] ?? asset('/public/assets/admin/img/400x400/react-new-slide1.jpg') }}"
                                                      alt="" class="rounded">
                                             </div>
                                         </div>
@@ -442,56 +442,56 @@
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide1.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide1.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide2.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide2.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide3.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide3.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide4.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide4.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide5.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide5.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide6.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide6.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide7.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide7.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
                                     <div class="items__">
                                         <div class="p-xxl-3 p-2 d-center h-135px bg--secondary rounded">
                                             <img wdith="110" height="100"
-                                                 src="{{ asset('assets/admin/img/400x400/react-new-slide8.jpg') }}"
+                                                 src="{{ asset('/public/assets/admin/img/400x400/react-new-slide8.jpg') }}"
                                                  alt="" class="rounded">
                                         </div>
                                     </div>
@@ -514,7 +514,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('assets/admin/js/spartan-multi-image-picker.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/spartan-multi-image-picker.js') }}"></script>
     <script>
         $(function () {
             let existingImages = @json($popularClientImages);
@@ -525,7 +525,7 @@
                 rowHeight: '176px',
                 groupClassName: 'spartan_item_wrapper',
                 placeholderImage: {
-                    image: '{{ asset('assets/admin/img/new-component.png') }}',
+                    image: '{{ asset('public/assets/admin/img/new-component.png') }}',
                     width: '100%',
                     style: 'object-fit: cover;'
                 },

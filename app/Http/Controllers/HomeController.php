@@ -71,10 +71,10 @@ class HomeController extends Controller
         }
 
         // $settings =  DataSetting::with('translations')->where('type','admin_landing_page')->pluck('value','key')->toArray();
-        $opening_time = BusinessSetting::where('key', 'opening_time')->first();
-        $closing_time = BusinessSetting::where('key', 'closing_time')->first();
-        $opening_day = BusinessSetting::where('key', 'opening_day')->first();
-        $closing_day = BusinessSetting::where('key', 'closing_day')->first();
+        $opening_time =Helpers::get_business_settings('opening_time');
+        $closing_time = Helpers::get_business_settings('closing_time');
+        $opening_day =   Helpers::get_business_settings('opening_day');
+        $closing_day = Helpers::get_business_settings('closing_day');
         $promotional_banners = AdminPromotionalBanner::where('status', 1)->get()->toArray();
         $features = AdminFeature::where('status', 1)->get()->toArray();
         $criterias = AdminSpecialCriteria::where('status', 1)->get();
@@ -111,10 +111,10 @@ class HomeController extends Controller
             'contact_us_sub_title' => (isset($settings['contact_us_sub_title']))  ? $settings['contact_us_sub_title'] : null,
             'contact_us_image' => (isset($settings['contact_us_image']))  ? $settings['contact_us_image'] : null,
             'contact_us_image_storage' => (isset($settings['contact_us_image_storage']))  ? $settings['contact_us_image_storage'] : 'public',
-            'opening_time' => $opening_time ? $opening_time->value : null,
-            'closing_time' => $closing_time ? $closing_time->value : null,
-            'opening_day' => $opening_day ? $opening_day->value : null,
-            'closing_day' => $closing_day ? $closing_day->value : null,
+            'opening_time' => $opening_time ,
+            'closing_time' => $closing_time ,
+            'opening_day' => $opening_day ,
+            'closing_day' => $closing_day ,
             'promotional_banners' => (isset($promotional_banners))  ? $promotional_banners : null,
             'features' => (isset($features))  ? $features : [],
             'criterias' => (isset($criterias))  ? $criterias : null,

@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.admin_landing_pages') }}
@@ -60,7 +60,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span><span class="form-label-secondary text-danger"
                                                                  data-toggle="tooltip" data-placement="right"
@@ -89,7 +89,7 @@
                                                 class="form-label-secondary" data-toggle="tooltip"
                                                 data-placement="right"
                                                 data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                     alt="">
                                             </span></label>
                                                 <input id="why_choose_title{{$lang}}" type="text" maxlength="80" name="why_choose_title[]" class="form-control" value="{{ $why_choose_title_translate[$lang]['value']?? '' }}" placeholder="{{translate('messages.title_here...')}}">
@@ -104,7 +104,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="why_choose_title" type="text" maxlength="80" name="why_choose_title[]" class="form-control" placeholder="{{translate('messages.title_here...')}}">
@@ -134,7 +134,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_40_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span>
                                         <span class="form-label-secondary text-danger"
@@ -150,7 +150,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_40_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input  id="title{{$lang}}" type="text" maxlength="40" name="title[]" class="form-control" placeholder="{{translate('messages.title_here...')}}">
@@ -163,7 +163,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_40_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="title" type="text" maxlength="40" name="title[]" class="form-control" placeholder="{{translate('messages.title_here...')}}">
@@ -174,7 +174,7 @@
                                     <div>
 
                                         <label class="form-label mb-3">{{translate('Criteria Icon/ Image')}}<span class="form-label-secondary" data-toggle="tooltip" data-placement="right" data-original-title="{{ translate(IMAGE_FORMAT.' ' . 'Less Than 2MB') }}">
-                                            <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="">
+                                            <img src="{{asset('public/assets/admin/img/info-circle.svg')}}" alt="">
                                         </span>
                                             <span class="form-label-secondary text-danger"
                                                   data-toggle="tooltip" data-placement="right"
@@ -185,7 +185,7 @@
                                     </div>
                                     <label class="upload-img-3 m-0">
                                         <div class="img">
-                                            <img src="{{asset('assets/admin/img/aspect-1.png')}}" alt="" class="img__aspect-1 min-w-187px max-w-187px">
+                                            <img src="{{asset('/public/assets/admin/img/aspect-1.png')}}" alt="" class="img__aspect-1 min-w-187px max-w-187px">
                                         </div>
                                           <input class="upload-file__input single_file_input" accept="{{IMAGE_EXTENSION}}" type="file"  name="image" hidden>
                                     </label>
@@ -229,8 +229,8 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <img  src="{{ $criteria->image_full_url ?? asset('assets/admin/img/upload-3.png') }}"
-                                            data-onerror-image="{{asset('assets/admin/img/upload-3.png')}}" class="__size-105 onerror-image" alt="">
+                                            <img  src="{{ $criteria->image_full_url ?? asset('/public/assets/admin/img/upload-3.png') }}"
+                                            data-onerror-image="{{asset('/public/assets/admin/img/upload-3.png')}}" class="__size-105 onerror-image" alt="">
                                         </td>
                                         <td>
                                             <label class="toggle-switch toggle-switch-sm">
@@ -238,8 +238,8 @@
                                                       id="status-{{$criteria->id}}"
                                                        data-id="status-{{$criteria->id}}"
                                                        data-type="status"
-                                                       data-image-on="{{ asset('assets/admin/img/modal/this-criteria-on.png') }}"
-                                                       data-image-off="{{ asset('assets/admin/img/modal/this-criteria-off.png') }}"
+                                                       data-image-on="{{ asset('/public/assets/admin/img/modal/this-criteria-on.png') }}"
+                                                       data-image-off="{{ asset('/public/assets/admin/img/modal/this-criteria-off.png') }}"
                                                        data-title-on="{{ translate('Want to enable this feature?') }}"
                                                        data-title-off="{{ translate('Want to disable this feature?') }}"
                                                        data-text-on="<p>{{ translate('It will be available on the landing page.') }}</p>"
@@ -280,7 +280,7 @@
                     </div>
                     @if(count($criterias) === 0)
                     <div class="empty--data">
-                        <img src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
+                        <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
                         <h5>
                             {{translate('no_data_found')}}
                         </h5>

@@ -22,7 +22,7 @@ use Illuminate\Contracts\Foundation\Application;
 class AddonController extends Controller
 {
     public function __construct(){
-        if (is_dir(base_path('Modules/Gateways/Traits')) && trait_exists('Modules\Gateways\Traits\SmsGateway')) {
+        if (is_dir('Modules\Gateways\Traits') && trait_exists('Modules\Gateways\Traits\SmsGateway')) {
             $this->extendWithSmsGatewayTrait();
         }
     }
@@ -49,14 +49,14 @@ class AddonController extends Controller
 
     public function index(): Factory|View|Application
     {
-        $dir = base_path('Modules');
+        $dir = 'Modules';
         $directories = self::getDirectories($dir);
         $addons = [];
         foreach ($directories as $directory) {
             if($directory !== 'TaxModule'){
-                $sub_dirs = self::getDirectories(base_path('Modules/' . $directory));
+                $sub_dirs = self::getDirectories('Modules/' . $directory);
                 if (in_array('Addon', $sub_dirs)) {
-                    $addons[] = base_path('Modules/' . $directory);
+                    $addons[] = 'Modules/' . $directory;
                 }
             }
         }
@@ -113,6 +113,8 @@ class AddonController extends Controller
         $status = $response['active'] ?? base64_encode(1);
 
         if ((int)base64_decode($status)) {
+            // $full_data['is_published'] = $full_data['is_published'] ? 0 : 1;
+
             $full_data['is_published'] = 1;
             $full_data['username'] = $request['username'];
             $full_data['purchase_code'] = $request['purchase_code'];
@@ -154,12 +156,13 @@ class AddonController extends Controller
         $zip = new \ZipArchive();
 
         if ($zip->open(storage_path('app/' . $tempPath)) === TRUE) {
+            // Extract the contents to a directory
             $extractPath = base_path('Modules/');
             if (!File::isWritable($extractPath)) {
-                $status = 'error';
-                $message = translate('messages.File is not writable. Please check your file permissions.');
-                return response()->json(['status' => $status, 'message' => $message]);
-            }
+                        $status = 'error';
+                        $message = translate('messages.File is not writable. Please check your file permissions.');
+                        return response()->json(['status' => $status, 'message' => $message]);
+                    }
             $zip->extractTo($extractPath);
             $zip->close();
             if(File::exists($extractPath.'/'.explode('.', $filename)[0].'/Addon/info.php')){
@@ -205,23 +208,30 @@ class AddonController extends Controller
                 'message'=> translate('file_delete_fail')
             ]);
         }
+
     }
 
     //helper functions
     function getDirectories(string $path): array
     {
-        if (!is_dir($path)) {
+        $fullPath = base_path($path);
+
+        if (!is_dir($fullPath)) {
             return [];
         }
 
         $directories = [];
-        $items = scandir($path);
-        foreach ($items as $item) {
-            if ($item == '..' || $item == '.')
+
+        foreach (scandir($fullPath) as $item) {
+            if ($item === '.' || $item === '..') {
                 continue;
-            if (is_dir($path . '/' . $item))
+            }
+
+            if (is_dir($fullPath . DIRECTORY_SEPARATOR . $item)) {
                 $directories[] = $item;
+            }
         }
+
         return $directories;
     }
 

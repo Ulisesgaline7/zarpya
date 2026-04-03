@@ -4,8 +4,8 @@
 
 @push('css_or_js')
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="{{ asset('assets/admin/css/tags-input.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/admin/css/AI/animation/product/ai-sidebar.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/admin/css/tags-input.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/admin/css/AI/animation/product/ai-sidebar.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -16,7 +16,7 @@
         <div class="page-header d-flex flex-wrap __gap-15px justify-content-between align-items-center">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{ asset('assets/admin/img/edit.png') }}" class="w--22" alt="">
+                    <img src="{{ asset('public/assets/admin/img/edit.png') }}" class="w--22" alt="">
                 </span>
                 <span>
                     {{ request()->product_gellary == 1 ? translate('Add_item') : translate('item_update') }}
@@ -42,7 +42,7 @@
         </div>
         @php($openai_config = \App\CentralLogics\Helpers::get_business_settings('openai_config'))
         <!-- End Page Header -->
-        <form id="product_form" enctype="multipart/form-data" class="custom-validation" data-ajax="true">
+        <form id="product_form" enctype="multipart/form-data" class="validate-form" data-ajax="true">
             <input type="hidden" id="module_type" value="{{ Config::get('module.current_module_type') }}">
             @if (request()->product_gellary == 1)
                 @php($route = route('admin.item.store', ['product_gellary' => request()->product_gellary]))
@@ -80,7 +80,7 @@
                                                 class="spartan_item_wrapper min-w-176px max-w-176px">
                                                 <img class="img--square onerror-image"
                                                     src="{{ \App\CentralLogics\Helpers::get_full_url('product', $photo['img'] ?? '', $photo['storage']) }}"
-                                                    data-onerror-image="{{ asset('assets/admin/img/upload-img.png') }}"
+                                                    data-onerror-image="{{ asset('public/assets/admin/img/upload-img.png') }}"
                                                     alt="Product image">
                                                 <a href="#" data-key={{ $key }}
                                                     data-photo="{{ $photo['img'] }}"
@@ -98,8 +98,8 @@
                                     </label>
                                     <label class="d-inline-block m-0 position-relative error-wrapper">
                                         <img class="img--176 border onerror-image" id="viewer"
-                                            src="{{ $product['image_full_url'] ?? asset('assets/admin/img/upload-img.png') }}"
-                                            data-onerror-image="{{ asset('assets/admin/img/upload-img.png') }}"
+                                            src="{{ $product['image_full_url'] ?? asset('public/assets/admin/img/upload-img.png') }}"
+                                            data-onerror-image="{{ asset('public/assets/admin/img/upload-img.png') }}"
                                             alt="thumbnail" />
                                         <div class="icon-file-group">
                                             <div class="icon-file">
@@ -148,7 +148,7 @@
                                                     data-lang="en">
                                                     <div class="btn-svg-wrapper">
                                                         <img width="18" height="18" class=""
-                                                            src="{{ asset('assets/admin/img/svg/blink-right-small.svg') }}"
+                                                            src="{{ asset('public/assets/admin/img/svg/blink-right-small.svg') }}"
                                                             alt="">
                                                     </div>
                                                     <span class="ai-text-animation d-none" role="status">
@@ -184,7 +184,7 @@
                                         @if (!isset($product->food_variations) || count(json_decode($product->food_variations, true)) < 1)
                                             <div id="empty-variation">
                                                 <div class="text-center">
-                                                    <img src="{{ asset('assets/admin/img/variation.png') }}"
+                                                    <img src="{{ asset('/public/assets/admin/img/variation.png') }}"
                                                         alt="">
                                                     <div>{{ translate('No variation added') }}</div>
                                                 </div>
@@ -218,7 +218,7 @@
                                                 data-lang="en">
                                                 <div class="btn-svg-wrapper">
                                                     <img width="18" height="18" class=""
-                                                        src="{{ asset('assets/admin/img/svg/blink-right-small.svg') }}"
+                                                        src="{{ asset('public/assets/admin/img/svg/blink-right-small.svg') }}"
                                                         alt="">
                                                 </div>
                                                 <span class="ai-text-animation d-none" role="status">
@@ -280,6 +280,9 @@
                         </div>
                     </div>
                 @endif
+                @if (Config::get('module.current_module_type') == 'ecommerce')
+                    @includeIf('admin-views.business-settings.landing-page-settings.partial._meta_data', ['item' => $product])
+                @endif
 
                 <div class="col-md-12">
                     <div class="btn--container justify-content-end">
@@ -339,25 +342,25 @@
         let count = $('.count_div').length;
     </script>
 
-    <script src="{{ asset('assets/admin') }}/js/tags-input.min.js"></script>
-    <script src="{{ asset('assets/admin/js/spartan-multi-image-picker.js') }}"></script>
+    <script src="{{ asset('public/assets/admin') }}/js/tags-input.min.js"></script>
+    <script src="{{ asset('public/assets/admin/js/spartan-multi-image-picker.js') }}"></script>
 
 
-    <script src="{{ asset('assets/admin/js/AI/products/product-title-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/product-description-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/general-setup-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/product-others-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/seo-section-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/product-title-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/product-description-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/general-setup-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/product-others-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/seo-section-autofill.js') }}"></script>
     @if (Config::get('module.current_module_type') == 'food')
-        <script src="{{ asset('assets/admin/js/AI/products/variation-setup-auto-fill.js') }}"></script>
+        <script src="{{ asset('public/assets/admin/js/AI/products/variation-setup-auto-fill.js') }}"></script>
     @else
-        <script src="{{ asset('assets/admin/js/AI/products/other-variation-setup-auto-fill.js') }}"></script>
+        <script src="{{ asset('public/assets/admin/js/AI/products/other-variation-setup-auto-fill.js') }}"></script>
     @endif
 
-    <script src="{{ asset('assets/admin/js/AI/products/ai-sidebar.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/ai-sidebar.js') }}"></script>
 
-    <script src="{{ asset('assets/admin/js/AI/products/compressor/image-compressor.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/compressor/compressor.min.js') }}"></script>
+    <script src="{{ asset('/public/assets/admin/js/AI/products/compressor/image-compressor.js') }}"></script>
+    <script src="{{ asset('/public/assets/admin/js/AI/products/compressor/compressor.min.js') }}"></script>
 
 
     <script>
@@ -378,43 +381,30 @@
             $('#removedImageKeysInput').val(removedImageKeys.join(','));
         }
 
-
-        function show_min_max(data) {
-            console.log(data);
-            $('#min_max1_' + data).removeAttr("readonly");
-            $('#min_max2_' + data).removeAttr("readonly");
-            $('#min_max1_' + data).attr("required", "true");
-            $('#min_max2_' + data).attr("required", "true");
-        }
-
-        function hide_min_max(data) {
-            console.log(data);
-            $('#min_max1_' + data).val(null).trigger('change');
-            $('#min_max2_' + data).val(null).trigger('change');
-            $('#min_max1_' + data).attr("readonly", "true");
-            $('#min_max2_' + data).attr("readonly", "true");
-            $('#min_max1_' + data).attr("required", "false");
-            $('#min_max2_' + data).attr("required", "false");
-        }
-
-        $(document).on('change', '.show_min_max', function() {
-            let data = $(this).data('count');
-            show_min_max(data);
+        $(document).on('change', '.show_min_max', function () {
+            let count = $(this).data('count');
+            toggleMinMaxRequired(count, true);
         });
 
-        $(document).on('change', '#discount_type', function() {
-            let data = document.getElementById("discount_type");
-            if (data.value === 'amount') {
-                $('#symble').text("({{ \App\CentralLogics\Helpers::currency_symbol() }})");
+        $(document).on('change', '.hide_min_max', function () {
+            let count = $(this).data('count');
+            toggleMinMaxRequired(count, false);
+        });
+
+        function toggleMinMaxRequired(count, required) {
+            let $min = $('#min_max1_' + count);
+            let $max = $('#min_max2_' + count);
+
+            if (required) {
+                $min.prop('readonly', false).prop('required', true);
+                $max.prop('readonly', false).prop('required', true);
             } else {
-                $('#symble').text("(%)");
+                $min.prop('readonly', true).prop('required', false).val(null).trigger('change').removeClass('is-invalid');
+                $max.prop('readonly', true).prop('required', false).val(null).trigger('change').removeClass('is-invalid');
+                $('div.form-validation-error[data-for="options[' + count + '][min]"]').remove();
+                $('div.form-validation-error[data-for="options[' + count + '][max]"]').remove();
             }
-        });
-
-        $(document).on('change', '.hide_min_max', function() {
-            let data = $(this).data('count');
-            hide_min_max(data);
-        });
+        }
 
 
 
@@ -540,6 +530,7 @@
         function removeOption(e) {
             element = $(e);
             element.parents('.view_new_option').remove();
+            combination_update();
         }
 
         $(document).on('click', '.delete_input_button', function() {
@@ -550,6 +541,7 @@
         function deleteRow(e) {
             element = $(e);
             element.parents('.add_new_view_row_class').remove();
+            combination_update();
         }
 
         $(document).on('click', '.deleteRow', function() {
@@ -957,7 +949,9 @@
                     $('#variant_combination').html(data.view);
                     if (data.length < 1) {
                         $('input[name="current_stock"]').attr("readonly", false);
+                        $('input[name="current_stock"]').val(0);
                     }
+                    update_qty();
                 }
             });
         }
@@ -971,11 +965,9 @@
         //        }
         //    });
 
-        $('#product_form').on('submit', function() {
-            console.log('working');
-
-            let $form = $(this);
-            if (!$form.valid()) {
+        $('#product_form').on('submit', function(e) {
+            e.preventDefault();
+            if(typeof FormValidation != 'undefined' && !FormValidation.validateForm(this)) {
                 return false;
             }
 
@@ -1036,7 +1028,7 @@
             let total_qty = 0;
             let qty_elements = $('input[name^="stock_"]');
             for (let i = 0; i < qty_elements.length; i++) {
-                total_qty += parseInt(qty_elements.eq(i).val());
+                total_qty += parseInt(qty_elements.eq(i).val() || 0);
             }
             if (qty_elements.length > 0) {
 
@@ -1046,11 +1038,12 @@
                 $('input[name="current_stock"]').attr("readonly", false);
             }
         }
-        $('input[name^="stock_"]').on('keyup', function() {
+        
+        $(document).on('keyup', 'input[name^="stock_"]', function() {
             let total_qty = 0;
             let qty_elements = $('input[name^="stock_"]');
             for (let i = 0; i < qty_elements.length; i++) {
-                total_qty += parseInt(qty_elements.eq(i).val());
+                total_qty += parseInt(qty_elements.eq(i).val() || 0);
             }
             $('input[name="current_stock"]').val(total_qty);
         });
@@ -1063,7 +1056,7 @@
                 groupClassName: 'spartan_item_wrapper min-w-176px max-w-176px',
                 maxFileSize: 1024 * 1024 * {{ MAX_FILE_SIZE }},
                 placeholderImage: {
-                    image: "{{ asset('assets/admin/img/upload-img.png') }}",
+                    image: "{{ asset('public/assets/admin/img/upload-img.png') }}",
                     width: '176px'
                 },
                 dropFileLabel: "Drop Here",
@@ -1110,7 +1103,7 @@
             $('#choice_attributes').val(null).trigger('change');
             $('#customer_choice_options').empty().trigger('change');
             $('#variant_combination').empty().trigger('change');
-            $('#viewer').attr('src', "{{ asset('assets/admin/img/upload.png') }}");
+            $('#viewer').attr('src', "{{ asset('public/assets/admin/img/upload.png') }}");
             $("#coba").empty();
             initImagePicker();
         })

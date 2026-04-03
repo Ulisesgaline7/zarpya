@@ -8,7 +8,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -65,8 +65,8 @@
                         </form>
                         <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                             <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                   data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                   data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                   data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                   data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                    data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                    data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                    data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -459,8 +459,8 @@
                                                 <input type="checkbox"
                                                        data-id="faq_status_{{ $faq->id }}"
                                                        data-type="status"
-                                                       data-image-on="{{ asset('assets/admin/img/feature-status-on.png') }}"
-                                                       data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                                       data-image-on="{{ asset('/public/assets/admin/img/feature-status-on.png') }}"
+                                                       data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                                        data-title-on="{{ translate('Want_to_Enable_this') }} <strong>{{ translate('faq') }}</strong>"
                                                        data-title-off="{{ translate('Want_to_Disable_this') }} <strong>{{ translate('faq') }}</strong>"
                                                        data-text-on="<p>{{ translate('If_enabled,_it_will_be_shown_on_the_React_Landing_page') }}</p>"
@@ -508,7 +508,7 @@
                             </table>
                             @if(count($faqs) === 0)
                                 <div class="empty--data">
-                                    <img src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
+                                    <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
                                     <h5>
                                         {{translate('no_data_found')}}
                                     </h5>
@@ -822,11 +822,11 @@
                                             <div
                                                 class="d-flex align-items-center gap-3 flex-wrap justify-content-xl-between justify-content-center text-xl-start text-center flex-xl-nowrap">
                                                 <div
-                                                    class="d-xl-flex gap-x-xl-20 align-items-center flex-xl-nowrap flex-wrap">
+                                                    class="d-xl-flex gap-xxl-20 align-items-center flex-xl-nowrap flex-wrap">
                                                     <div
                                                         class="w-50px bg-white h-50px min-h-50 rounded-circle d-center mx-auto mb-xl-0 mb-2">
                                                         <img
-                                                            src="{{ asset('assets/admin/img/icons/faq-question.png') }}"
+                                                            src="{{ asset('/public/assets/admin/img/icons/faq-question.png') }}"
                                                             alt="" class="object-contain">
                                                     </div>
                                                     <div>
@@ -986,11 +986,11 @@
                                             <div
                                                 class="d-flex align-items-center gap-3 flex-wrap justify-content-xl-between justify-content-center text-xl-start text-center flex-xl-nowrap">
                                                 <div
-                                                    class="d-xl-flex gap-x-xl-20 align-items-center flex-xl-nowrap flex-wrap">
+                                                    class="d-xl-flex gap-xxl-20 align-items-center flex-xl-nowrap flex-wrap">
                                                     <div
                                                         class="w-50px bg-white h-50px min-h-50 rounded-circle d-center mx-auto mb-xl-0 mb-2">
                                                         <img
-                                                            src="{{ asset('assets/admin/img/icons/faq-question.png') }}"
+                                                            src="{{ asset('/public/assets/admin/img/icons/faq-question.png') }}"
                                                             alt="" class="object-contain">
                                                     </div>
                                                     <div>
@@ -1150,11 +1150,11 @@
                                             <div
                                                 class="d-flex align-items-center gap-3 flex-wrap justify-content-xl-between justify-content-center text-xl-start text-center flex-xl-nowrap">
                                                 <div
-                                                    class="d-xl-flex gap-x-xl-20 align-items-center flex-xl-nowrap flex-wrap">
+                                                    class="d-xl-flex gap-xxl-20 align-items-center flex-xl-nowrap flex-wrap">
                                                     <div
                                                         class="w-50px bg-white h-50px min-h-50 rounded-circle d-center mx-auto mb-xl-0 mb-2">
                                                         <img
-                                                            src="{{ asset('assets/admin/img/icons/faq-question.png') }}"
+                                                            src="{{ asset('/public/assets/admin/img/icons/faq-question.png') }}"
                                                             alt="" class="object-contain">
                                                     </div>
                                                     <div>

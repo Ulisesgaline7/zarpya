@@ -13,7 +13,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -71,8 +71,8 @@
                         </form>
                         <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                             <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                   data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                   data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                   data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                   data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                    data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                    data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                    data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -157,7 +157,7 @@
                                                     <div class="upload-file-textbox text-center"
                                                          style="{{ $trust_image?->value ? 'display: none;' : '' }}">
                                                         <img width="22" class="svg"
-                                                             src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                             src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                              alt="img">
                                                         <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                             <span class="theme-clr">Click to upload</span>
@@ -390,7 +390,7 @@
                                                     class="thumb-area bg-F5F5F5 rounded-pill w-60px h-60px min-w-60px d-center">
                                                     <img wdith="28" height="28"
                                                          src="{{ $trust_image?->value ? \App\CentralLogics\Helpers::get_full_url('trust_section', $trust_image->value, $trust_image->storage[0]?->value ?? 'public', 'aspect_1') :
-                                                            asset('assets/admin/img/order-delivery-list.png') }}"
+                                                            asset('/public/assets/admin/img/order-delivery-list.png') }}"
                                                          alt="" class="min-w-28">
                                                 </div>
                                                 <div>

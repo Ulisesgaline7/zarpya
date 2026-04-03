@@ -12,7 +12,7 @@
         <div class="mb-4 withdraw-header-sticky z-2">
             <div class="page-title-wrap d-flex justify-content-between flex-wrap align-items-center gap-3">
                 <h2 class="page-title m-0">
-                    <img width="20" src="{{asset('assets/admin/img/withdraw-icon.png')}}" alt="">
+                    <img width="20" src="{{asset('/public/assets/admin/img/withdraw-icon.png')}}" alt="">
                     {{ translate('Update Withdraw Method')}}
                 </h2>
                 <button class="btn btn--primary" id="add-more-field">

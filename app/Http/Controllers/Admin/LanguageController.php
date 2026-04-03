@@ -27,6 +27,14 @@ class LanguageController extends Controller
     public function store(Request $request)
     {
         $language = BusinessSetting::where('key', 'system_language')->first();
+        $existingLanguages = json_decode($language?->value, true) ?? [];
+
+        foreach ($existingLanguages as $data) {
+            if ($data['code'] === $request->code) {
+                Toastr::error('Language already exists!');
+                return back();
+            }
+        }
         $lang_array = [];
         $codes = [];
         foreach (json_decode($language?->value, true) as $key => $data) {
@@ -97,7 +105,7 @@ class LanguageController extends Controller
                 $lang_array[] = $lang;
             }
         }
-        $businessSetting = BusinessSetting::where('key', 'system_language')->update([
+        $businessSetting = Helpers::businessUpdateOrInsert(['key' => 'system_language'], [
             'value' => $lang_array
         ]);
         return $businessSetting;
@@ -137,7 +145,8 @@ class LanguageController extends Controller
                 $lang_array[] = $lang;
             }
         }
-        BusinessSetting::where('key', 'system_language')->update([
+
+        Helpers::businessUpdateOrInsert(['key' => 'system_language'], [
             'value' => $lang_array
         ]);
 
@@ -162,11 +171,11 @@ class LanguageController extends Controller
         $language = BusinessSetting::where('key', 'system_language')->first();
         $lang_array = [];
         foreach (json_decode($language?->value, true) as $key => $data) {
-            if ($data['code'] == $request['code']) {
+            if ($data['code'] == $request['old_code']) {
                 $lang = [
                     'id' => $data['id'],
                     'direction' => $request['direction'] ?? 'ltr',
-                    'code' => $data['code'],
+                    'code' => $request['code'],
                     'status' => $data['status'],
                     'default' => (array_key_exists('default', $data) ? $data['default'] : (($data['code'] == 'en') ? true : false)),
                 ];
@@ -182,11 +191,28 @@ class LanguageController extends Controller
                 $lang_array[] = $lang;
             }
         }
-        BusinessSetting::where('key', 'system_language')->update([
+
+        Helpers::businessUpdateOrInsert(['key' => 'system_language'], [
             'value' => $lang_array
         ]);
-        Toastr::success('Language updated!');
-        return back();
+
+        if($request->code != $request->old_code){
+            $dir = base_path('resources/lang/' . $request['old_code']);
+            if (File::isDirectory($dir)) {
+                rename($dir, base_path('resources/lang/' . $request['code']));
+            }
+
+            $codes = [];
+            foreach ($lang_array as $key => $data) {
+                array_push($codes, $data['code']);
+            }
+            Helpers::businessUpdateOrInsert(['key' => 'language'], [
+                'value' => json_encode($codes),
+            ]);
+        }
+
+    Toastr::success('Language updated!');
+    return back();
     }
 
     public function convertArrayToCollection($lang, $items, $perPage = null, $page = null, $options = [])
@@ -203,8 +229,9 @@ class LanguageController extends Controller
     public function translate(Request $request,$lang)
     {
         $searchTerm =$request['search'];
-        $full_data = include(base_path('resources/lang/' . $lang . '/messages.php'));
-        $full_data = array_filter($full_data, fn($value) => !is_null($value) && $value !== '');
+        $langFile = base_path('resources/lang/' . $lang . '/messages.php');
+        $full_data = file_exists($langFile) ? include($langFile) : [];
+        $full_data = is_array($full_data) ? array_filter($full_data, fn($value) => !is_null($value) && $value !== '') : [];
 
         if (!empty($searchTerm)) {
             $full_data = array_filter($full_data, function ($value, $key) use ($searchTerm) {

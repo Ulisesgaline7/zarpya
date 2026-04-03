@@ -11,7 +11,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{ asset('assets/admin/img/firebase.png') }}" class="w--26" alt="">
+                    <img src="{{ asset('public/assets/admin/img/firebase.png') }}" class="w--26" alt="">
                 </span>
                 <span>{{ translate('messages.firebase_push_notification_setup') }}
                 </span>
@@ -28,14 +28,14 @@
                         <li class="nav-item mr-2 mr-md-4">
                             <a href="{{ route('admin.business-settings.fcm-index') }}"
                                 class="nav-link pb-2 px-0 pb-sm-3 active" data-slide="1">
-                                <img src="{{ asset('assets/admin/img/notify.png') }}" alt="">
+                                <img src="{{ asset('/public/assets/admin/img/notify.png') }}" alt="">
                                 <span>{{ translate('Push Notification') }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('admin.business-settings.fcm-config') }}" class="nav-link pb-2 px-0 pb-sm-3"
                                 data-slide="2">
-                                <img src="{{ asset('assets/admin/img/firebase2.png') }}" alt="">
+                                <img src="{{ asset('/public/assets/admin/img/firebase2.png') }}" alt="">
                                 <span>{{ translate('Firebase Configuration') }}</span>
                             </a>
                         </li>
@@ -128,8 +128,8 @@
                                                                 for="pending_status">
                                                                 <input type="checkbox" data-id="pending_status"
                                                                     data-type="toggle"
-                                                                    data-image-on="{{ asset('assets/admin/img/modal/pending-order-on.png') }}"
-                                                                    data-image-off="{{ asset('assets/admin/img/modal/pending-order-off.png') }}"
+                                                                    data-image-on="{{ asset('/public/assets/admin/img/modal/pending-order-on.png') }}"
+                                                                    data-image-off="{{ asset('/public/assets/admin/img/modal/pending-order-off.png') }}"
                                                                     data-title-on="{{ translate('By Turning ON Trip') }} <strong>{{ translate('pending Message') }}</strong>"
                                                                     data-title-off="{{ translate('By Turning OFF Trip') }} <strong>{{ translate('pending Message') }}</strong>"
                                                                     data-text-on="<p>{{ translate('User will get a clear message to know that the Trip is pending.') }}</p>"
@@ -180,8 +180,8 @@
                                                                 for="confirm_status">
                                                                 <input type="checkbox" data-id="confirm_status"
                                                                     data-type="toggle"
-                                                                    data-image-on="{{ asset('assets/admin/img/modal/pending-order-on.png') }}"
-                                                                    data-image-off="{{ asset('assets/admin/img/modal/pending-order-off.png') }}"
+                                                                    data-image-on="{{ asset('/public/assets/admin/img/modal/pending-order-on.png') }}"
+                                                                    data-image-off="{{ asset('/public/assets/admin/img/modal/pending-order-off.png') }}"
                                                                     data-title-on="{{ translate('By Turning ON Trip') }} <strong>{{ translate('confirmation Message') }}</strong>"
                                                                     data-title-off="{{ translate('By Turning OFF Trip') }} <strong>{{ translate('confirmation Message') }}</strong>"
                                                                     data-text-on="<p>{{ translate('User will get a clear message to know that the trip is confirmed.') }}</p>"
@@ -234,8 +234,8 @@
                                                                     for="processing_status">
                                                                     <input type="checkbox" data-id="processing_status"
                                                                         data-type="toggle"
-                                                                        data-image-on="{{ asset('assets/admin/img/modal/pending-order-on.png') }}"
-                                                                        data-image-off="{{ asset('assets/admin/img/modal/pending-order-off.png') }}"
+                                                                        data-image-on="{{ asset('/public/assets/admin/img/modal/pending-order-on.png') }}"
+                                                                        data-image-off="{{ asset('/public/assets/admin/img/modal/pending-order-off.png') }}"
                                                                         data-title-on="{{ translate('By Turning ON Trip') }} <strong>{{ translate('Ongoing Message') }}</strong>"
                                                                         data-title-off="{{ translate('By Turning OFF Trip') }} <strong>{{ translate('Ongoing Message') }}</strong>"
                                                                         data-text-on="<p>{{ translate('User will get a clear message to know that the trip is Ongoing.') }}</p>"
@@ -287,8 +287,8 @@
                                                                     <input type="checkbox"
                                                                         data-id="trip_complete_message_status"
                                                                         data-type="toggle"
-                                                                        data-image-on="{{ asset('assets/admin/img/modal/pending-order-on.png') }}"
-                                                                        data-image-off="{{ asset('assets/admin/img/modal/pending-order-off.png') }}"
+                                                                        data-image-on="{{ asset('/public/assets/admin/img/modal/pending-order-on.png') }}"
+                                                                        data-image-off="{{ asset('/public/assets/admin/img/modal/pending-order-off.png') }}"
                                                                         data-title-on="{{ translate('By Turning ON Trip') }} <strong>{{ translate('Trip complete Message') }}</strong>"
                                                                         data-title-off="{{ translate('By Turning OFF Trip') }} <strong>{{ translate('Trip complete Message') }}</strong>"
                                                                         data-text-on="<p>{{ translate('User will get a clear message to know that the trip is completed.') }}</p>"
@@ -342,8 +342,8 @@
                                                                 for="out_for_delivery">
                                                                 <input type="checkbox" data-id="out_for_delivery"
                                                                     data-type="toggle"
-                                                                    data-image-on="{{ asset('assets/admin/img/modal/pending-order-on.png') }}"
-                                                                    data-image-off="{{ asset('assets/admin/img/modal/pending-order-off.png') }}"
+                                                                    data-image-on="{{ asset('/public/assets/admin/img/modal/pending-order-on.png') }}"
+                                                                    data-image-off="{{ asset('/public/assets/admin/img/modal/pending-order-off.png') }}"
                                                                     data-title-on="{{ translate('By Turning ON Trip') }} <strong>{{ translate('Cancel Message') }}</strong>"
                                                                     data-title-off="{{ translate('By Turning OFF Trip') }} <strong>{{ translate('Cancel Message') }}</strong>"
                                                                     data-text-on="<p>{{ translate('User will get a clear message to know that the trip is canceled.') }}</p>"
@@ -402,7 +402,7 @@
                             <div class="item">
                                 <div class="mb-20">
                                     <div class="text-center">
-                                        <img src="{{ asset('assets/admin/img/email-templates/3.png') }}"
+                                        <img src="{{ asset('/public/assets/admin/img/email-templates/3.png') }}"
                                             alt="" class="mb-20">
                                         <h5 class="modal-title">
                                             {{ translate('Write_a_message_in_the_Notification_Body') }}</h5>
@@ -426,7 +426,7 @@
                             <div class="item">
                                 <div class="mb-20">
                                     <div class="text-center">
-                                        <img src="{{ asset('assets/admin/img/firebase/slide-4.png') }}"
+                                        <img src="{{ asset('/public/assets/admin/img/firebase/slide-4.png') }}"
                                             alt="" class="mb-20">
                                         <h5 class="modal-title">
                                             {{ translate('Please Visit the Docs to Set FCM on Mobile Apps') }}</h5>

@@ -12,7 +12,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/category.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/category.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{translate('messages.Brand_Setup')}}
@@ -66,7 +66,7 @@
                                 <td>
                                     <div class="media align-items-center">
                                         <img class="avatar avatar-lg mr-3 onerror-image"
-                                        src="{{$brand['image_full_url'] ?? asset('assets/admin/img/160x160/img2.jpg') }}"  alt="{{$brand->name}} image">
+                                        src="{{$brand['image_full_url'] ?? asset('public/assets/admin/img/160x160/img2.jpg') }}"  alt="{{$brand->name}} image">
                                         <div  class="media-body">
                                             <h5   class="text-hover-primary mb-0">{{Str::limit($brand['name'],20,'...')}}
                                                 @if($brand->module_id == null)
@@ -125,7 +125,7 @@
             </div>
             @if(count($brands) === 0)
             <div class="empty--data">
-                <img src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
+                <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
                 <h5>
                     {{translate('no_data_found')}}
                 </h5>
@@ -250,9 +250,9 @@
                                 <label class="text-center position-relative d-inline-block mb-3">
                                     <img class="img--176 border" id="viewer"
                                             @if(isset($category))
-                                                src="{{asset('storage/category')}}/{{$category['image']}}"
+                                                src="{{asset('storage/app/public/category')}}/{{$category['image']}}"
                                             @else
-                                                src="{{asset('assets/admin/img/upload-img.png')}}"
+                                                src="{{asset('public/assets/admin/img/upload-img.png')}}"
                                             @endif
                                             alt="image"/>
                                     <div class="icon-file-group">
@@ -312,7 +312,7 @@
                                 </div>
 
                                 <div class="alert fs-12 alert-primary-light text-dark mb-0  mt-md-0 add_text_mute mt-2"  role="alert">
-                                    <img src="{{ asset('assets/admin/img/lnfo_light.png') }}" alt="">
+                                    <img src="{{ asset('/public/assets/admin/img/lnfo_light.png') }}" alt="">
                                     {{translate('Currently, this brand is active in all modules of the')}} <b>{{ Config::get('module.current_module_name') }}</b> {{ translate('Module_Type') }}
                                 </div>
                             </div>
@@ -362,7 +362,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{asset('assets/admin')}}/js/view-pages/brand-index.js"></script>
+    <script src="{{asset('public/assets/admin')}}/js/view-pages/brand-index.js"></script>
     <script>
         "use strict";
         $('.withdraw-info-hide, .withdraw-info-sidebar-overlay, .withdraw-info-hide2').on('click', function () {
@@ -404,7 +404,7 @@
 });
 
         $('#reset_btn').click(function(){
-            $('#viewer').attr('src', "{{asset('assets/admin/img/upload-img.png')}}");
+            $('#viewer').attr('src', "{{asset('public/assets/admin/img/upload-img.png')}}");
         })
     </script>
 @endpush

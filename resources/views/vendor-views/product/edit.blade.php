@@ -4,8 +4,10 @@
 
 @push('css_or_js')
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="{{ asset('assets/admin/css/tags-input.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/admin/css/AI/animation/product/ai-sidebar.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/admin/css/tags-input.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/admin/css/AI/animation/product/ai-sidebar.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{asset('public/assets/admin/css/custom.css')}}">
+<link rel="stylesheet" href="{{asset('public/assets/admin/css/upload-single-image.css')}}">
 @endpush
 
 @section('content')
@@ -17,7 +19,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{ asset('assets/admin/img/edit.png') }}" class="w--22" alt="">
+                    <img src="{{ asset('public/assets/admin/img/edit.png') }}" class="w--22" alt="">
                 </span>
                 <span>
                     {{ request()->product_gellary == 1 ? translate('Add_item') : translate('item_update') }}
@@ -40,7 +42,7 @@
             </div>
         @endif
         <!-- End Page Header -->
-        <form id="product_form" enctype="multipart/form-data" class="custom-validation" data-ajax="true">
+        <form id="product_form" enctype="multipart/form-data" class="validate-form" data-ajax="true">
 
             @if (request()->product_gellary == 1)
                 @php($route = route('vendor.item.store', ['product_gellary' => request()->product_gellary]))
@@ -65,60 +67,6 @@
 
                 @includeif('admin-views.product.partials._title_and_discription')
 
-                {{-- <div class="col-md-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="card-title">
-                                <span class="card-header-icon">
-                                    <i class="tio-image"></i>
-                                </span>
-                                <span>{{ translate('item_image') }}</span>
-                            </h5>
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <div class="mb-auto">
-                                <input type="hidden" id="removedImageKeysInput" name="removedImageKeys" value="">
-
-                                <label class="input-label"
-                                    for="exampleFormControlInput1">{{ translate('messages.item_images') }}</label>
-                                <div class="row" id="coba">
-                                    @foreach ($product->images as $key => $photo)
-                                        @php($photo = is_array($photo) ? $photo : ['img' => $photo, 'storage' => 'public'])
-                                        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-6 spartan_item_wrapper"
-                                            id="product_images_{{ $key }}">
-                                            <img class="img--square onerror-image"
-                                                src="{{ \App\CentralLogics\Helpers::get_full_url('product', $photo['img'], $photo['storage'] ?? 'public') }}"
-                                                data-onerror-image ="{{ asset('assets/admin/img/400x400/img2.jpg') }}"
-                                                alt="Product image">
-                                            <a href="#" data-key={{ $key }}
-                                                data-photo="{{ $photo['img'] }}"
-                                                class="spartan_remove_row function_remove_img"><i
-                                                    class="tio-add-to-trash"></i></a>
-                                        </div>
-                                    @endforeach
-
-                                </div>
-                            </div>
-                            <div class="mt-3 error-wrapper">
-                                <label class="text-dark">{{ translate('messages.item_thumbnail') }} <small
-                                        class="text-danger">* ( {{ translate('messages.ratio') }} 1:1 )</small></label>
-                                <div class="text-center d-block" id="image-viewer-section" class="pt-2">
-                                    <img class="img--100 onerror-image" id="viewer"
-                                        src="{{ $product['image_full_url'] }}"
-                                        data-onerror-image ="{{ asset('assets/admin/img/400x400/img2.jpg') }}"
-                                        alt="product image" />
-                                </div>
-                                <div class="custom-file mt-3">
-                                    <input type="file" name="image" id="customFileEg1" class="custom-file-input"
-                                        accept=".webp, .jpg, .png, .jpeg, .webp , .gif, .bmp, .tif, .tiff|image/*">
-                                    <label class="custom-file-label"
-                                        for="customFileEg1">{{ translate('messages.choose_file') }}</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
                 <div class="col-lg-6">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-wrap align-items-center">
@@ -138,7 +86,7 @@
                                                 class="spartan_item_wrapper min-w-176px max-w-176px">
                                                 <img class="img--square onerror-image"
                                                     src="{{ \App\CentralLogics\Helpers::get_full_url('product', $photo['img'] ?? '', $photo['storage']) }}"
-                                                    data-onerror-image="{{ asset('assets/admin/img/upload-img.png') }}"
+                                                    data-onerror-image="{{ asset('public/assets/admin/img/upload-img.png') }}"
                                                     alt="Product image">
                                                 <a href="#" data-key={{ $key }}
                                                     data-photo="{{ $photo['img'] }}"
@@ -156,8 +104,8 @@
                                     </label>
                                     <label class="d-inline-block m-0 position-relative error-wrapper">
                                         <img class="img--176 border onerror-image" id="viewer"
-                                            src="{{ $product['image_full_url'] ?? asset('assets/admin/img/upload-img.png') }}"
-                                            data-onerror-image="{{ asset('assets/admin/img/upload-img.png') }}"
+                                            src="{{ $product['image_full_url'] ?? asset('public/assets/admin/img/upload-img.png') }}"
+                                            data-onerror-image="{{ asset('public/assets/admin/img/upload-img.png') }}"
                                             alt="thumbnail" />
                                         <div class="icon-file-group">
                                             <div class="icon-file">
@@ -205,7 +153,7 @@
                                                 data-lang="en">
                                                 <div class="btn-svg-wrapper">
                                                     <img width="18" height="18" class=""
-                                                        src="{{ asset('assets/admin/img/svg/blink-right-small.svg') }}"
+                                                        src="{{ asset('public/assets/admin/img/svg/blink-right-small.svg') }}"
                                                         alt="">
                                                 </div>
                                                 <span class="ai-text-animation d-none" role="status">
@@ -240,7 +188,7 @@
                                     @if (!isset($product->food_variations) || count(json_decode($product->food_variations, true)) < 1)
                                         <div id="empty-variation">
                                             <div class="text-center">
-                                                <img src="{{ asset('assets/admin/img/variation.png') }}"
+                                                <img src="{{ asset('/public/assets/admin/img/variation.png') }}"
                                                     alt="">
                                                 <div>{{ translate('No variation added') }}</div>
                                             </div>
@@ -271,7 +219,7 @@
                                             data-lang="en">
                                             <div class="btn-svg-wrapper">
                                                 <img width="18" height="18" class=""
-                                                    src="{{ asset('assets/admin/img/svg/blink-right-small.svg') }}"
+                                                    src="{{ asset('public/assets/admin/img/svg/blink-right-small.svg') }}"
                                                     alt="">
                                             </div>
                                             <span class="ai-text-animation d-none" role="status">
@@ -326,10 +274,13 @@
                             </div>
                         </div>
                     </div>
+                    @if (Config::get('module.current_module_type') == 'ecommerce')
+                    @includeIf('admin-views.business-settings.landing-page-settings.partial._meta_data', ['item' => $product])
+                @endif
                 </div>
 
 
-
+                
 
 
                 <div class="col-12">
@@ -350,25 +301,26 @@
 @endpush
 
 @push('script_2')
-    <script src="{{ asset('assets/admin') }}/js/tags-input.min.js"></script>
-    <script src="{{ asset('assets/admin/js/spartan-multi-image-picker.js') }}"></script>
-    <script src="{{ asset('assets/admin') }}/js/view-pages/vendor/product-index.js"></script>
+    <script src="{{asset('public/assets/admin/js/upload-single-image.js')}}"></script>
+    <script src="{{ asset('public/assets/admin') }}/js/tags-input.min.js"></script>
+    <script src="{{ asset('public/assets/admin/js/spartan-multi-image-picker.js') }}"></script>
+    <script src="{{ asset('public/assets/admin') }}/js/view-pages/vendor/product-index.js"></script>
 
-    <script src="{{ asset('assets/admin/js/AI/products/product-title-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/product-description-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/general-setup-autofill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/product-others-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/product-title-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/product-description-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/general-setup-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/product-others-autofill.js') }}"></script>
     @if ($module_type == 'food')
-        <script src="{{ asset('assets/admin/js/AI/products/variation-setup-auto-fill.js') }}"></script>
+        <script src="{{ asset('public/assets/admin/js/AI/products/variation-setup-auto-fill.js') }}"></script>
     @else
-        <script src="{{ asset('assets/admin/js/AI/products/other-variation-setup-auto-fill.js') }}"></script>
+        <script src="{{ asset('public/assets/admin/js/AI/products/other-variation-setup-auto-fill.js') }}"></script>
     @endif
-    <script src="{{ asset('assets/admin/js/AI/products/seo-section-autofill.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/seo-section-autofill.js') }}"></script>
 
-    <script src="{{ asset('assets/admin/js/AI/products/ai-sidebar.js') }}"></script>
+    <script src="{{ asset('public/assets/admin/js/AI/products/ai-sidebar.js') }}"></script>
 
-    <script src="{{ asset('assets/admin/js/AI/products/compressor/image-compressor.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/AI/products/compressor/compressor.min.js') }}"></script>
+    <script src="{{ asset('/public/assets/admin/js/AI/products/compressor/image-compressor.js') }}"></script>
+    <script src="{{ asset('/public/assets/admin/js/AI/products/compressor/compressor.min.js') }}"></script>
 
 
 
@@ -559,12 +511,21 @@
                 success: function(data) {
                     $('#loading').hide();
                     $('#variant_combination').html(data.view);
-                    if (data.length > 1) {
-                        $('#quantity').hide();
-                    } else {
-                        $('#quantity').show();
+                    if (data.length < 1) {
+                        $('input[name="current_stock"]').attr("readonly", false);
+                        $('input[name="current_stock"]').val(0);
                     }
+                    update_qty();
                 }
+                // success: function(data) {
+                //     $('#loading').hide();
+                //     $('#variant_combination').html(data.view);
+                //     if (data.length > 1) {
+                //         $('#quantity').hide();
+                //     } else {
+                //         $('#quantity').show();
+                //     }
+                // }
             });
         }
 
@@ -596,13 +557,12 @@
 
 
 
-        $('#product_form').on('submit', function() {
-
-            let $form = $(this);
-            if (!$form.valid()) {
+        $('#product_form').on('submit', function(e) {
+            e.preventDefault();
+            if(typeof FormValidation != 'undefined' && !FormValidation.validateForm(this)) {
                 return false;
             }
-
+            
             let formData = new FormData(this);
             $.ajaxSetup({
                 headers: {
@@ -659,7 +619,7 @@
                 groupClassName: 'spartan_item_wrapper min-w-176px max-w-176px',
                 maxFileSize: 1024 * 1024 * 2,
                 placeholderImage: {
-                    image: "{{ asset('assets/admin/img/upload-img.png') }}",
+                    image: "{{ asset('public/assets/admin/img/upload-img.png') }}",
                     width: '176px'
                 },
                 dropFileLabel: "Drop Here",
@@ -693,6 +653,47 @@
         $(function() {
             initImagePicker();
         });
+
+        $(document).on('change', '.combination_update', function() {
+            combination_update();
+        });
+        function removeOption(e) {
+            element = $(e);
+            element.parents('.view_new_option').remove();
+            combination_update();
+        }
+        function deleteRow(e) {
+            element = $(e);
+            element.parents('.add_new_view_row_class').remove();
+            combination_update();
+        }
+
+        update_qty();
+
+        function update_qty() {
+            let total_qty = 0;
+            let qty_elements = $('input[name^="stock_"]');
+            for (let i = 0; i < qty_elements.length; i++) {
+                total_qty += parseInt(qty_elements.eq(i).val() || 0);
+            }
+            if (qty_elements.length > 0) {
+
+                $('input[name="current_stock"]').attr("readonly", true);
+                $('input[name="current_stock"]').val(total_qty);
+            } else {
+                $('input[name="current_stock"]').attr("readonly", false);
+            }
+        }
+        
+        $(document).on('keyup', 'input[name^="stock_"]', function() {
+            let total_qty = 0;
+            let qty_elements = $('input[name^="stock_"]');
+            for (let i = 0; i < qty_elements.length; i++) {
+                total_qty += parseInt(qty_elements.eq(i).val() || 0);
+            }
+            $('input[name="current_stock"]').val(total_qty);
+        });
+
 
         // $('#product_form').on('keydown', function(e) {
         //     if (e.key === 'Enter') {

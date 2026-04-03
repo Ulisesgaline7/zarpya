@@ -25,7 +25,7 @@
             <p class="m-0 fs-12">{{ translate('After you create a new zone, use this') }}</p>
         </div>
         <p class="m-0">
-            <img src="{{asset('assets/admin/img/icons/path-icon.svg')}}" alt=""> {{ translate('button to.') }} <a
+            <img src="{{asset('public/assets/admin/img/icons/path-icon.svg')}}" alt=""> {{ translate('button to.') }} <a
                 href="#0" class="font-semibold text-title">{{ translate('Connect Module.') }}</a>
             {{ translate('If you don’t connect a module, it won’t show in the zone') }}.
         </p>
@@ -62,7 +62,7 @@
                                     <span class="form-label-secondary text-danger" data-toggle="tooltip"
                                         data-placement="right"
                                         data-original-title="{{ translate('Choose_your_preferred_language_&_set_your_zone_name.') }}"><img
-                                            src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                            src="{{ asset('/public/assets/admin/img/info-circle.svg') }}"
                                             alt="{{ translate('messages.veg_non_veg') }}"></span>
                                 </ul>
                                 <div class="tab-content">
@@ -177,14 +177,14 @@
                                 <a id="export-excel" class="dropdown-item"
                                     href="{{route('admin.business-settings.zone.export', ['type' => 'excel', request()->getQueryString()])}}">
                                     <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                        src="{{ asset('assets/admin') }}/svg/components/excel.svg"
+                                        src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
                                         alt="Image Description">
                                     {{ translate('messages.excel') }}
                                 </a>
                                 <a id="export-csv" class="dropdown-item"
                                     href="{{route('admin.business-settings.zone.export', ['type' => 'csv', request()->getQueryString()])}}">
                                     <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                        src="{{ asset('assets/admin') }}/svg/components/placeholder-csv-format.svg"
+                                        src="{{ asset('public/assets/admin') }}/svg/components/placeholder-csv-format.svg"
                                         alt="Image Description">
                                     .{{ translate('messages.csv') }}
                                 </a>
@@ -223,7 +223,7 @@
                             {{ translate('If you don’t finish the setup the Zone you created won’t function properly.') }}
                         </span>
                     </div>
-                    <img src="{{asset('assets/admin/img/zone-settings-popup-arro.gif')}}" alt="admin/img"
+                    <img src="{{asset('/public/assets/admin/img/zone-settings-popup-arro.gif')}}" alt="admin/img"
                         class="w-100">
                     <div class="mt-3 d-flex flex-wrap align-items-center justify-content-between">
                         <label class="form-check form--check m-0">
@@ -255,7 +255,7 @@
             </div>
             <div class="modal-body pt-0">
                 <div class="text-center mb-20">
-                    <img src="{{asset('assets/admin/img/zone-status-on.png')}}" alt="" class="mb-20">
+                    <img src="{{asset('/public/assets/admin/img/zone-status-on.png')}}" alt="" class="mb-20">
                     <h5 class="modal-title">
                         {{translate('By switching the status to “ON”,  this zone and under all the functionality of this zone will be turned on')}}
                     </h5>
@@ -307,7 +307,7 @@
                     </div>
                 </div>
                 <div class="instructions-image mt-4">
-                    <img src="{{asset('assets/admin/img/instructions.gif')}}" alt="instructions">
+                    <img src="{{asset('public/assets/admin/img/instructions.gif')}}" alt="instructions">
                 </div>
             </div>
         </div>

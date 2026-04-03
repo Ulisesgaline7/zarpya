@@ -14,7 +14,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -73,8 +73,8 @@
                         </form>
                         <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                             <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                   data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                   data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                   data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                   data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                    data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                    data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                    data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -366,7 +366,7 @@
                                                         <label class="upload-file__wrapper ratio-1 m-0">
                                                             <div class="upload-file-textbox text-center">
                                                                 <img width="22" class="svg"
-                                                                     src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                                     src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                                      alt="img">
                                                                 <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                                     <span class="theme-clr">Click to upload</span>
@@ -466,7 +466,7 @@
                                     $gallery_image_1->storage[0]->value ?? 'public',
                                     'upload_1_1',
                                 )
-                                :asset('assets/admin/img/400x400/ract-gallery1.jpg') }}"
+                                :asset('/public/assets/admin/img/400x400/ract-gallery1.jpg') }}"
                                              alt="" class="rounded-10 w-100 h-100">
                                     </div>
                                 </div>
@@ -482,7 +482,7 @@
                                     $gallery_image_2->storage[0]->value ?? 'public',
                                     'upload_1_1',
                                 )
-                                :asset('assets/admin/img/400x400/ract-gallery2.jpg') }}"
+                                :asset('/public/assets/admin/img/400x400/ract-gallery2.jpg') }}"
                                                     alt="" class="rounded-10 w-100 h-100">
                                             </div>
                                         </div>
@@ -496,7 +496,7 @@
                                     $gallery_image_3->storage[0]->value ?? 'public',
                                     'upload_1_1',
                                 )
-                                :asset('assets/admin/img/400x400/ract-gallery3.jpg') }}"
+                                :asset('/public/assets/admin/img/400x400/ract-gallery3.jpg') }}"
                                                     alt="" class="rounded-10 w-100 h-100">
                                             </div>
                                         </div>
@@ -510,7 +510,7 @@
                                     $gallery_image_4->storage[0]->value ?? 'public',
                                     'upload_1_1',
                                 )
-                                :asset('assets/admin/img/400x400/ract-gallery4.jpg') }}"
+                                :asset('/public/assets/admin/img/400x400/ract-gallery4.jpg') }}"
                                                     alt="" class="rounded-10 w-100 h-100">
                                             </div>
                                         </div>

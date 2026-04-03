@@ -52,7 +52,7 @@
                     <div class="h-100 card d-flex align-items-center justify-content-center">
                         <div class="text-center">
                             <div class="empty-conversation-content d-flex flex-column align-items-center gap-2">
-                                <img width="120" height="120" src="{{asset('assets/admin/img/icons/empty-conversation.png')}}" alt="public">
+                                <img width="120" height="120" src="{{asset('/public/assets/admin/img/icons/empty-conversation.png')}}" alt="public">
                                 <h5 class="text-muted">
                                     {{translate('no_conversation_found')}}
                                 </h5>

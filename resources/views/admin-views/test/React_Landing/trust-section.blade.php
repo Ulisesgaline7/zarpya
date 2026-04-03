@@ -13,7 +13,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -104,7 +104,7 @@
                                             accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                     <label class="upload-file__wrapper ratio-1 m-0">
                                         <div class="upload-file-textbox text-center">
-                                            <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                            <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                             <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                 <span class="theme-clr">Click to upload</span>
                                                 <br>
@@ -212,7 +212,7 @@
                                             accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                     <label class="upload-file__wrapper ratio-1 m-0">
                                         <div class="upload-file-textbox text-center">
-                                            <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                            <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                             <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                 <span class="theme-clr">Click to upload</span>
                                                 <br>
@@ -320,7 +320,7 @@
                                             accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                     <label class="upload-file__wrapper ratio-1 m-0">
                                         <div class="upload-file-textbox text-center">
-                                            <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                            <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                             <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                 <span class="theme-clr">Click to upload</span>
                                                 <br>
@@ -428,7 +428,7 @@
                                             accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                     <label class="upload-file__wrapper ratio-1 m-0">
                                         <div class="upload-file-textbox text-center">
-                                            <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                            <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                             <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                 <span class="theme-clr">Click to upload</span>
                                                 <br>
@@ -530,7 +530,7 @@
                                 <div class="items__">
                                     <div class="px-3 py-4 shadow--card d-flex align-items-center gap-3">
                                         <div class="thumb-area bg-F5F5F5 rounded-pill w-60px h-60px min-w-60px d-center">
-                                            <img wdith="28" height="28" src="{{ asset('assets/admin/img/order-delivery-list.png') }}" alt="" class="min-w-28">
+                                            <img wdith="28" height="28" src="{{ asset('/public/assets/admin/img/order-delivery-list.png') }}" alt="" class="min-w-28">
                                         </div>
                                         <div>
                                             <h2 class="mb-1">10,000+</h2>
@@ -541,7 +541,7 @@
                                 <div class="items__">
                                     <div class="px-3 py-4 shadow--card d-flex align-items-center gap-3">
                                         <div class="thumb-area bg-F5F5F5 rounded-pill w-60px h-60px min-w-60px d-center">
-                                            <img wdith="28" height="28" src="{{ asset('assets/admin/img/order-delivery-list.png') }}" alt="" class="min-w-28">
+                                            <img wdith="28" height="28" src="{{ asset('/public/assets/admin/img/order-delivery-list.png') }}" alt="" class="min-w-28">
                                         </div>
                                         <div>
                                             <h2 class="mb-1">10,000+</h2>
@@ -552,7 +552,7 @@
                                 <div class="items__">
                                     <div class="px-3 py-4 shadow--card d-flex align-items-center gap-3">
                                         <div class="thumb-area bg-F5F5F5 rounded-pill w-60px h-60px min-w-60px d-center">
-                                            <img wdith="28" height="28" src="{{ asset('assets/admin/img/order-delivery-list.png') }}" alt="" class="min-w-28">
+                                            <img wdith="28" height="28" src="{{ asset('/public/assets/admin/img/order-delivery-list.png') }}" alt="" class="min-w-28">
                                         </div>
                                         <div>
                                             <h2 class="mb-1">10,000+</h2>

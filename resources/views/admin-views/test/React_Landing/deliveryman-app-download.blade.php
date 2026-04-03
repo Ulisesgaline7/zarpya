@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -123,7 +123,7 @@
                                                 accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                         <label class="upload-file__wrapper w-100 h-100 m-0">
                                             <div class="upload-file-textbox text-center" style="">
-                                                <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                                <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                                 <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                     <span class="theme-clr">Click to upload</span>
                                                     <br>
@@ -311,7 +311,7 @@
                                     <div class="bg-white rounded p-xxl-4 p-2">
                                         <div class="d-flex mb-20 align-items-center gap-2 flex-wrap justify-content-between">
                                             <h4 class="mb-0">
-                                                <img src="{{asset('assets/admin/img/playstore.png')}}" class="mr-2" alt="">
+                                                <img src="{{asset('public/assets/admin/img/playstore.png')}}" class="mr-2" alt="">
                                                 {{translate('Playstore Button')}}
                                             </h4>
                                             <label class="toggle-switch toggle-switch-sm m-0">
@@ -319,8 +319,8 @@
                                                         id="play-store-dm-status"
                                                         data-id="play-store-dm-status"
                                                         data-type="toggle"
-                                                        data-image-on="{{ asset('assets/admin/img/modal/play-store-on.png') }}"
-                                                        data-image-off="{{ asset('assets/admin/img/modal/play-store-off.png') }}"
+                                                        data-image-on="{{ asset('/public/assets/admin/img/modal/play-store-on.png') }}"
+                                                        data-image-off="{{ asset('/public/assets/admin/img/modal/play-store-off.png') }}"
                                                         data-title-on="{{ translate('want_to_enable_the_play_store_button_for_user_app') }}"
                                                         data-title-off="{{ translate('want_to_disable_the_play_store_button_for_user_app') }}"
                                                         data-text-on="<p>{{ translate('if_enabled,_the_user_app_download_button_will_be_visible_on_react_landing_page') }}</p>"
@@ -352,15 +352,15 @@
                                     <div class="bg-white rounded p-xxl-4 p-2">
                                         <div class="d-flex mb-20 align-items-center gap-2 flex-wrap justify-content-between">                                        
                                             <h4 class="m-0">
-                                                <img src="{{asset('assets/admin/img/ios.png')}}" class="mr-2" alt="">
+                                                <img src="{{asset('public/assets/admin/img/ios.png')}}" class="mr-2" alt="">
                                                 {{translate('App Store Button')}}
                                             </h4>
                                             <label class="toggle-switch toggle-switch-sm m-0">
                                                 <input type="checkbox" name="apple_store_url_status"
                                                         data-id="apple-dm-status"
                                                         data-type="toggle"
-                                                        data-image-on="{{ asset('assets/admin/img/modal/apple-on.png') }}"
-                                                        data-image-off="{{ asset('assets/admin/img/modal/apple-off.png') }}"
+                                                        data-image-on="{{ asset('/public/assets/admin/img/modal/apple-on.png') }}"
+                                                        data-image-off="{{ asset('/public/assets/admin/img/modal/apple-off.png') }}"
                                                         data-title-on="{{ translate('want_to_enable_the_app_store_button_for_user_app') }}"
                                                         data-title-off="{{ translate('want_to_disable_the_app_store_button_for_user_app') }}"
                                                         data-text-on="<p>{{ translate('if_enabled,_the_user_app_download_button_will_be_visible_on_react_landing_page') }}</p>"
@@ -417,10 +417,10 @@
             </div>
             <div class="custom-offcanvas-body custom-offcanvas-body-100  p-20">
                <section class="common-section-view p-xl-5 p-0 bg-white border rounded-10 my-xl-2 mx-xl-2">
-                    <div class="common-section-inner bg-fafafa p-xxl-4 p-3 d-flex flex-xl-nowrap justify-content-lg-between justify-content-center flex-wrap align-items-center gap-x-xl-20">                        
-                        <div class="d-flex align-items-center justify-content-xl-start justify-content-center flex-xl-nowrap flex-wrap gap-x-xl-20 max-w-650 mb-xxl-0 mb-3">
+                    <div class="common-section-inner bg-fafafa p-xxl-4 p-3 d-flex flex-xl-nowrap justify-content-lg-between justify-content-center flex-wrap align-items-center gap-xxl-20">                        
+                        <div class="d-flex align-items-center justify-content-xl-start justify-content-center flex-xl-nowrap flex-wrap gap-xxl-20 max-w-650 mb-xxl-0 mb-3">
                             <div class="selling-thumb min-w-176px max-w-250">
-                                <img width="180" src="{{ asset('assets/admin/img/400x400/deliveryman-dirver.png') }}" alt="Google Play" class="object-contain w-100 h-100">
+                                <img width="180" src="{{ asset('/public/assets/admin/img/400x400/deliveryman-dirver.png') }}" alt="Google Play" class="object-contain w-100 h-100">
                             </div>
                            <div class="mt-xl-0 mt-2 max-w-353px">
                                 <h2 class="mb-xxl-2 mb-1 fs-24">
@@ -431,15 +431,15 @@
                                 </p>
                                 <ul class="list-checked d-flex flex-column gap-1 mb-xxl-4 mb-xl-3 mb-3">
                                     <li class="d-flex fs-14 align-items-center gap-2 text-title fw-medium">
-                                        <img width="16" src="{{asset('assets/admin/img/icons/6check.png')}}" alt="check" class="svg">
+                                        <img width="16" src="{{asset('public/assets/admin/img/icons/6check.png')}}" alt="check" class="svg">
                                         Choose your ride – car, bike, or bicycle
                                     </li>
                                     <li class="d-flex fs-14 align-items-center gap-2 text-title fw-medium">
-                                        <img width="16" src="{{asset('assets/admin/img/icons/6check.png')}}" alt="check" class="svg">
+                                        <img width="16" src="{{asset('public/assets/admin/img/icons/6check.png')}}" alt="check" class="svg">
                                         Flexible hours that fit your lifestyle
                                     </li>
                                     <li class="d-flex fs-14 align-items-center gap-2 text-title fw-medium">
-                                        <img width="16" src="{{asset('assets/admin/img/icons/6check.png')}}" alt="check" class="svg">
+                                        <img width="16" src="{{asset('public/assets/admin/img/icons/6check.png')}}" alt="check" class="svg">
                                         Instant payouts & bonus opportunities
                                     </li>
                                 </ul>
@@ -456,7 +456,7 @@
                                 </div>
                                 <div class="scan-wrap max-w-150 mx-auto bg-fafafa mb-3 p-xxl-3 p-2 text-center">
                                     <div class="scan bg-white d-center border w-80px h-80px mx-auto rounded p-1">
-                                        <img src="{{ asset('assets/admin/img/400x400/app-scan.png') }}" alt="Google Play" class="object-cover w-100 h-100">
+                                        <img src="{{ asset('/public/assets/admin/img/400x400/app-scan.png') }}" alt="Google Play" class="object-cover w-100 h-100">
                                     </div>
                                     <p class="mb-0 fs-12 mt-1 text-center">{{ translate('messages.Scan to DownLoad') }}</p>
                                 </div>
@@ -464,14 +464,14 @@
                                     <div class="d-flex justify-content-sm-start justify-content-center flex-sm-nowrap flex-wrap align-items-center gap-x-xl-10 app-manage">
                                         <!-- Google Play Button -->
                                         <a href="#" class="btn btn-primary d-flex align-items-center mr-2 px-3 py-2 bg-000 rounded mb-sm-0 mb-1">                                    
-                                            <img width="24" height="24" src="{{ asset('assets/admin/img/icons/playstore.png') }}" alt="Google Play" class="mr-1">
+                                            <img width="24" height="24" src="{{ asset('/public/assets/admin/img/icons/playstore.png') }}" alt="Google Play" class="mr-1">
                                             <div class="text-left">
                                                 <small class="d-block text-white mb-0 fs-12">GET IT ON</small>
                                                 <strong class="d-block text-white fs-14">Google Play</strong>
                                             </div>
                                         </a>
                                         <a href="#" class="btn btn-primary d-flex align-items-center px-3 py-2 bg-000 rounded">
-                                            <img width="24" height="24" src="{{ asset('assets/admin/img/icons/apple-icon.png') }}" alt="App Store" class="mr-1">
+                                            <img width="24" height="24" src="{{ asset('/public/assets/admin/img/icons/apple-icon.png') }}" alt="App Store" class="mr-1">
                                             <div class="text-left">
                                                 <small class="d-block text-white mb-0 fs-12">Download ON</small>
                                                 <strong class="d-block text-white fs-14">App Store</strong>
@@ -497,7 +497,7 @@
 @endsection
 
 @push('script_2')
-<script src="{{asset('assets/admin/ckeditor/ckeditor.js')}}"></script>
+<script src="{{asset('public/assets/admin/ckeditor/ckeditor.js')}}"></script>
 <script>
     "use strict";
     $(document).ready(function () {

@@ -4,7 +4,7 @@
 
 @push('css_or_js')
     <!-- Custom styles for this page -->
-    <link href="{{asset('assets/admin/css/croppie.css')}}" rel="stylesheet">
+    <link href="{{asset('public/assets/admin/css/croppie.css')}}" rel="stylesheet">
 
 @endpush
 
@@ -19,7 +19,7 @@
             <div>
                 <h3 class="card-title mb-1 align-items-center gap-2">
                     <!-- <span class="card-header-icon">
-                    <img width="25" src="{{asset('assets/admin/img/subscription-plan/subscribed-user.png')}}" alt="">
+                    <img width="25" src="{{asset('public/assets/admin/img/subscription-plan/subscribed-user.png')}}" alt="">
                     </span> -->
                     <span class="text-title">{{ translate('Package Overview') }}</span>
                 </h3>
@@ -48,7 +48,7 @@
                                 </span>
                                 <span class="fs-14 font-semibold d-block">{{ translate('messages.Commission_per_order') }}</span>
                             </h4>
-                            <img width="40" src="{{asset('assets/admin/img/money-percentage.png')}}" alt="">
+                            <img width="40" src="{{asset('public/assets/admin/img/money-percentage.png')}}" alt="">
                         </div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                                     <div class="col-xl-6 col-xxl-5">
                                         <div>
                                             <label class="d-flex mb-1 justify-content-between switch toggle-switch-sm text-dark text-capitalize" for="comission_status">
-                                                <span>{{translate('messages.Change_Commission_Rate')}}(%) <span class="input-label-secondary" data-toggle="tooltip" data-placement="right" data-original-title="{{translate('When_enabled,_admin_will_only_receive_the_certain_commission_percentage_he_set_for_this_store._Otherwise,_the_system_default_commission_will_be_applied.')}}"><img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="{{translate('When_enabled,_admin_will_only_receive_the_certain_commission_percentage_he_set_for_this_store._Otherwise,_the_system_default_commission_will_be_applied.')}}"></span></span>
+                                                <span>{{translate('messages.Change_Commission_Rate')}}(%) <span class="input-label-secondary" data-toggle="tooltip" data-placement="right" data-original-title="{{translate('When_enabled,_admin_will_only_receive_the_certain_commission_percentage_he_set_for_this_store._Otherwise,_the_system_default_commission_will_be_applied.')}}"><img src="{{asset('/public/assets/admin/img/info-circle.svg')}}" alt="{{translate('When_enabled,_admin_will_only_receive_the_certain_commission_percentage_he_set_for_this_store._Otherwise,_the_system_default_commission_will_be_applied.')}}"></span></span>
                                                 <input type="checkbox" class="toggle-switch-input" name="comission_status" id="comission_status" value="1" {{isset($store->comission)?'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
@@ -146,7 +146,7 @@
                     <div class="card-header flex-wrap gap-2 border-0 align-items-center">
                         <h3 class="card-title align-items-center gap-2">
                             <span class="card-header-icon">
-                                <img src="{{asset('assets/admin/img/billing.png')}}" alt="">
+                                <img src="{{asset('public/assets/admin/img/billing.png')}}" alt="">
                             </span>
                             <span class="text-title">{{ translate('Billing') }}</span>
                         </h3>
@@ -155,7 +155,7 @@
                         <div class="row g-3">
                             <div class="col-sm-6 col-lg-4">
                                 <a class="__card-2 __bg-1 flex-row align-items-center gap-4" href="#">
-                                    <img src="{{asset('assets/admin/img/expiring.png')}}" alt="report/new" class="w-60px">
+                                    <img src="{{asset('public/assets/admin/img/expiring.png')}}" alt="report/new" class="w-60px">
                                     <div class="w-0 flex-grow-1 py-md-3">
                                         <span class="text-body">{{ translate('Expire Date') }}</span>
                                         <h4 class="title m-0">{{  \App\CentralLogics\Helpers::date_format($store?->store_sub_update_application?->expiry_date_parsed) }}</h4>
@@ -164,7 +164,7 @@
                             </div>
                             <div class="col-sm-6 col-lg-4">
                                 <a class="__card-2 __bg-8 flex-row align-items-center gap-4" href="#">
-                                    <img src="{{asset('assets/admin/img/total-bill.png')}}" alt="report/new" class="w-60px">
+                                    <img src="{{asset('public/assets/admin/img/total-bill.png')}}" alt="report/new" class="w-60px">
                                     <div class="w-0 flex-grow-1 py-md-3">
                                         <span class="text-body">{{ translate('Total_Bill') }}</span>
                                         <h4 class="title m-0">{{  \App\CentralLogics\Helpers::format_currency($store?->store_sub_update_application?->package?->price * ($store?->store_sub_update_application?->total_package_renewed + 1) ) }}</h4>
@@ -173,7 +173,7 @@
                             </div>
                             <div class="col-sm-6 col-lg-4">
                                 <a class="__card-2 __bg-4 flex-row align-items-center gap-4" href="#">
-                                    <img src="{{asset('assets/admin/img/number.png')}}" alt="report/new" class="w-60px">
+                                    <img src="{{asset('public/assets/admin/img/number.png')}}" alt="report/new" class="w-60px">
                                     <div class="w-0 flex-grow-1 py-md-3">
                                         <span class="text-body">{{ translate('Number of Uses') }}</span>
                                         <h4 class="title m-0">{{ $store?->store_sub_update_application?->total_package_renewed + 1 }}</h4>
@@ -188,7 +188,7 @@
                         <div>
                             <h3 class="card-title align-items-center gap-2">
                                 <!-- <span class="card-header-icon">
-                                    <img width="25" src="{{asset('assets/admin/img/subscription-plan/subscribed-user.png')}}" alt="">
+                                    <img width="25" src="{{asset('public/assets/admin/img/subscription-plan/subscribed-user.png')}}" alt="">
                                 </span> -->
                                 <span class="text-title">{{ translate('Package Overview') }}
                                     @if($store?->status == 0 &&  $store?->vendor?->status == 0)
@@ -233,7 +233,7 @@
                             <div class="check--grid-wrapper mt-3 max-w-850px">
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @if ( $store?->store_sub_update_application?->max_order == 'unlimited' )
                                         <span class="form-check-label text-dark">{{ translate('messages.unlimited_orders') }}</span>
                                         @else
@@ -245,9 +245,9 @@
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ( $store?->store_sub_update_application?->pos == 1 )
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @else
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check-1.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check-1.png')}}" alt="">
                                         @endif
                                         <span class="form-check-label text-dark">{{ translate('messages.POS') }}</span>
                                     </div>
@@ -255,9 +255,9 @@
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ( $store?->store_sub_update_application?->mobile_app == 1 )
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @else
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check-1.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check-1.png')}}" alt="">
                                         @endif
                                         <span class="form-check-label text-dark">{{ translate('messages.Mobile_App') }}</span>
                                     </div>
@@ -265,9 +265,9 @@
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ( $store?->store_sub_update_application?->self_delivery == 1 )
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @else
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check-1.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check-1.png')}}" alt="">
                                         @endif
                                         <span class="form-check-label text-dark">{{ translate('messages.self_delivery') }}</span>
                                     </div>
@@ -275,7 +275,7 @@
 
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @if ( $store?->store_sub_update_application?->max_product == 'unlimited' )
                                         <span class="form-check-label text-dark">{{ translate('messages.unlimited_item_Upload')
                                             }}</span>
@@ -289,9 +289,9 @@
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ( $store?->store_sub_update_application?->review == 1 )
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @else
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check-1.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check-1.png')}}" alt="">
                                         @endif
                                         <span class="form-check-label text-dark">{{ translate('messages.review') }}</span>
                                     </div>
@@ -300,9 +300,9 @@
                                 <div>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ( $store?->store_sub_update_application?->chat == 1 )
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check.png')}}" alt="">
                                         @else
-                                        <img src="{{asset('assets/admin/img/subscription-plan/check-1.png')}}" alt="">
+                                        <img src="{{asset('/public/assets/admin/img/subscription-plan/check-1.png')}}" alt="">
                                         @endif
                                         <span class="form-check-label text-dark">{{ translate('messages.chat') }}</span>
                                     </div>
@@ -326,7 +326,7 @@
         <div class="card">
             <div class="card-body text-center py-5">
                 <div class="max-w-542 mx-auto py-sm-5 py-4">
-                    <img class="mb-4" src="{{asset('assets/admin/img/empty-subscription.svg')}}" alt="img">
+                    <img class="mb-4" src="{{asset('/public/assets/admin/img/empty-subscription.svg')}}" alt="img">
                     <h4 class="mb-3">{{translate('Chose Subscription Plan')}}</h4>
                     <p class="mb-4">
                         {{translate('Chose a subscription packages from the list. So that Stores get more options to join the business for the growth and success.')}}<br>
@@ -496,7 +496,7 @@
                     <div class="max-349 mx-auto mb-20">
                         <div>
                             <div class="text-center">
-                                <img src="{{asset('assets/admin/img/subscription-plan/package-status-disable.png')}}" class="mb-20">
+                                <img src="{{asset('/public/assets/admin/img/subscription-plan/package-status-disable.png')}}" class="mb-20">
                                 <h5 class="modal-title" ></h5>
                             </div>
                             <div class="text-center">

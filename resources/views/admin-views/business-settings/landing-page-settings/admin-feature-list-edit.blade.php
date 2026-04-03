@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.admin_landing_pages') }}
@@ -65,7 +65,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_20_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span>
                                             <span class="form-label-secondary text-danger"
@@ -79,7 +79,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span>
                                             <span class="form-label-secondary text-danger"
@@ -113,7 +113,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_20_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="title" type="text" maxlength="20" name="title[]" value="{{ $translate[$lang]['title']??'' }}" class="form-control" placeholder="{{translate('messages.title_here...')}}">
@@ -123,7 +123,7 @@
                                                         class="form-label-secondary" data-toggle="tooltip"
                                                         data-placement="right"
                                                         data-original-title="{{ translate('Write_the_title_within_80_characters') }}">
-                                                        <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                                        <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                             alt="">
                                                     </span></label>
                                                 <input id="sub_title" type="text" maxlength="80" name="sub_title[]" value="{{ $translate[$lang]['sub_title']??'' }}" class="form-control" placeholder="{{translate('messages.sub_title_here...')}}">
@@ -163,15 +163,15 @@
                                         <div class="position-relative">
                                         <div class="img">
                                             <img class="onerror-image" src="{{ $feature->image_full_url ?? '',
-                                                asset('assets/admin/img/upload-3.png') }}"
+                                                asset('/public/assets/admin/img/upload-3.png') }}"
 
-                                            data-onerror-image="{{asset('assets/admin/img/upload-3.png')}}" alt="">
+                                            data-onerror-image="{{asset('/public/assets/admin/img/upload-3.png')}}" alt="">
                                         </div>
                                             <input class="upload-file__input single_file_input" accept="{{IMAGE_EXTENSION}}" type="file" name="image"  hidden>
                                             @if (isset($feature->image))
                                             <span id="feature_image" class="remove_image_button remove-image dynamic-checkbox"
                                                   data-id="feature_image"
-                                                  data-image-off="{{ asset('assets/admin/img/delete-confirmation.png') }}"
+                                                  data-image-off="{{ asset('/public/assets/admin/img/delete-confirmation.png') }}"
                                                   data-title="{{translate('Warning!')}}"
                                                   data-text="<p>{{translate('Are_you_sure_you_want_to_remove_this_image_?')}}</p>"
                                                 > <i class="tio-clear"></i></span>

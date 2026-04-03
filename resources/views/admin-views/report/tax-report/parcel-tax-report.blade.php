@@ -40,7 +40,7 @@
                         <div
                             class="bg--secondary rounded p-15 d-flex align-items-center justify-content-between gap-2 flex-wrap">
                             <div class="d-flex align-items-center gap-2 font-semibold title-clr">
-                                <img src="{{ asset('assets/admin/img/t-total-order.png') }}" alt="img">
+                                <img src="{{ asset('/public/assets/admin/img/t-total-order.png') }}" alt="img">
                                 {{ translate('Total Orders') }}
                             </div>
                             <h3 class="theme-clr fw-bold mb-0">{{ $totalOrders }}</h3>
@@ -50,7 +50,7 @@
                         <div
                             class="bg--secondary rounded p-15 d-flex align-items-center justify-content-between gap-2 flex-wrap">
                             <div class="d-flex align-items-center gap-2 font-semibold title-clr">
-                                <img src="{{ asset('assets/admin/img/t-toal-amount.png') }}" alt="img">
+                                <img src="{{ asset('/public/assets/admin/img/t-toal-amount.png') }}" alt="img">
                                 {{ translate('Total Order Amount') }}
                             </div>
                             <h3 class="text-success fw-bold mb-0">
@@ -61,7 +61,7 @@
                         <div
                             class="bg--secondary rounded p-15 d-flex align-items-center justify-content-between gap-2 flex-wrap">
                             <div class="d-flex align-items-center gap-2 font-semibold title-clr">
-                                <img src="{{ asset('assets/admin/img/t-tax-amount.png') }}" alt="img">
+                                <img src="{{ asset('/public/assets/admin/img/t-tax-amount.png') }}" alt="img">
                                 {{ translate('Total Tax Amount') }}
                             </div>
                             <h3 class="text-danger fw-bold mb-0">
@@ -86,13 +86,13 @@
                                 <span class="dropdown-header">{{ translate('messages.download_options') }}</span>
                                 <a id="export-excel" class="dropdown-item" href="{{ route('admin.transactions.report.parcel-wise-tax-export', ['export_type' => 'excel', request()->getQueryString()]) }}">
                                     <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                        src="{{ asset('assets/admin') }}/svg/components/excel.svg"
+                                        src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
                                         alt="Image Description">
                                     {{ translate('messages.excel') }}
                                 </a>
                                 <a id="export-csv" class="dropdown-item" href="{{ route('admin.transactions.report.parcel-wise-tax-export', ['export_type' => 'csv', request()->getQueryString()]) }}">
                                     <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                        src="{{ asset('assets/admin') }}/svg/components/placeholder-csv-format.svg"
+                                        src="{{ asset('public/assets/admin') }}/svg/components/placeholder-csv-format.svg"
                                         alt="Image Description">
                                     .{{ translate('messages.csv') }}
                                 </a>
@@ -196,7 +196,7 @@
                 </div>
                 @if (count($orders) === 0)
                     <div class="empty--data">
-                        <img src="{{ asset('assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
+                        <img src="{{ asset('/public/assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
                         <h5>
                             {{ translate('no_data_found') }}
                         </h5>

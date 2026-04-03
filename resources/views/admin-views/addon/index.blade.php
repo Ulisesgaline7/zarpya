@@ -11,7 +11,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{ asset('assets/admin/img/addon.png') }}" class="w--20" alt="">
+                    <img src="{{ asset('public/assets/admin/img/addon.png') }}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.add_new_addon') }}
@@ -186,7 +186,7 @@
                             {{ route('admin.addon.export', ['type' => 'excel', request()->getQueryString()]) }}
                             ">
                             <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                src="{{ asset('assets/admin') }}/svg/components/excel.svg"
+                                src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
                                 alt="Image Description">
                             {{ translate('messages.excel') }}
                         </a>
@@ -194,7 +194,7 @@
                             href="
                         {{ route('admin.addon.export', ['type' => 'csv', request()->getQueryString()]) }}">
                             <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                src="{{ asset('assets/admin') }}/svg/components/placeholder-csv-format.svg"
+                                src="{{ asset('public/assets/admin') }}/svg/components/placeholder-csv-format.svg"
                                 alt="Image Description">
                             .{{ translate('messages.csv') }}
                         </a>
@@ -299,7 +299,7 @@
         </div>
         @if (count($addons) === 0)
             <div class="empty--data">
-                <img src="{{ asset('assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
+                <img src="{{ asset('/public/assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
                 <h5>
                     {{ translate('no_data_found') }}
                 </h5>
@@ -321,7 +321,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('assets/admin') }}/js/view-pages/addon-index.js"></script>
+    <script src="{{ asset('public/assets/admin') }}/js/view-pages/addon-index.js"></script>
     <script>
         "use strict";
 function getStoreSelect2Config(showAll) {

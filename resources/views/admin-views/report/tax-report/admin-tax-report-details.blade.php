@@ -31,13 +31,13 @@
                             <span class="dropdown-header">{{ translate('messages.download_options') }}</span>
                             <a id="export-excel" class="dropdown-item" href="{{ route('admin.transactions.report.getTaxDetailsExport',['source'=> $taxSource ,'export_type' => 'excel', request()->getQueryString()]) }}">
                                 <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                    src="{{ asset('assets/admin') }}/svg/components/excel.svg"
+                                    src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
                                     alt="Image Description">
                                 {{ translate('messages.excel') }}
                             </a>
                             <a id="export-csv" class="dropdown-item" href="{{ route('admin.transactions.report.getTaxDetailsExport',['source'=> $taxSource ,'export_type' => 'csv', request()->getQueryString()]) }}">
                                 <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                    src="{{ asset('assets/admin') }}/svg/components/placeholder-csv-format.svg"
+                                    src="{{ asset('public/assets/admin') }}/svg/components/placeholder-csv-format.svg"
                                     alt="Image Description">
                                 .{{ translate('messages.csv') }}
                             </a>
@@ -157,7 +157,7 @@
                 </div>
                 @if (count($taxData) === 0)
                     <div class="empty--data">
-                        <img src="{{ asset('assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
+                        <img src="{{ asset('/public/assets/admin/svg/illustrations/sorry.svg') }}" alt="public">
                         <h5>
                             {{ translate('no_data_found') }}
                         </h5>

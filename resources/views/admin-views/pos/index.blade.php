@@ -57,12 +57,12 @@
                                         <form id="search-form" class="search-form">
                                             <!-- Search -->
                                             <div class="position-relative">
-                                                <input id="datatableSearch" type="search" value="{{$keyword ?? ''}}"
-                                                    name="keyword" class="form-control h--45px pl-5"
+                                                <input id="datatableSearch" type="search" value="{{$search ?? ''}}"
+                                                    name="search" class="form-control h--45px pl-5"
                                                     placeholder="{{translate('messages.Search_by_product_name')}}"
                                                     aria-label="{{translate('messages.search_here')}}" disabled>
                                                 <img width="16" height="16"
-                                                    src="{{asset('assets/admin/img/icons/search-icon.png')}}" alt=""
+                                                    src="{{asset('public/assets/admin/img/icons/search-icon.png')}}" alt=""
                                                     class="search-icon">
 
                                                 {{-- @if($keyword)
@@ -93,7 +93,7 @@
                             </div>
                             @if(count($products) === 0)
                                 <div class="search--no-found">
-                                    <img src="{{asset('assets/admin/img/search-icon.png')}}" alt="img">
+                                    <img src="{{asset('public/assets/admin/img/search-icon.png')}}" alt="img">
                                     <p>
                                         {{translate('messages.no_products_on_pos_search')}}
                                     </p>
@@ -309,7 +309,7 @@
 <script
     src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&libraries=places,marker&callback=initMap&v=3.61">
     </script>
-<script src="{{asset('assets/admin/js/view-pages/pos.js')}}"></script>
+<script src="{{asset('public/assets/admin/js/view-pages/pos.js')}}"></script>
 
 <script>
     "use strict";
@@ -612,9 +612,9 @@
 
     $('#search-form').on('submit', function (e) {
         e.preventDefault();
-        let keyword = $('#datatableSearch').val();
+        let search = $('#datatableSearch').val();
         let url = new URL('{!!url()->full()!!}');
-        url.searchParams.set('keyword', keyword);
+        url.searchParams.set('search', search);
         location.href = url;
     });
 
@@ -1053,7 +1053,7 @@
     $('.location-reload-to-base-pos').on('click', function () {
         const url = $(this).data('url');
         let nurl = new URL(url);
-        nurl.searchParams.delete('keyword');
+        nurl.searchParams.delete('search');
         location.href = nurl;
     });
 
@@ -1084,12 +1084,12 @@
     });
 
 
-    document.querySelectorAll('[name="keyword"]').forEach(function (element) {
+    document.querySelectorAll('[name="search"]').forEach(function (element) {
         element.addEventListener('input', function (event) {
             const urlParams = new URLSearchParams(window.location.search);
-            if (this.value === "" && urlParams.has('keyword')) {
+            if (this.value === "" && urlParams.has('search')) {
                 var nurl = new URL('{!! url()->full() !!}');
-                nurl.searchParams.delete("keyword");
+                nurl.searchParams.delete("search");
                 location.href = nurl;
             }
         });

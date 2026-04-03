@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -124,7 +124,7 @@
                                                 accept=".webp, .jpg, .jpeg, .png, .gif" required>
                                         <label class="upload-file__wrapper w-100 h-100 m-0">
                                             <div class="upload-file-textbox text-center" style="">
-                                                <img width="22" class="svg" src="{{asset('assets/admin/img/document-upload.svg')}}" alt="img">
+                                                <img width="22" class="svg" src="{{asset('public/assets/admin/img/document-upload.svg')}}" alt="img">
                                                 <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                     <span class="theme-clr">Click to upload</span>
                                                     <br>
@@ -182,9 +182,9 @@
                <section class="common-section-view bg-white border rounded-10 my-xl-3 mx-xl-3">
                     <div class="common-section-inner highlight-gradient rounded-20 py-sm-4 py-3 px-xxl-5 px-xl-3 px-sm-3 px-3">
                         <div class="d-flex align-items-center gap-3 flex-wrap justify-content-xl-between justify-content-center text-xl-start text-center flex-xl-nowrap">
-                            <div class="d-flex gap-x-xl-20 align-items-center flex-xl-nowrap flex-wrap">
+                            <div class="d-flex gap-xxl-20 align-items-center flex-xl-nowrap flex-wrap">
                                 <div class="w-100px min-w-100px h-100px d-center mb-xl-0 mb-2 mx-auto">
-                                    <img src="{{ asset('assets/admin/img/400x400/high-light-car.png') }}" alt="" class="object-contain">
+                                    <img src="{{ asset('/public/assets/admin/img/400x400/high-light-car.png') }}" alt="" class="object-contain">
                                 </div>
                                 <div>
                                     <h2 class="mb-lg-2 mb-1 fs-20 text-white">

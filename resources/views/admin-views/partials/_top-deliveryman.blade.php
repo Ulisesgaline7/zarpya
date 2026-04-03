@@ -18,8 +18,8 @@
         <div class="top--selling">
             @foreach ($top_deliveryman as $key => $item)
                 <a class="grid--card" href="{{ route('admin.users.delivery-man.preview', [$item['id']]) }}">
-                    <img class="onerror-image" data-onerror-image="{{ asset('assets/admin/img/admin.png') }}"
-                        src="{{ $item['image_full_url'] ?? asset('assets/admin/img/admin.png') }}"
+                    <img class="onerror-image" data-onerror-image="{{ asset('public/assets/admin/img/admin.png') }}"
+                        src="{{ $item['image_full_url'] ?? asset('public/assets/admin/img/admin.png') }}"
                         alt="{{ $item['f_name'] }}">
                     <div class="cont pt-2">
                         <h6 class="mb-1">{{ $item['f_name'] ?? 'Not exist' }}</h6>
@@ -34,13 +34,13 @@
         </div>
     @else
         <!-- <div class="empty--data">
-            <img src="{{ asset('assets/admin/svg/illustrations/empty-state.svg') }}" alt="public">
+            <img src="{{ asset('/public/assets/admin/svg/illustrations/empty-state.svg') }}" alt="public">
             <h5>
                 {{ translate('no_data_found') }}
             </h5>
         </div> -->
         <div class="empty--data d-flex flex-column align-items-center justify-content-center h-100 w-100">
-            <img src="{{ asset('assets/admin/img/no-deliveryman.png') }}" alt="public">
+            <img src="{{ asset('/public/assets/admin/img/no-deliveryman.png') }}" alt="public">
             <h5 class="secondary-clr">
                 {{ translate('No deliveryman available') }}
             </h5>
@@ -49,4 +49,4 @@
 
 </div>
 
-<script src="{{ asset('assets/admin') }}/js/view-pages/common.js"></script>
+<script src="{{ asset('public/assets/admin') }}/js/view-pages/common.js"></script>

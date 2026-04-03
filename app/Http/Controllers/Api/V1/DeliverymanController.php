@@ -28,6 +28,7 @@ use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\OrderTransaction;
 use App\Models\ParcelCancellation;
+use App\Models\ParcelReturnFees;
 use App\Models\ProvideDMEarning;
 use App\Models\UserNotification;
 use App\Models\WithdrawalMethod;
@@ -122,8 +123,8 @@ class DeliverymanController extends Controller
         }
 
         $Payable_Balance = $dm?->wallet?->collected_cash > 0 ? 1 : 0;
-        $cash_in_hand_overflow = BusinessSetting::where('key', 'cash_in_hand_overflow_delivery_man')->first()?->value;
-        $cash_in_hand_overflow_delivery_man = BusinessSetting::where('key', 'dm_max_cash_in_hand')->first()?->value;
+        $cash_in_hand_overflow = Helpers::get_business_settings('cash_in_hand_overflow_delivery_man');
+        $cash_in_hand_overflow_delivery_man = Helpers::get_business_settings('dm_max_cash_in_hand');
         $val = $cash_in_hand_overflow_delivery_man - (($cash_in_hand_overflow_delivery_man * 10) / 100);
         $dm['over_flow_warning'] = false;
         $dm['dm_max_cash_in_hand'] = (float) $cash_in_hand_overflow_delivery_man ?? 0;
@@ -210,17 +211,114 @@ class DeliverymanController extends Controller
 
     public function get_current_orders(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'limit' => 'required',
+            'offset' => 'required',
+            'order_status' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
         $dm = DeliveryMan::where(['auth_token' => $request['token']])->first();
-        $orders = Order::with(['customer', 'store', 'parcel_category'])
-            ->whereIn('order_status', ['accepted', 'confirmed', 'pending', 'processing', 'picked_up', 'handover'])
-            ->where(['delivery_man_id' => $dm['id']])
+
+        $allowedStatuses = [
+            'accepted',
+            'confirmed',
+            'pending',
+            'processing',
+            'picked_up',
+            'handover'
+        ];
+
+        $query = Order::with(['customer', 'store', 'parcel_category'])
+            ->where('delivery_man_id', $dm->id)
+            ->dmOrder();
+
+        if ($request->filled('order_status') && $request->order_status !== 'all') {
+            if (in_array($request->order_status, $allowedStatuses)) {
+                $query->where('order_status', $request->order_status);
+            }
+
+        } else {
+            $query->whereIn('order_status', $allowedStatuses);
+        }
+
+        $paginator = $query
             ->orderBy('accepted')
             ->orderBy('schedule_at', 'desc')
-            ->dmOrder()
-            ->get();
-        $orders = Helpers::order_data_formatting($orders, true);
+            ->paginate($request->limit, ['*'], 'page', $request->offset);
 
-        return response()->json($orders, 200);
+        $orders = Helpers::order_data_formatting($paginator->items(), true);
+        $data = [
+            'total_size' => $paginator->total(),
+            'limit' => $request['limit'],
+            'offset' => $request['offset'],
+            'orders' => $orders,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    public function get_order_status_count(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|in:current,history',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        $dm = DeliveryMan::where('auth_token', $request->token)->first();
+
+        if (!$dm) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $statusMap = [
+            'current' => [
+                'pending',
+                'accepted',
+                'confirmed',
+                'processing',
+                'picked_up',
+                'handover',
+            ],
+            'history' => [
+                'delivered',
+                'canceled',
+                'returned',
+                'refund_requested',
+                'refunded',
+                'failed',
+            ],
+        ];
+
+        $statuses = $statusMap[$request->type];
+
+        $counts = Order::where('delivery_man_id', $dm->id)
+            ->whereIn('order_status', $statuses)
+            ->selectRaw('order_status, COUNT(*) as total')
+            ->groupBy('order_status')
+            ->pluck('total', 'order_status');
+
+        $response = [];
+
+        $response[] = [
+            'key' => 'all',
+            'count' => $counts->sum(),
+        ];
+
+        foreach ($statuses as $status) {
+            $response[] = [
+                'key' => $status,
+                'count' => $counts[$status] ?? 0,
+            ];
+        }
+
+        return response()->json($response, 200);
     }
 
     public function get_latest_orders(Request $request)
@@ -296,7 +394,7 @@ class DeliverymanController extends Controller
             ], 404);
         }
 
-        if ($request->has('lat') && $request->has('lng') && $dm && $order->order_type != 'parcel') {
+        if ($request->has('lat') && $request->has('lng') && $dm && $dm->earning && $order->order_type != 'parcel') {
             try {
             $zoneIds =  Zone::whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->pluck('id')->toArray();
             if (($dm->zone_id && !in_array($dm->zone_id, $zoneIds))) {
@@ -328,14 +426,16 @@ class DeliverymanController extends Controller
 
         $payments = $order->payments()->where('payment_method', 'cash_on_delivery')->exists();
         $cash_in_hand = $dm?->wallet?->collected_cash ?? 0;
-        $dm_max_cash = BusinessSetting::where('key', 'dm_max_cash_in_hand')->first();
-        $value = $dm_max_cash?->value ?? 0;
+        $dm_max_cash_status = Helpers::get_business_settings('cash_in_hand_overflow_delivery_man');
+        $dm_max_cash = Helpers::get_business_settings('dm_max_cash_in_hand');
+        $value = $dm_max_cash;
+        
 
-        if (($order->payment_method == 'cash_on_delivery' || $payments) && (($cash_in_hand + $order->order_amount) >= $value)) {
+        if ($dm_max_cash_status == 1 && ($order->payment_method == 'cash_on_delivery' || $payments) && (($cash_in_hand + $order->order_amount) >= $value)) {
 
             return response()->json([
                 'errors' => [
-                    ['code' => 'dm_maximum_hand_in_cash', 'message' => \App\CentralLogics\Helpers::format_currency($value) . ' ' . translate('max_cash_in_hand_exceeds')],
+                    ['code' => 'dm_maximum_hand_in_cash', 'message' => Helpers::format_currency($value) . ' ' . translate('max_cash_in_hand_exceeds')],
                 ],
             ], 405);
         }
@@ -688,6 +788,7 @@ class DeliverymanController extends Controller
         $validator = Validator::make($request->all(), [
             'limit' => 'required',
             'offset' => 'required',
+            'order_status' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -696,12 +797,32 @@ class DeliverymanController extends Controller
 
         $dm = DeliveryMan::where(['auth_token' => $request['token']])->first();
 
-        $paginator = Order::with(['customer', 'store', 'parcel_category'])
-            ->where(['delivery_man_id' => $dm['id']])
-            ->whereIn('order_status', ['delivered', 'canceled','returned' ,'refund_requested', 'refunded', 'failed'])
+        $allowedStatuses = [
+            'delivered',
+            'canceled',
+            'returned',
+            'refund_requested',
+            'refunded',
+            'failed'
+        ];
+
+        $query = Order::with(['customer', 'store', 'parcel_category'])
+            ->where('delivery_man_id', $dm->id)
+            ->dmOrder();
+
+        if ($request->filled('order_status') && $request->order_status !== 'all') {
+            if (in_array($request->order_status, $allowedStatuses)) {
+                $query->where('order_status', $request->order_status);
+            }
+
+        } else {
+            $query->whereIn('order_status', $allowedStatuses);
+        }
+
+        $paginator = $query
             ->orderBy('schedule_at', 'desc')
-            ->dmOrder()
-            ->paginate($request['limit'], ['*'], 'page', $request['offset']);
+            ->paginate($request->limit, ['*'], 'page', $request->offset);
+
         $orders = Helpers::order_data_formatting($paginator->items(), true);
         $data = [
             'total_size' => $paginator->total(),
@@ -1384,6 +1505,40 @@ class DeliverymanController extends Controller
 
         return response()->json($data, 200);
     }
+    public function parcelReturnEarningList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'limit' => 'required|integer',
+            'offset' => 'required|integer',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        $limit = $request['limit'] ?? 25;
+        $offset = $request['offset'] ?? 1;
+        $dm = DeliveryMan::where(['auth_token' => $request['token']])->first();
+        $start = $request->start_date ?? null;
+        $end = $request->end_date ?? null;
+
+
+        $earnings = ParcelReturnFees::where('delivery_man_id', $dm->id)->applyDateFilter($request->date_range, $start, $end)
+            ->select(['id', 'transaction_id', 'order_id','amount', 'created_at'])
+            ->latest()
+            ->paginate($limit, ['*'], 'page', $offset);
+
+        $data = [
+            'total' => $earnings->total(),
+            'limit' => $limit,
+            'offset' => $offset,
+            'earnings' => $earnings->items(),
+        ];
+
+        return response()->json($data, 200);
+    }
 
     public function loyaltyPointlist(Request $request)
     {
@@ -1501,7 +1656,7 @@ class DeliverymanController extends Controller
                 $admin = Admin::where('role_id', 1)->first();
                 $wallet_transaction = WithdrawRequest::where('delivery_man_id', $w->delivery_man_id)->latest()->first();
                 if (config('mail.status') && $mail_status == '1' && Helpers::getNotificationStatusData('admin', 'dm_withdraw_request', 'mail_status')) {
-                    Mail::to($admin->email)->send(new WithdrawRequestMail('admin_mail', $wallet_transaction, 'dm'));
+                    Mail::to($admin?->getRawOriginal('email'))->send(new WithdrawRequestMail('admin_mail', $wallet_transaction, 'dm'));
                 }
 
                 return response()->json(['message' => translate('messages.withdraw_request_placed_successfully')], 200);

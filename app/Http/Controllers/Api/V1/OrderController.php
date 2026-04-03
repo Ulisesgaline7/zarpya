@@ -178,7 +178,7 @@ class OrderController extends Controller
         } else if ($order->order_type == 'parcel' || $order->prescription_order == 1) {
             $order->delivery_address = json_decode($order->delivery_address, true);
             if ($order->prescription_order && $order->order_attachment) {
-                $order->order_attachment = json_decode($order->order_attachment, true);
+                $order->order_attachment = is_array($order->order_attachment)? $order->order_attachment : json_decode($order->order_attachment, true);
             }
             return response()->json(($order), 200);
         }
@@ -329,7 +329,7 @@ class OrderController extends Controller
             $mail_status = Helpers::get_mail_status('refund_request_mail_status_admin');
             try {
                 if (config('mail.status') && $admin['email'] && $mail_status == '1' && Helpers::getNotificationStatusData('admin', 'order_refund_request', 'mail_status')) {
-                    Mail::to($admin['email'])->send(new RefundRequest($order->id));
+                    Mail::to($admin?->getRawOriginal('email'))->send(new RefundRequest($order->id));
                 }
             } catch (\Exception $exception) {
                 info([$exception->getFile(), $exception->getLine(), $exception->getMessage()]);
@@ -392,7 +392,7 @@ class OrderController extends Controller
                 Helpers::send_order_notification($order);
 
                 if ($order->is_guest == 0 && config('mail.status') && $order_mail_status == '1' && $order->customer && Helpers::getNotificationStatusData('customer', 'customer_order_notification', 'mail_status')) {
-                    Mail::to($order->customer->email)->send(new PlaceOrder($order->id));
+                    Mail::to($order->customer?->getRawOriginal('email'))->send(new PlaceOrder($order->id));
                 }
                 if ($order->is_guest == 1 && config('mail.status') && $order_mail_status == '1' && isset($address['contact_person_email']) && Helpers::getNotificationStatusData('customer', 'customer_order_notification', 'mail_status')) {
                     Mail::to($address['contact_person_email'])->send(new PlaceOrder($order->id));
@@ -606,13 +606,7 @@ class OrderController extends Controller
 
     public function order_again(Request $request)
     {
-        if (!$request->hasHeader('zoneId')) {
-            $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]);
-            return response()->json([
-                'errors' => $errors
-            ], 403);
-        }
+        Helpers::setZoneIds($request);
 
         $longitude = $request->header('longitude') ?? 0;
         $latitude = $request->header('latitude') ?? 0;
@@ -621,7 +615,7 @@ class OrderController extends Controller
         $data = Store::withOpen($longitude, $latitude)->wherehas('orders', function ($q) use ($request) {
             $q->where('user_id', $request->user()->id)->where('is_guest', 0)->latest();
         })
-            ->where('module_id', $request->header('moduleId'))
+            ->where('module_id', getModuleId($request->header('moduleId')))
             ->withcount('items')
             ->with(['itemsForReorder'])
             ->Active()

@@ -87,6 +87,13 @@
 .upload-file_custom .remove_btn:hover i {
   color: var(--bs-white) !important;
 }
+.upload-file_custom .remove_btn.remove_btn_outside {
+  position: absolute;
+  inset-block-start: -5px;
+  inset-inline-end: -5px;
+  z-index: 11;
+}
+
 .upload-file_custom.input-disabled .single_file_input {
   pointer-events: none;
   opacity: 0;
@@ -102,6 +109,7 @@
 }
 .imageModal {
   background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1040;
 }
 .imageModal .modal-dialog,
 .imageModal .modal-content {

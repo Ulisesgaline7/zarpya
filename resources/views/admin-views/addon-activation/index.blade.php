@@ -43,8 +43,8 @@
                                             <input type="checkbox"
                                                    data-id="addon_activation_vendor_app_status"
                                                    data-type="toggle"
-                                                   data-image-on="{{ asset('assets/admin/img/modal/free-delivery-on.png') }}"
-                                                   data-image-off="{{ asset('assets/admin/img/modal/free-delivery-off.png') }}"
+                                                   data-image-on="{{ asset('/public/assets/admin/img/modal/free-delivery-on.png') }}"
+                                                   data-image-off="{{ asset('/public/assets/admin/img/modal/free-delivery-off.png') }}"
                                                    data-title-on="<strong>{{ translate('messages.want_to_Turn_ON_the_Vendor_App_addon?') }}</strong>"
                                                    data-title-off="<strong>{{ translate('messages.want_to_Turn_OFF_the_Vendor_App_addon?') }}</strong>"
 
@@ -124,8 +124,8 @@
                                             <input type="checkbox"
                                                    data-id="addon_activation_delivery_man_app_status"
                                                    data-type="toggle"
-                                                   data-image-on="{{ asset('assets/admin/img/modal/free-delivery-on.png') }}"
-                                                   data-image-off="{{ asset('assets/admin/img/modal/free-delivery-off.png') }}"
+                                                   data-image-on="{{ asset('/public/assets/admin/img/modal/free-delivery-on.png') }}"
+                                                   data-image-off="{{ asset('/public/assets/admin/img/modal/free-delivery-off.png') }}"
                                                    data-title-on="<strong>{{ translate('messages.want_to_Turn_ON_the_Deliveryman_App_addon?') }}</strong>"
                                                    data-title-off="<strong>{{ translate('messages.want_to_Turn_OFF_the_Deliveryman_App_addon?') }}</strong>"
 
@@ -205,8 +205,8 @@
                                             <input type="checkbox"
                                                    data-id="addon_activation_react_status"
                                                    data-type="toggle"
-                                                   data-image-on="{{ asset('assets/admin/img/modal/free-delivery-on.png') }}"
-                                                   data-image-off="{{ asset('assets/admin/img/modal/free-delivery-off.png') }}"
+                                                   data-image-on="{{ asset('/public/assets/admin/img/modal/free-delivery-on.png') }}"
+                                                   data-image-off="{{ asset('/public/assets/admin/img/modal/free-delivery-off.png') }}"
                                                    data-title-on="<strong>{{ translate('messages.want_to_Turn_ON_the_React_Website_addon?') }}</strong>"
                                                    data-title-off="<strong>{{ translate('messages.want_to_Turn_OFF_the_React_Website_addon?') }}</strong>"
 
@@ -289,22 +289,22 @@
                                     <div class="single-item-slider2 dots-style2 owl-carousel bg--secondary p-15">
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                     </div>
@@ -339,22 +339,22 @@
                                     <div class="single-item-slider2 dots-style2 owl-carousel bg--secondary p-15">
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                         <div class="item mb-10px">
                                             <div class="text-center">
-                                                <img src="{{asset('assets/admin/img/map-img.png')}}" alt="">
+                                                <img src="{{asset('/public/assets/admin/img/map-img.png')}}" alt="">
                                             </div>
                                         </div>
                                     </div>

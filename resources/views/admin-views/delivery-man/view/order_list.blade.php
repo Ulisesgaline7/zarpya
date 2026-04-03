@@ -22,7 +22,7 @@
                     <div class="color-card flex-column align-items-center justify-content-center color-2">
                         <div class="img-box">
                             <img class="resturant-icon w--30"
-                                src="{{asset('assets/admin/img/icons/order-icon-1.png')}}" alt="transactions">
+                                src="{{asset('/public/assets/admin/img/icons/order-icon-1.png')}}" alt="transactions">
                         </div>
 
                         <div class="d-flex flex-column align-items-center">
@@ -37,7 +37,7 @@
                     <div class="color-card flex-column align-items-center justify-content-center color-5">
                         <div class="img-box">
                             <img class="resturant-icon w--30"
-                                src="{{asset('assets/admin/img/icons/order-icon-2.png')}}" alt="transactions">
+                                src="{{asset('/public/assets/admin/img/icons/order-icon-2.png')}}" alt="transactions">
                         </div>
                         <div class="d-flex flex-column align-items-center">
                             <h2 class="title">
@@ -53,7 +53,7 @@
                     <div class="color-card flex-column align-items-center justify-content-center color-7">
                         <div class="img-box">
                             <img class="resturant-icon w--30"
-                                src="{{asset('assets/admin/img/icons/order-icon-3.png')}}" alt="transactions">
+                                src="{{asset('/public/assets/admin/img/icons/order-icon-3.png')}}" alt="transactions">
                         </div>
                         <div class="d-flex flex-column align-items-center">
                             <h2 class="title">
@@ -70,7 +70,7 @@
                     <div class="color-card flex-column align-items-center justify-content-center color-4">
                         <div class="img-box">
                             <img class="resturant-icon w--30"
-                                src="{{asset('assets/admin/img/icons/order-icon-4.png')}}" alt="transactions">
+                                src="{{asset('/public/assets/admin/img/icons/order-icon-4.png')}}" alt="transactions">
                         </div>
                         <div class="d-flex flex-column align-items-center">
                             <h2 class="title"> {{$deliveryMan->total_canceled_orders->count()}} </h2>
@@ -165,7 +165,7 @@
                 </div>
                 @if(count($order_lists) === 0)
                     <div class="empty--data">
-                        <img src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
+                        <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
                         <h5>
                             {{translate('no_data_found')}}
                         </h5>

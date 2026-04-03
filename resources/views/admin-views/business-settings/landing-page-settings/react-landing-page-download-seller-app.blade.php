@@ -8,7 +8,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -64,8 +64,8 @@
                         </form>
                         <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                             <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                   data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                   data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                   data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                   data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                    data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                    data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                    data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -313,7 +313,7 @@
                                                 <div class="upload-file-textbox text-center"
                                                      style="{{ $download_seller_app_image?->value ? 'display: none;' : '' }}">
                                                     <img width="22" class="svg"
-                                                         src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                         src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                          alt="img">
                                                     <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
                                                         <span class="theme-clr">Click to upload</span>
@@ -488,7 +488,7 @@
                                         <div class="bg-white rounded p-xxl-4 p-2">
                                             <div class="d-flex mb-20 align-items-center gap-2 flex-wrap justify-content-between">
                                                 <h4 class="mb-0">
-                                                    <img src="{{asset('assets/admin/img/playstore.png')}}" class="mr-2" alt="">
+                                                    <img src="{{asset('public/assets/admin/img/playstore.png')}}" class="mr-2" alt="">
                                                     {{translate('Playstore Button')}}
                                                 </h4>
                                                 <label class="toggle-switch toggle-switch-sm m-0">
@@ -496,8 +496,8 @@
                                                            id="play-store-dm-status"
                                                            data-id="play-store-dm-status"
                                                            data-type="toggle"
-                                                           data-image-on="{{ asset('assets/admin/img/modal/play-store-on.png') }}"
-                                                           data-image-off="{{ asset('assets/admin/img/modal/play-store-off.png') }}"
+                                                           data-image-on="{{ asset('/public/assets/admin/img/modal/play-store-on.png') }}"
+                                                           data-image-off="{{ asset('/public/assets/admin/img/modal/play-store-off.png') }}"
                                                            data-title-on="{{ translate('want_to_enable_the_play_store_button_for_user_app') }}"
                                                            data-title-off="{{ translate('want_to_disable_the_play_store_button_for_user_app') }}"
                                                            data-text-on="<p>{{ translate('if_enabled,_the_user_app_download_button_will_be_visible_on_react_landing_page') }}</p>"
@@ -535,15 +535,15 @@
                                         <div class="bg-white rounded p-xxl-4 p-2">
                                             <div class="d-flex mb-20 align-items-center gap-2 flex-wrap justify-content-between">
                                                 <h4 class="m-0">
-                                                    <img src="{{asset('assets/admin/img/ios.png')}}" class="mr-2" alt="">
+                                                    <img src="{{asset('public/assets/admin/img/ios.png')}}" class="mr-2" alt="">
                                                     {{translate('App Store Button')}}
                                                 </h4>
                                                 <label class="toggle-switch toggle-switch-sm m-0">
                                                     <input type="checkbox" name="seller_apple_store_url_status"
                                                            data-id="apple-dm-status"
                                                            data-type="toggle"
-                                                           data-image-on="{{ asset('assets/admin/img/modal/apple-on.png') }}"
-                                                           data-image-off="{{ asset('assets/admin/img/modal/apple-off.png') }}"
+                                                           data-image-on="{{ asset('/public/assets/admin/img/modal/apple-on.png') }}"
+                                                           data-image-off="{{ asset('/public/assets/admin/img/modal/apple-off.png') }}"
                                                            data-title-on="{{ translate('want_to_enable_the_app_store_button_for_user_app') }}"
                                                            data-title-off="{{ translate('want_to_disable_the_app_store_button_for_user_app') }}"
                                                            data-text-on="<p>{{ translate('if_enabled,_the_user_app_download_button_will_be_visible_on_react_landing_page') }}</p>"
@@ -606,12 +606,12 @@
                 </div>
                 <div class="custom-offcanvas-body custom-offcanvas-body-100  p-20">
                     <section class="common-section-view bg-white border rounded-10 my-xl-2 mx-xl-2">
-                        <div class="common-section-inner d-flex flex-xxl-nowrap justify-content-lg-between justify-content-center flex-wrap align-items-center gap-x-xl-20">
-                            <div class="d-flex align-items-center flex-md-nowrap flex-wrap gap-x-xl-20 max-w-490 mb-xxl-0 mb-3 text-md-start text-center">
+                        <div class="common-section-inner d-flex flex-xxl-nowrap justify-content-lg-between justify-content-center flex-wrap align-items-center gap-xxl-20">
+                            <div class="d-flex align-items-center flex-md-nowrap flex-wrap gap-xxl-20 max-w-490 mb-xxl-0 mb-3 text-md-start text-center">
                                 <div class="selling-thumb min-w-150 max-w-165 mr-xl-0 mr-md-3 mx-auto">
                                     <img width="160" src="{{ $download_seller_app_image?->value
     ? \App\CentralLogics\Helpers::get_full_url('download_seller_app_section', $download_seller_app_image->value, $download_seller_app_image->storage[0]?->value ?? 'public', 'aspect_1')
-    :asset('assets/admin/img/400x400/selling-thumb.png') }}" alt="Google Play" class="object-contain h-100">
+    :asset('/public/assets/admin/img/400x400/selling-thumb.png') }}" alt="Google Play" class="object-contain h-100">
                                 </div>
                                 <div class="mt-xl-0 mt-2">
                                     <h2 class="mb-xxl-2 mb-1 fs-20">
@@ -626,10 +626,10 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="__bg-FAFAFA rounded-10 px-xl-3 px-1 py-3 d-flex flex-xl-nowrap flex-wrap justify-content-xl-start justify-content-center align-items-center gap-x-xl-20">
+                                <div class="__bg-FAFAFA rounded-10 px-xl-3 px-1 py-3 d-flex flex-xl-nowrap flex-wrap justify-content-xl-start justify-content-center align-items-center gap-xxl-20">
                                     <div class="scan-wrap bg-white max-w-138 rounded px-xl-2 px-1 py-3 mb-xl-0 mb-3 w-xl-auto w-100">
                                         <div class="scan d-center border w-80px h-80px mx-auto rounded p-1">
-                                            <img src="{{ asset('assets/admin/img/400x400/app-scan.png') }}" alt="Google Play" class="object-cover w-100 h-100">
+                                            <img src="{{ asset('/public/assets/admin/img/400x400/app-scan.png') }}" alt="Google Play" class="object-cover w-100 h-100">
                                         </div>
                                         <p class="mb-0 fs-12 mt-1 text-center">{{ translate('messages.Scan to DownLoad') }}</p>
                                     </div>
@@ -641,14 +641,14 @@
                                         <div class="d-flex justify-content-sm-start justify-content-center flex-sm-nowrap flex-wrap align-items-center gap-x-xl-10 app-manage">
                                             <!-- Google Play Button -->
                                             <a href="#" class="btn btn-primary d-flex align-items-center mr-2 px-3 py-2 bg-000 rounded mb-sm-0 mb-1">
-                                                <img width="24" height="24" src="{{ asset('assets/admin/img/icons/playstore.png') }}" alt="Google Play" class="mr-1">
+                                                <img width="24" height="24" src="{{ asset('/public/assets/admin/img/icons/playstore.png') }}" alt="Google Play" class="mr-1">
                                                 <div class="text-left">
                                                     <small class="d-block text-white mb-0 fs-12">GET IT ON</small>
                                                     <strong class="d-block text-white fs-14">Google Play</strong>
                                                 </div>
                                             </a>
                                             <a href="#" class="btn btn-primary d-flex align-items-center px-3 py-2 bg-000 rounded">
-                                                <img width="24" height="24" src="{{ asset('assets/admin/img/icons/apple-icon.png') }}" alt="App Store" class="mr-1">
+                                                <img width="24" height="24" src="{{ asset('/public/assets/admin/img/icons/apple-icon.png') }}" alt="App Store" class="mr-1">
                                                 <div class="text-left">
                                                     <small class="d-block text-white mb-0 fs-12">Download ON</small>
                                                     <strong class="d-block text-white fs-14">App Store</strong>
@@ -675,7 +675,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{asset('assets/admin/ckeditor/ckeditor.js')}}"></script>
+    <script src="{{asset('public/assets/admin/ckeditor/ckeditor.js')}}"></script>
     <script>
         "use strict";
         $(document).ready(function () {

@@ -79,6 +79,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const titleOff = checkbox.getAttribute("data-title-off");
             const textOn = checkbox.getAttribute("data-text-on");
             const textOff = checkbox.getAttribute("data-text-off");
+            const footerTextOn = checkbox.getAttribute("data-footer-text-on");
+            const footerTextOff = checkbox.getAttribute("data-footer-text-off");
 
             const isChecked = checkbox.checked;
 
@@ -87,11 +89,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 $("#toggle-message").empty().append(textOn);
                 $("#toggle-image").attr("src", imageOn);
                 $("#toggle-ok-button").attr("toggle-ok-button", checkboxId);
+                $("#toggle-footer").empty().append(footerTextOn);
             } else {
                 $("#toggle-title").empty().append(titleOff);
                 $("#toggle-message").empty().append(textOff);
                 $("#toggle-image").attr("src", imageOff);
                 $("#toggle-ok-button").attr("toggle-ok-button", checkboxId);
+                $("#toggle-footer").empty().append(footerTextOff);
             }
 
             $("#toggle-modal").modal("show");
@@ -316,15 +320,9 @@ $(document).on("click", ".confirm-Toggle", function () {
     }
     if (toggle_id === "product_approval") {
         if ($("#product_approval").is(":checked")) {
-            $("#inlineCheckbox1").removeAttr("disabled");
-            $("#inlineCheckbox2").removeAttr("disabled");
-            $("#inlineCheckbox3").removeAttr("disabled");
-            $("#inlineCheckbox4").removeAttr("disabled");
+            $("#hide_show_approval_box").removeClass("d-none");
         } else {
-            $("#inlineCheckbox1").attr("disabled", true);
-            $("#inlineCheckbox2").attr("disabled", true);
-            $("#inlineCheckbox3").attr("disabled", true);
-            $("#inlineCheckbox4").attr("disabled", true);
+            $("#hide_show_approval_box").addClass("d-none");
         }
     }
     if (toggle_id === "additional_charge_status") {
@@ -1013,65 +1011,68 @@ $(document).ready(function () {
     });
 
 });
-// Form Validation
-class FormValidation {
-    constructor(formSelector = '.validate-form') {
-        this.formSelector = formSelector;
-        this.init();
-    }
 
-    init() {
-        document.addEventListener('DOMContentLoaded', () => {
-            this.attachValidators();
-            this.initPasswordValidation();
-            this.addRequiredAsterisks();
-        });
-    }
+if (typeof FormValidation === 'undefined') {
 
-    attachValidators() {
-        const forms = document.querySelectorAll(this.formSelector);
-        forms.forEach(form => {
-            if (form.dataset.validationInitialized === "true") return;
-
-            form.setAttribute('novalidate', true);
-
-            form.addEventListener('submit', (e) => {
-                if (!FormValidation.validateForm(form)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
-
-            form.querySelectorAll('input, textarea, select').forEach(input => {
-                input.addEventListener('input', () => {
-                    FormValidation.validateInput(input);
-                });
-                input.addEventListener('change', () => {
-                    FormValidation.validateInput(input);
-                });
-            });
-
-            form.dataset.validationInitialized = "true";
-        });
-    }
-
-    initPasswordValidation() {
-        let passwordInput = document.getElementById("signupSrPassword");
-        let confirmPasswordInput = document.querySelector("input[name='confirmPassword'], input[name='confirm-password']");
-        if (!passwordInput) {
-            passwordInput = document.getElementById("passwordWithRules");
+    // Form Validation
+    class FormValidation {
+        constructor(formSelector = '.validate-form') {
+            this.formSelector = formSelector;
+            this.init();
         }
 
-        if (!passwordInput) return;
+        init() {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.attachValidators();
+                this.initPasswordValidation();
+                this.addRequiredAsterisks();
+            });
+        }
 
-        let rulesContainer = document.getElementById("password-rules");
+        attachValidators() {
+            const forms = document.querySelectorAll(this.formSelector);
+            forms.forEach(form => {
+                if (form.dataset.validationInitialized === "true") return;
 
-        if (!rulesContainer) {
-            rulesContainer = document.createElement('div');
-            rulesContainer.id = 'password-rules';
-            rulesContainer.className = 'gap-4 mt-2 small list-unstyled text-muted';
-            rulesContainer.style.display = 'none';
-            rulesContainer.innerHTML = `
+                form.setAttribute('novalidate', true);
+
+                form.addEventListener('submit', (e) => {
+                    if (!FormValidation.validateForm(form)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+
+                form.querySelectorAll('input, textarea, select').forEach(input => {
+                    input.addEventListener('input', () => {
+                        FormValidation.validateInput(input);
+                    });
+                    input.addEventListener('change', () => {
+                        FormValidation.validateInput(input);
+                    });
+                });
+
+                form.dataset.validationInitialized = "true";
+            });
+        }
+
+        initPasswordValidation() {
+            let passwordInput = document.getElementById("signupSrPassword");
+            let confirmPasswordInput = document.querySelector("input[name='confirmPassword'], input[name='confirm-password']");
+            if (!passwordInput) {
+                passwordInput = document.getElementById("passwordWithRules");
+            }
+
+            if (!passwordInput) return;
+
+            let rulesContainer = document.getElementById("password-rules");
+
+            if (!rulesContainer) {
+                rulesContainer = document.createElement('div');
+                rulesContainer.id = 'password-rules';
+                rulesContainer.className = 'gap-4 mt-2 small list-unstyled text-muted';
+                rulesContainer.style.display = 'none';
+                rulesContainer.innerHTML = `
                 <ul class="fs-12 d-flex flex-wrap gap-1 list-unstyled">
                     <li id="rule-length"><i class="text-danger">&#10060;</i> 8+ characters</li>
                     <li id="rule-lower"><i class="text-danger">&#10060;</i> Lowercase letter</li>
@@ -1080,213 +1081,213 @@ class FormValidation {
                     <li id="rule-symbol"><i class="text-danger">&#10060;</i> Symbol</li>
                 </ul>
             `;
-            const container = passwordInput.closest('.form-group') || passwordInput.parentNode;
-            container.appendChild(rulesContainer);
-        }
-
-        const rules = {
-            length: rulesContainer.querySelector("#rule-length"),
-            lower: rulesContainer.querySelector("#rule-lower"),
-            upper: rulesContainer.querySelector("#rule-upper"),
-            number: rulesContainer.querySelector("#rule-number"),
-            symbol: rulesContainer.querySelector("#rule-symbol"),
-        };
-
-        passwordInput.addEventListener("input", function () {
-            const val = passwordInput.value;
-
-            if (val.length > 0) {
-                rulesContainer.style.display = "block";
-            } else {
-                rulesContainer.style.display = "none";
+                const container = passwordInput.closest('.form-group') || passwordInput.parentNode;
+                container.appendChild(rulesContainer);
             }
 
-            FormValidation.updateRule(rules.length, val.length >= 8);
-            FormValidation.updateRule(rules.lower, /[a-z]/.test(val));
-            FormValidation.updateRule(rules.upper, /[A-Z]/.test(val));
-            FormValidation.updateRule(rules.number, /\d/.test(val));
-            FormValidation.updateRule(rules.symbol, /[!@#$%^&*(),.?":{}|<>]/.test(val));
-        });
-
-        passwordInput.addEventListener("blur", function () {
-            if (passwordInput.value.length === 0) {
-                rulesContainer.style.display = "none";
-            }
-        });
-
-        if (confirmPasswordInput) {
-            const validateMatch = () => {
-                if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
-                    FormValidation.showError(confirmPasswordInput, confirmPasswordInput.getAttribute('data-msg') || 'Password does not match');
-                } else {
-                    FormValidation.clearError(confirmPasswordInput);
-                }
+            const rules = {
+                length: rulesContainer.querySelector("#rule-length"),
+                lower: rulesContainer.querySelector("#rule-lower"),
+                upper: rulesContainer.querySelector("#rule-upper"),
+                number: rulesContainer.querySelector("#rule-number"),
+                symbol: rulesContainer.querySelector("#rule-symbol"),
             };
 
-            confirmPasswordInput.addEventListener('input', validateMatch);
-            passwordInput.addEventListener('input', () => {
-                if (confirmPasswordInput.value) validateMatch();
+            passwordInput.addEventListener("input", function () {
+                const val = passwordInput.value;
+
+                if (val.length > 0) {
+                    rulesContainer.style.display = "block";
+                } else {
+                    rulesContainer.style.display = "none";
+                }
+
+                FormValidation.updateRule(rules.length, val.length >= 8);
+                FormValidation.updateRule(rules.lower, /[a-z]/.test(val));
+                FormValidation.updateRule(rules.upper, /[A-Z]/.test(val));
+                FormValidation.updateRule(rules.number, /\d/.test(val));
+                FormValidation.updateRule(rules.symbol, /[!@#$%^&*(),.?":{}|<>]/.test(val));
+            });
+
+            passwordInput.addEventListener("blur", function () {
+                if (passwordInput.value.length === 0) {
+                    rulesContainer.style.display = "none";
+                }
+            });
+
+            if (confirmPasswordInput) {
+                const validateMatch = () => {
+                    if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+                        FormValidation.showError(confirmPasswordInput, confirmPasswordInput.getAttribute('data-msg') || 'Password does not match');
+                    } else {
+                        FormValidation.clearError(confirmPasswordInput);
+                    }
+                };
+
+                confirmPasswordInput.addEventListener('input', validateMatch);
+                passwordInput.addEventListener('input', () => {
+                    if (confirmPasswordInput.value) validateMatch();
+                });
+            }
+        }
+
+        addRequiredAsterisks() {
+            const forms = document.querySelectorAll(this.formSelector);
+            forms.forEach(form => {
+                const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+                inputs.forEach(input => {
+                    const id = input.getAttribute('id');
+                    let label;
+                    if (id) {
+                        label = form.querySelector(`label[for="${id}"]`);
+                    }
+                    if (!label) {
+                        const formGroup = input.closest('.form-group');
+                        if (formGroup) {
+                            label = formGroup.querySelector('label');
+                        }
+                    }
+
+                    if (label) {
+                        if (label.innerHTML.indexOf('*') === -1) {
+                            label.insertAdjacentHTML('beforeend', ' <span class="text-danger">*</span>');
+                        }
+                    }
+                });
             });
         }
-    }
 
-    addRequiredAsterisks() {
-        const forms = document.querySelectorAll(this.formSelector);
-        forms.forEach(form => {
-            const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+        static updateRule(element, isValid) {
+            if (!element) return;
+            const icon = element.querySelector("i");
+            if (icon) {
+                icon.className = isValid ? "text-success" : "text-danger";
+                icon.innerHTML = isValid ? "&#10004;" : "&#10060;"; // ✓ or ✗
+            }
+        }
+
+        static validateForm(form) {
+            let isValid = true;
+            const inputs = form.querySelectorAll('input, textarea, select');
+
             inputs.forEach(input => {
-                const id = input.getAttribute('id');
-                let label;
-                if (id) {
-                    label = form.querySelector(`label[for="${id}"]`);
-                }
-                if (!label) {
-                    const formGroup = input.closest('.form-group');
-                    if (formGroup) {
-                        label = formGroup.querySelector('label');
-                    }
-                }
-
-                if (label) {
-                    if (label.innerHTML.indexOf('*') === -1) {
-                        label.insertAdjacentHTML('beforeend', ' <span class="text-danger">*</span>');
-                    }
+                if (!FormValidation.validateInput(input)) {
+                    isValid = false;
                 }
             });
-        });
-    }
 
-    static updateRule(element, isValid) {
-        if (!element) return;
-        const icon = element.querySelector("i");
-        if (icon) {
-            icon.className = isValid ? "text-success" : "text-danger";
-            icon.innerHTML = isValid ? "&#10004;" : "&#10060;"; // ✓ or ✗
+            return isValid;
         }
-    }
 
-    static validateForm(form) {
-        let isValid = true;
-        const inputs = form.querySelectorAll('input, textarea, select');
+        static validateInput(input) {
+            if (input.type === 'hidden' || input.disabled) return true;
 
-        inputs.forEach(input => {
-            if (!FormValidation.validateInput(input)) {
+            let isValid = true;
+            let errorMessage = '';
+
+            FormValidation.clearError(input);
+
+            if (input.type !== 'file' && input.hasAttribute('required') && !input.value.trim()) {
                 isValid = false;
+                errorMessage = 'This field is required.';
             }
-        });
 
-        return isValid;
-    }
+            else if (input.type === 'email' && input.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(input.value.trim())) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid email address.';
+                }
+            }
 
-    static validateInput(input) {
-        if (input.type === 'hidden' || input.disabled) return true;
+            else if ((input.name === 'confirmPassword' || input.name === 'confirm-password') && input.value.trim()) {
+                const passwordInput = document.querySelector("input[name='password']");
+                if (passwordInput && input.value !== passwordInput.value) {
+                    isValid = false;
+                    errorMessage = input.getAttribute('data-msg') || 'Password does not match.';
+                }
+            }
 
-        let isValid = true;
-        let errorMessage = '';
+            if (!isValid) {
+                FormValidation.showError(input, errorMessage);
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-invalid');
+                if (input.type !== 'checkbox' && input.type !== 'radio') {
+                    input.classList.add('is-valid');
+                }
+            }
 
-        FormValidation.clearError(input);
-
-        if (input.type !== 'file' && input.hasAttribute('required') && !input.value.trim()) {
-            isValid = false;
-            errorMessage = 'This field is required.';
+            return isValid;
         }
 
-        else if (input.type === 'email' && input.value.trim()) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(input.value.trim())) {
-                isValid = false;
-                errorMessage = 'Please enter a valid email address.';
+        static showError(input, message) {
+            const inputGroup = input.closest('.input-group');
+            let targetElement = inputGroup ? inputGroup : input;
+
+            // Check for select2
+            if (input.tagName === 'SELECT' && $(input).hasClass('select2-hidden-accessible')) {
+                const select2Container = $(input).next('.select2-container');
+                if (select2Container.length) {
+                    targetElement = select2Container[0];
+                }
             }
-        }
 
-        else if ((input.name === 'confirmPassword' || input.name === 'confirm-password') && input.value.trim()) {
-            const passwordInput = document.querySelector("input[name='password']");
-            if (passwordInput && input.value !== passwordInput.value) {
-                isValid = false;
-                errorMessage = input.getAttribute('data-msg') || 'Password does not match.';
+            const formGroup = input.closest('.form-group');
+            let container = formGroup ? formGroup : targetElement.closest('div');
+
+            if (!container || container === targetElement) {
+                container = targetElement.parentNode;
             }
-        }
 
-        if (!isValid) {
-            FormValidation.showError(input, errorMessage);
-            input.classList.add('is-invalid');
-        } else {
-            input.classList.remove('is-invalid');
-            if (input.type !== 'checkbox' && input.type !== 'radio') {
-                input.classList.add('is-valid');
+            // Handle floating--date-inner groups
+            if (container.closest('.floating--date-inner')) {
+                container = container.closest('.floating--date-inner').parentNode;
+                let errorWrapper = container.querySelector('.group-error-wrapper');
+                if (!errorWrapper) {
+                    errorWrapper = document.createElement('div');
+                    errorWrapper.className = 'group-error-wrapper d-flex gap-3 flex-wrap';
+                    container.appendChild(errorWrapper);
+                }
+                container = errorWrapper;
+
+                const inputName = input.getAttribute('name');
+                let existingErrorForThisInput = container.querySelector(`.form-validation-error[data-for="${inputName}"]`);
+
+                if (!existingErrorForThisInput && container.children.length > 0) {
+                    return;
+                }
             }
-        }
-
-        return isValid;
-    }
-
-    static showError(input, message) {
-        const inputGroup = input.closest('.input-group');
-        let targetElement = inputGroup ? inputGroup : input;
-
-        // Check for select2
-        if (input.tagName === 'SELECT' && $(input).hasClass('select2-hidden-accessible')) {
-            const select2Container = $(input).next('.select2-container');
-            if (select2Container.length) {
-                targetElement = select2Container[0];
-            }
-        }
-
-        const formGroup = input.closest('.form-group');
-        let container = formGroup ? formGroup : targetElement.closest('div');
-
-        if (!container || container === targetElement) {
-            container = targetElement.parentNode;
-        }
-
-        // Handle floating--date-inner groups
-        if (container.closest('.floating--date-inner')) {
-            container = container.closest('.floating--date-inner').parentNode;
-            let errorWrapper = container.querySelector('.group-error-wrapper');
-            if (!errorWrapper) {
-                errorWrapper = document.createElement('div');
-                errorWrapper.className = 'group-error-wrapper d-flex gap-3 flex-wrap';
-                container.appendChild(errorWrapper);
-            }
-            container = errorWrapper;
 
             const inputName = input.getAttribute('name');
-            let existingErrorForThisInput = container.querySelector(`.form-validation-error[data-for="${inputName}"]`);
+            let errorDiv = container.querySelector(`.form-validation-error[data-for="${inputName}"]`);
 
-            if (!existingErrorForThisInput && container.children.length > 0) {
-                return;
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'form-validation-error text-danger small';
+                errorDiv.setAttribute('data-for', inputName);
+                container.appendChild(errorDiv);
+            }
+
+            errorDiv.textContent = message;
+            $(errorDiv).hide().fadeIn(200);
+        }
+
+        static clearError(input) {
+            const formGroup = input.closest('.form-group');
+            const container = formGroup ? formGroup : input.parentNode;
+
+            const inputName = input.getAttribute('name');
+            const errorDiv = container.querySelector(`.form-validation-error[data-for="${inputName}"]`);
+
+            if (errorDiv) {
+                errorDiv.remove();
             }
         }
-
-        const inputName = input.getAttribute('name');
-        let errorDiv = container.querySelector(`.form-validation-error[data-for="${inputName}"]`);
-
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.className = 'form-validation-error text-danger small';
-            errorDiv.setAttribute('data-for', inputName);
-            container.appendChild(errorDiv);
-        }
-
-        errorDiv.textContent = message;
-        $(errorDiv).hide().fadeIn(200);
     }
-
-    static clearError(input) {
-        const formGroup = input.closest('.form-group');
-        const container = formGroup ? formGroup : input.parentNode;
-
-        const inputName = input.getAttribute('name');
-        const errorDiv = container.querySelector(`.form-validation-error[data-for="${inputName}"]`);
-
-        if (errorDiv) {
-            errorDiv.remove();
-        }
-    }
+    window.FormValidation = FormValidation;
+    window.formValidation = new FormValidation();
 }
-
-window.FormValidation = FormValidation;
-window.formValidation = new FormValidation();
 
 // Global Ajax Form
 $(document).on('submit', '.global-ajax-form', function (e) {
@@ -1396,6 +1397,7 @@ $(document).on('submit', '.global-ajax-form', function (e) {
 
             this.errorElement = this.initErrorElement();
             this.attachEventListeners();
+            this.input.fileValidator = this;
         }
 
         initErrorElement() {
@@ -1424,8 +1426,15 @@ $(document).on('submit', '.global-ajax-form', function (e) {
         }
 
         attachEventListeners() {
-            this.input.addEventListener('change', () => {
-                this.validate();
+            this.input.addEventListener('change', (e) => {
+                if (!this.validate()) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    this.showInvalidIcon();
+                    this.input.value = '';
+                    return;
+                }
+
                 if (this.input.files && this.input.files.length === 0) {
                     this.removePreview();
                 }
@@ -1446,6 +1455,32 @@ $(document).on('submit', '.global-ajax-form', function (e) {
 
 
             });
+        }
+
+        showInvalidIcon() {
+            const parentDiv = this.input.closest('.upload-file_custom');
+            if (!parentDiv) return;
+
+            const textbox = parentDiv.querySelector('.upload-file-textbox');
+            const imgElement = parentDiv.querySelector('.upload-file-img');
+            const removeBtn = parentDiv.querySelector('.remove_btn');
+            const overlay = parentDiv.querySelector('.overlay');
+
+            if (textbox) textbox.style.display = 'none';
+            if (imgElement) {
+                const defaultImageSrc = document.getElementById('default-text-data').getAttribute('data-default-image-src');
+                const invalidIcon = defaultImageSrc.replace('upload-img.png', 'invalid-icon.png');
+                setTimeout(() => {
+                    imgElement.src = invalidIcon;
+                    imgElement.style.display = 'block';
+                    imgElement.style.objectFit = 'contain';
+                    imgElement.style.width = '25%';
+                }, 100);
+            }
+            if (removeBtn) removeBtn.style.opacity = 1;
+            if (overlay) overlay.classList.add('show');
+            parentDiv.classList.add('is-invalid-file-upload');
+            parentDiv.classList.add('input-disabled');
         }
 
         removePreview() {
@@ -1479,6 +1514,7 @@ $(document).on('submit', '.global-ajax-form', function (e) {
 
             const previews = parentDiv.querySelectorAll('.preview-image, .image-preview, .upload-preview, img.preview, [data-preview]:not(.overlay)');
             previews.forEach(el => el.remove());
+            this.clearError();
         }
 
         clearError() {
@@ -1487,6 +1523,11 @@ $(document).on('submit', '.global-ajax-form', function (e) {
                 this.errorElement.style.display = 'none';
             }
             this.input.classList.remove('is-invalid');
+            const parentDiv = this.input.closest('.upload-file_custom');
+            if (parentDiv) {
+                parentDiv.classList.remove('input-disabled');
+                parentDiv.classList.remove('is-invalid-file-upload');
+            }
         }
 
         showError(message) {
@@ -1499,6 +1540,11 @@ $(document).on('submit', '.global-ajax-form', function (e) {
         }
 
         validate() {
+            const parentDiv = this.input.closest('.upload-file_custom');
+            if (parentDiv && parentDiv.classList.contains('is-invalid-file-upload') && (!this.input.files || this.input.files.length === 0)) {
+                return this.showError('Invalid file');
+            }
+
             this.clearError();
 
             if (!this.input.files || this.input.files.length === 0) {
@@ -1584,6 +1630,13 @@ $(document).on('submit', '.global-ajax-form', function (e) {
             allowedTypes: ['webp', 'jpg', 'jpeg', 'png', 'gif']
         });
 
+        $(document).on('click', '.remove_btn', function () {
+            const input = $(this).closest('.upload-file_custom').find('.single_file_input')[0];
+            if (input && input.fileValidator) {
+                input.fileValidator.clearError();
+            }
+        });
+
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function (e) {
                 if (window.fileValidators && window.fileValidators.length > 0) {
@@ -1644,5 +1697,97 @@ document.addEventListener('click', function (e) {
 
     navigator.clipboard.writeText(text).then(() => {
         toastr.success('Copied');
+    });
+});
+
+
+$(document).ready(function () {
+    //----- sticky footer
+    function checkFooterState() {
+        const $footer = $('.footer-sticky');
+        const scrollPosition = $(window).scrollTop() + $(window).height();
+        const documentHeight = $(document).height();
+
+        if (scrollPosition >= documentHeight - 20) {
+            $footer.addClass('not-active');
+        } else {
+            $footer.removeClass('not-active');
+        }
+    }
+
+    $(window).on('scroll', checkFooterState);
+    checkFooterState();
+
+    //----- Changing svg color
+    $("img.svg").each(function () {
+        var $img = jQuery(this);
+        var imgID = $img.attr("id");
+        var imgClass = $img.attr("class");
+        var imgURL = $img.attr("src");
+
+        jQuery.get(
+            imgURL,
+            function (data) {
+                var $svg = jQuery(data).find("svg");
+
+                if (typeof imgID !== "undefined") {
+                    $svg = $svg.attr("id", imgID);
+                }
+                if (typeof imgClass !== "undefined") {
+                    $svg = $svg.attr("class", imgClass + " replaced-svg");
+                }
+
+                $svg = $svg.removeAttr("xmlns:a");
+
+                if (
+                    !$svg.attr("viewBox") &&
+                    $svg.attr("height") &&
+                    $svg.attr("width")
+                ) {
+                    $svg.attr(
+                        "viewBox",
+                        "0 0 " + $svg.attr("height") + " " + $svg.attr("width")
+                    );
+                }
+                $img.replaceWith($svg);
+            },
+            "xml"
+        );
+    });
+});
+
+
+//update-exinting-product
+$(document).on('change', '.update_exinting_check, .schedule_order-in', function () {
+    const box = $('.update-exinting-product-box, .order-type-box');
+    if ($(this).is(':checked')) {
+        box.removeClass('d-none').addClass('d-block');
+    } else {
+        box.removeClass('d-block').addClass('d-none');
+    }
+});
+
+$(document).on('change', 'input[type="radio"]', function () {
+    if (!$(this).hasClass('schedule_order-in')) {
+        $('.update-exinting-product-box, .order-type-box')
+            .removeClass('d-block')
+            .addClass('d-none');
+    }
+});
+
+
+//Table Custom td Show & Hide
+document.querySelectorAll('.table-toggle-btn').forEach(function (button) {
+    button.addEventListener('click', function () {
+        const tableWrap = this.nextElementSibling;
+        const currentDisplay = window.getComputedStyle(tableWrap).display;
+
+        if (currentDisplay === 'none') {
+            tableWrap.style.display = 'block';
+        } else {
+            tableWrap.style.display = 'none';
+        }
+
+        this.classList.toggle('active');
     });
 });

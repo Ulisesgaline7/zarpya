@@ -8,7 +8,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -71,8 +71,8 @@
                         </form>
                         <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                             <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                   data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                   data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                   data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                   data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                    data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                    data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                    data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -514,7 +514,7 @@
                                                         <label class="upload-file__wrapper w-100 h-100 m-0">
                                                             <div class="upload-file-textbox text-center" style="">
                                                                 <img width="22" class="svg"
-                                                                     src="{{asset('assets/admin/img/document-upload.svg')}}"
+                                                                     src="{{asset('public/assets/admin/img/document-upload.svg')}}"
                                                                      alt="img">
                                                                 <h6
                                                                     class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
@@ -613,8 +613,8 @@
                                                 <td>{{ $key + 1 }}</td>
                                                 <td>
                                                     <img
-                                                        src="{{ $review->reviewer_image_full_url ?? asset('assets/admin/img/upload-3.png')}}"
-                                                        data-onerror-image="{{asset('assets/admin/img/upload-3.png')}}"
+                                                        src="{{ $review->reviewer_image_full_url ?? asset('/public/assets/admin/img/upload-3.png')}}"
+                                                        data-onerror-image="{{asset('/public/assets/admin/img/upload-3.png')}}"
                                                         class="w-50px h-50px min-w-50px rounded onerror-image" alt="">
                                                 </td>
                                                 <td>
@@ -638,8 +638,8 @@
                                                     <label class="toggle-switch mx-auto toggle-switch-sm">
                                                         <input type="checkbox" data-id="status-{{ $review->id }}"
                                                                data-type="status"
-                                                               data-image-on="{{ asset('assets/admin/img/modal/this-criteria-on.png') }}"
-                                                               data-image-off="{{ asset('assets/admin/img/modal/this-criteria-off.png') }}"
+                                                               data-image-on="{{ asset('/public/assets/admin/img/modal/this-criteria-on.png') }}"
+                                                               data-image-off="{{ asset('/public/assets/admin/img/modal/this-criteria-off.png') }}"
                                                                data-title-on="{{ translate('by_turning_on_this_review') }} <strong>{{ translate('this_review') }}</strong>"
                                                                data-title-off="{{ translate('by_turning_off_this_review') }} <strong>{{ translate('this_review') }}</strong>"
                                                                data-text-on="<p>{{ translate('this_section_will_be_enabled_you_can_see_this_section_on_your_landing_page') }}</p>"
@@ -682,7 +682,7 @@
                                     </table>
                                     @if(count($reviews) === 0)
                                         <div class="empty--data">
-                                            <img src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}"
+                                            <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}"
                                                  alt="public">
                                             <h5>
                                                 {{translate('no_data_found')}}
@@ -752,14 +752,14 @@
                                                                 <div
                                                                     class="shadow-testimonial-box border-0 p-xxl-4 p-3 text-center">
                                                                     <img
-                                                                        src="{{ asset('assets/admin/img/icons/testimonial-quote.png') }}"
+                                                                        src="{{ asset('/public/assets/admin/img/icons/testimonial-quote.png') }}"
                                                                         alt="" class="mb-20 min-w-40 mx-auto">
                                                                     <p class="fs-14 mb-3">{{$review->review}}</p>
                                                                     <div
                                                                         class="mx-auto w-60px border-bottom mb-3"></div>
                                                                     <div class="specialist text-center">
                                                                         <img wdith="42" height="42"
-                                                                             src="{{ $review->reviewer_image_full_url ?? asset('assets/admin/img/400x400/alamin-hasan.jpg') }}"
+                                                                             src="{{ $review->reviewer_image_full_url ?? asset('/public/assets/admin/img/400x400/alamin-hasan.jpg') }}"
                                                                              alt=""
                                                                              class="rounded-pill w-42 mx-auto min-w-42 mb-2">
                                                                         <h2 class="mb-1 fs-14">
@@ -775,7 +775,7 @@
                                                             <div
                                                                 class="shadow-testimonial-box border-0 p-xxl-4 p-3 text-center">
                                                                 <img
-                                                                    src="{{ asset('assets/admin/img/icons/testimonial-quote.png') }}"
+                                                                    src="{{ asset('/public/assets/admin/img/icons/testimonial-quote.png') }}"
                                                                     alt="" class="mb-20 min-w-40 mx-auto">
                                                                 <p class="fs-14 mb-3">Lorem ipsum dolor sit amet,
                                                                     consectetur
@@ -786,7 +786,7 @@
                                                                 <div class="mx-auto w-60px border-bottom mb-3"></div>
                                                                 <div class="specialist text-center">
                                                                     <img wdith="42" height="42"
-                                                                         src="{{ asset('assets/admin/img/400x400/alamin-hasan.jpg') }}"
+                                                                         src="{{ asset('/public/assets/admin/img/400x400/alamin-hasan.jpg') }}"
                                                                          alt=""
                                                                          class="rounded-pill w-42 mx-auto min-w-42 mb-2">
                                                                     <h2 class="mb-1 fs-14">
@@ -800,7 +800,7 @@
                                                             <div
                                                                 class="shadow-testimonial-box border-0 p-xxl-4 p-3 text-center">
                                                                 <img
-                                                                    src="{{ asset('assets/admin/img/icons/testimonial-quote.png') }}"
+                                                                    src="{{ asset('/public/assets/admin/img/icons/testimonial-quote.png') }}"
                                                                     alt="" class="mb-20 min-w-40 mx-auto">
                                                                 <p class="fs-14 mb-3">Lorem ipsum dolor sit amet,
                                                                     consectetur
@@ -811,7 +811,7 @@
                                                                 <div class="mx-auto w-60px border-bottom mb-3"></div>
                                                                 <div class="specialist text-center">
                                                                     <img wdith="42" height="42"
-                                                                         src="{{ asset('assets/admin/img/400x400/alamin-hasan.jpg') }}"
+                                                                         src="{{ asset('/public/assets/admin/img/400x400/alamin-hasan.jpg') }}"
                                                                          alt=""
                                                                          class="rounded-pill w-42 mx-auto min-w-42 mb-2">
                                                                     <h2 class="mb-1 fs-14">
@@ -825,7 +825,7 @@
                                                             <div
                                                                 class="shadow-testimonial-box border-0 p-xxl-4 p-3 text-center">
                                                                 <img
-                                                                    src="{{ asset('assets/admin/img/icons/testimonial-quote.png') }}"
+                                                                    src="{{ asset('/public/assets/admin/img/icons/testimonial-quote.png') }}"
                                                                     alt="" class="mb-20 min-w-40 mx-auto">
                                                                 <p class="fs-14 mb-3">Lorem ipsum dolor sit amet,
                                                                     consectetur
@@ -836,7 +836,7 @@
                                                                 <div class="mx-auto w-60px border-bottom mb-3"></div>
                                                                 <div class="specialist text-center">
                                                                     <img wdith="42" height="42"
-                                                                         src="{{ asset('assets/admin/img/400x400/alamin-hasan.jpg') }}"
+                                                                         src="{{ asset('/public/assets/admin/img/400x400/alamin-hasan.jpg') }}"
                                                                          alt=""
                                                                          class="rounded-pill w-42 mx-auto min-w-42 mb-2">
                                                                     <h2 class="mb-1 fs-14">

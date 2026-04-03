@@ -8,7 +8,7 @@
             <div class="d-flex flex-wrap justify-content-between">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                     <span>
                     {{ translate('messages.react_landing_page') }}
@@ -46,7 +46,7 @@
         </div>
         <div class="card shadow-none border-0 bg-opacity-primary-10 mb-20">
             <div class="card-body d-flex gap-2 align-items-center">
-                <img width="20" src="{{asset('assets/admin/img/info-idea.svg')}}" alt="img">
+                <img width="20" src="{{asset('public/assets/admin/img/info-idea.svg')}}" alt="img">
                 <p class="fs-12 color-656566 m-0">
                     {{ translate('Customize the section by adding a title, short description, and images in the') }} <a
                         href="{{ route('admin.business-settings.zone.home') }}" target="_blank"
@@ -84,8 +84,8 @@
                             </form>
                             <label class="toggle-switch toggle-switch-sm" for="CheckboxStatus">
                                 <input type="checkbox" data-id="CheckboxStatus" data-type="status"
-                                       data-image-on="{{ asset('assets/admin/img/status-ons.png') }}"
-                                       data-image-off="{{ asset('assets/admin/img/off-danger.png') }}"
+                                       data-image-on="{{ asset('/public/assets/admin/img/status-ons.png') }}"
+                                       data-image-off="{{ asset('/public/assets/admin/img/off-danger.png') }}"
                                        data-title-on="{{ translate('Do you want turn on this section ?') }}"
                                        data-title-off="{{ translate('Do you want to turn off this section ?') }}"
                                        data-text-on="<p>{{ translate('If you turn on this section will be show in react landing page.') }}"
@@ -275,7 +275,7 @@
                 <div class="custom-offcanvas-body custom-offcanvas-body-100  p-20">
                     <section class="common-section-view bg-white border rounded-10 my-xl-0 mx-xl-0">
                         <div
-                            class="common-section-inner d-flex flex-xl-nowrap justify-content-xl-between justify-content-center flex-wrap align-items-center gap-x-xl-20 bg-fafafa rounded-10 p-3">
+                            class="common-section-inner d-flex flex-xl-nowrap justify-content-xl-between justify-content-center flex-wrap align-items-center gap-xxl-20 bg-fafafa rounded-10 p-3">
                             <div class="max-w-400px">
                                 <h2 class="mb-xl-2 mb-1 fs-24">
                                     {!! \App\CentralLogics\Helpers::highlightWords(text:$available_zone_title?->value ?? 'Available Delivery $Areas / Zone$') !!}
@@ -328,7 +328,7 @@
     @include('admin-views.business-settings.landing-page-settings.partial.how-it-work-react')
 @endsection
 @push('script_2')
-    <script src="{{asset('assets/admin/ckeditor/ckeditor.js')}}"></script>
+    <script src="{{asset('public/assets/admin/ckeditor/ckeditor.js')}}"></script>
     <script>
         "use strict";
         $(document).ready(function () {

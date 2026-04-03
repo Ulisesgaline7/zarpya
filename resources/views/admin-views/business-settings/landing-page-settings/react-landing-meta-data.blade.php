@@ -4,7 +4,7 @@
 
 @push('css_or_js')
     <!-- Custom styles for this page -->
-    <link href="{{asset('assets/admin/css/croppie.css')}}" rel="stylesheet">
+    <link href="{{asset('public/assets/admin/css/croppie.css')}}" rel="stylesheet">
 
 @endpush
 
@@ -16,7 +16,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -39,7 +39,7 @@
 
      <form class="custom-validation" id="zone-setup-form" action="{{ route('admin.business-settings.react-landing-page-settings', 'meta-data') }}" method="POST" enctype="multipart/form-data">
         @csrf
-         @include('admin-views.business-settings.landing-page-settings.partial._meta_data')
+         @include('admin-views.business-settings.landing-page-settings.partial._meta_data',['submit' => true])
     </form>
 
 </div>

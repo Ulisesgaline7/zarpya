@@ -47,7 +47,7 @@
                     <ul class="nav nav-tabs nav--tabs border-0 gap-2">
                         <li class="nav-item mr-2 mr-md-4">
                             <a href="#mail-config" data-toggle="tab" class="nav-link pb-2 px-0 pb-sm-3 active">
-                                <img src="{{ asset('assets/admin/img/mail-config.png') }}" alt="">
+                                <img src="{{ asset('/public/assets/admin/img/mail-config.png') }}" alt="">
                                 <span>{{ translate('OpenAI_Configuration') }}</span>
                             </a>
                         </li>
@@ -84,8 +84,8 @@
                                     </span>
                                     <input id="mail-config-disable" type="checkbox" data-id="mail-config-disable"
                                         data-type="status"
-                                        data-image-on="{{ asset('assets/admin/img/modal/mail-success.png') }}"
-                                        data-image-off="{{ asset('assets/admin/img/modal/mail-warning.png') }}"
+                                        data-image-on="{{ asset('/public/assets/admin/img/modal/mail-success.png') }}"
+                                        data-image-off="{{ asset('/public/assets/admin/img/modal/mail-warning.png') }}"
                                         data-title-on="{{ translate('Important!') }}"
                                         data-title-off="{{ translate('Warning!') }}"
                                         data-text-on="<p>{{ translate('You_can_user_the_power_of_OpenAI_to_generate_content.') }}</p>"
@@ -168,7 +168,7 @@
                         <div class="item">
                             <div class="mw-353px mb-20 mx-auto">
                                 <div class="text-center">
-                                    <img src="{{ asset('assets/admin/img/mail-config/slide-4.png') }}"
+                                    <img src="{{ asset('/public/assets/admin/img/mail-config/slide-4.png') }}"
                                         alt="" class="mb-20">
                                     <h5 class="modal-title">{{ translate('Enable OpenAI Configuration') }}</h5>
                                 </div>

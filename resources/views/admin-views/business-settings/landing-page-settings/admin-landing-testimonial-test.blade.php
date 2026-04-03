@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.admin_landing_pages') }}
@@ -62,7 +62,7 @@
                                             class="form-label-secondary" data-toggle="tooltip"
                                             data-placement="right"
                                             data-original-title="{{ translate('Write_the_title_within_250_characters') }}">
-                                            <img src="{{ asset('assets/admin/img/info-circle.svg') }}"
+                                            <img src="{{ asset('public/assets/admin/img/info-circle.svg') }}"
                                                 alt="">
                                         </span><span class="form-label-secondary text-danger"
                                                      data-toggle="tooltip" data-placement="right"
@@ -91,13 +91,13 @@
                                             <div class="img">
                                                 <img
 
-                                                src="{{ $review?->reviewer_image_full_url ?? asset('assets/admin/img/aspect-1.png') }}" data-onerror-image="{{asset("/assets/admin/img/aspect-1.png")}}" class="img__aspect-1 mw-100 min-w-187px max-w-187px onerror-image" alt="">
+                                                src="{{ $review?->reviewer_image_full_url ?? asset('/public/assets/admin/img/aspect-1.png') }}" data-onerror-image="{{asset("/public/assets/admin/img/aspect-1.png")}}" class="img__aspect-1 mw-100 min-w-187px max-w-187px onerror-image" alt="">
                                             </div>
                                             <input accept="{{IMAGE_EXTENSION}}" class="upload-file__input single_file_input" type="file"  name="reviewer_image" hidden="">
                                              @if (isset($review->reviewer_image))
                                                     <span style="right: 53px;top: 2px;!important;"  id="reviewer_image" class="remove_image_button remove-image dynamic-checkbox"
                                                           data-id="reviewer_image"
-                                                          data-image-off="{{ asset('assets/admin/img/delete-confirmation.png') }}"
+                                                          data-image-off="{{ asset('/public/assets/admin/img/delete-confirmation.png') }}"
                                                           data-title="{{translate('Warning!')}}"
                                                           data-text="<p>{{translate('Are_you_sure_you_want_to_remove_this_image_?')}}</p>"
                                                     > <i class="tio-clear"></i></span>
@@ -120,13 +120,13 @@
                                             <div class="position-relative">
                                             <div class="img">
                                                 <img
-                                                src="{{ $review?->company_image_full_url ?? asset('assets/admin/img/aspect-3-1.png') }}" data-onerror-image="{{asset("/assets/admin/img/aspect-3-1.png")}}" class="vertical-img max-w-187px onerror-image" alt="">
+                                                src="{{ $review?->company_image_full_url ?? asset('/public/assets/admin/img/aspect-3-1.png') }}" data-onerror-image="{{asset("/public/assets/admin/img/aspect-3-1.png")}}" class="vertical-img max-w-187px onerror-image" alt="">
                                             </div>
                                             <input accept="{{IMAGE_EXTENSION}}" class="upload-file__input single_file_input" type="file" id="image-upload-2" name="company_image" hidden="">
                                             @if (isset($review->company_image))
                                                     <span style="right: 53px;top: 2px;!important;" id="company_image" class="remove_image_button remove-image dynamic-checkbox"
                                                           data-id="company_image"
-                                                          data-image-off="{{ asset('assets/admin/img/delete-confirmation.png') }}"
+                                                          data-image-off="{{ asset('/public/assets/admin/img/delete-confirmation.png') }}"
                                                           data-title="{{translate('Warning!')}}"
                                                           data-text="<p>{{translate('Are_you_sure_you_want_to_remove_this_image_?')}}</p>"
                                                     > <i class="tio-clear"></i></span>
@@ -171,7 +171,7 @@
                             <div class="mb-3">
                                 <h3 class="modal-title mb-3">{{translate(' Special review')}}</h3>
                             </div>
-                            <img src="{{asset('assets/admin/img/zone-instruction.png')}}" alt="admin/img" class="w-100">
+                            <img src="{{asset('/public/assets/admin/img/zone-instruction.png')}}" alt="admin/img" class="w-100">
                         </div>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
                             <div class="max-349 mx-auto mb-20">
                                 <div>
                                     <div class="text-center">
-                                        <img src="{{asset('assets/admin/img/modal/this-review-off.png')}}" alt="" class="mb-20">
+                                        <img src="{{asset('/public/assets/admin/img/modal/this-review-off.png')}}" alt="" class="mb-20">
                                         <h5 class="modal-title">{{translate('By Turning OFF ')}} <strong>{{translate('This review')}}</strong></h5>
                                     </div>
                                     <div class="text-center">
@@ -201,7 +201,7 @@
                                 </div>
                                 <!-- <div>
                                     <div class="text-center">
-                                        <img src="{{asset('assets/admin/img/modal/this-review-on.png')}}" alt="" class="mb-20">
+                                        <img src="{{asset('/public/assets/admin/img/modal/this-review-on.png')}}" alt="" class="mb-20">
                                         <h5 class="modal-title">{{translate('By Turning ON ')}} <strong>{{translate('This review')}}</strong></h5>
                                     </div>
                                     <div class="text-center">

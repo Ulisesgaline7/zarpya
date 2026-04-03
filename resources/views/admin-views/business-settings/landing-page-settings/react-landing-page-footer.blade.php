@@ -8,7 +8,7 @@
         <div class="d-flex flex-wrap justify-content-between">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/landing.png')}}" class="w--20" alt="">
+                    <img src="{{asset('public/assets/admin/img/landing.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('messages.react_landing_page') }}
@@ -86,7 +86,7 @@
                                         <img
                                         src="{{\App\CentralLogics\Helpers::get_full_url('promotional_banner', $fixed_promotional_banner?->value?? '', $fixed_promotional_banner?->storage[0]?->value ?? 'public','upload_image_4')}}"
 
-                                        data-onerror-image="{{asset('assets/admin/img/upload-4.png')}}" class="vertical-img mw-100 vertical onerror-image" alt="">
+                                        data-onerror-image="{{asset('/public/assets/admin/img/upload-4.png')}}" class="vertical-img mw-100 vertical onerror-image" alt="">
                                     </div>
                                         <input type="file" name="fixed_promotional_banner"  hidden>
                                            @if (isset($fixed_promotional_banner['value']))
@@ -340,7 +340,7 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <div class="banner-thumb w-100 h-100 rounded-10">
-                                    <img src="{{ asset('assets/admin/img/400x400/footer-preview.png') }}" alt="" class="w-100">
+                                    <img src="{{ asset('/public/assets/admin/img/400x400/footer-preview.png') }}" alt="" class="w-100">
                                 </div>
                             </div>
                         </div>

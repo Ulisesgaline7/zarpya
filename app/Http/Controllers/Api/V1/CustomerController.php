@@ -285,7 +285,7 @@ class CustomerController extends Controller
 
         $user = User::where(['id' => $request->user()->id])->first();
         $module_ids = $user?->module_ids ? json_decode($user?->module_ids, true) : [];
-        array_push($module_ids, $request->header('moduleId'));
+        array_push($module_ids, getModuleId($request->header('moduleId')));
         $module_ids = array_unique($module_ids);
 
         $interest = $user?->interest ? json_decode($user?->interest, true) : [];
@@ -317,15 +317,7 @@ class CustomerController extends Controller
 
     public function get_suggested_item(Request $request)
     {
-        if (!$request->hasHeader('zoneId')) {
-            $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => 'Zone id is required!']);
-            return response()->json([
-                'errors' => $errors
-            ], 403);
-        }
-
-
+       Helpers::setZoneIds($request);
         $zone_id = $request->header('zoneId');
 
         $interest = $request->user()->interest;
@@ -361,17 +353,20 @@ class CustomerController extends Controller
 
     public function update_zone(Request $request)
     {
-        if (!$request->hasHeader('zoneId') && is_numeric($request->header('zoneId'))) {
-            $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]);
-            return response()->json([
-                'errors' => $errors
-            ], 403);
-        }
+        $longitude = (float)$request->header('longitude') ?? 0;
+        $latitude = (float)$request->header('latitude') ?? 0;
 
-        $customer = $request->user();
-        $customer->zone_id = (integer)$request->header('zoneId');
-        $customer->save();
+        if ($longitude && $latitude) {
+            try {
+             $zoneId = Zone::where('status',1)->whereContains('coordinates', new Point($longitude, $latitude, POINT_SRID))
+            ->selectRaw('zones.*, ABS(ST_Area(coordinates)) as area')->orderBy('area', 'asc')->first()?->id;
+                $customer = $request->user();
+                $customer->zone_id = $zoneId;
+                $customer->save();
+
+            } catch (\Exception $e) {
+            }
+        }
         return response()->json([], 200);
     }
 

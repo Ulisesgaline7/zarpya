@@ -200,7 +200,7 @@ class InstallController extends Controller
                     BUYER_USERNAME=' . session('username') . '
                     SOFTWARE_ID=MzY3NzIxMTI=
 
-                    SOFTWARE_VERSION=3.6
+                    SOFTWARE_VERSION=3.7
                     REACT_APP_KEY=45370351
                     ';
             $file = fopen(base_path('.env'), 'w');

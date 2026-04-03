@@ -116,6 +116,11 @@ class ZoneController extends BaseController
             Toastr::warning(translate('messages.you_can_not_delete_this_zone_please_add_a_new_zone_to_delete'));
             return back();
         }
+        $zone = $this->zoneRepo->getFirstWhere(params: ['id' => $request['id']]);
+        if($zone->is_default){
+            Toastr::warning('Sorry! This zone is set as default.You can not delete this zone!');
+            return back();
+        }
         if (Order::where('zone_id', $request['id'])->whereIn('order_status', ['pending', 'accepted', 'confirmed', 'processing', 'handover', 'picked_up'])->exists()) {
             Toastr::warning(translate('messages.you_can_not_delete_this_zone_Please_complete_the_ongoing_orders_of_this_zone'));
             return back();
@@ -236,7 +241,11 @@ class ZoneController extends BaseController
             relations: ['stores', 'deliverymen'],
             dataLimit: config('default_pagination')
         );
-        return view(ZoneViewPath::INDEX[VIEW], compact('zones'));
+        $language = getWebConfig('language');
+        $config = Helpers::get_business_settings('cash_on_delivery');
+        $digital_payment = Helpers::get_business_settings('digital_payment');
+        $offline_payment = Helpers::get_business_settings('offline_payment_status');
+        return view(ZoneViewPath::INDEX[VIEW], compact('zones', 'language', 'config', 'digital_payment', 'offline_payment'));
     }
 
     public function updateStatus(Request $request): RedirectResponse
@@ -245,6 +254,17 @@ class ZoneController extends BaseController
             Toastr::warning('Sorry!You can not inactive this zone!');
             return back();
         }
+
+         $zone = $this->zoneRepo->getFirstWhere(
+            params: ['id' => $request->id],
+        );
+
+
+        if($zone->is_default && $request->status == 0){
+            Toastr::warning('Sorry! This zone is set as default.You can not inactive this zone!');
+            return back();
+        }
+
         $this->zoneRepo->update(id: $request['id'], data: ['status' => $request['status']]);
         if ($request['status'] == 0) {
             $this->clearCartByZone($request['id']);
@@ -391,5 +411,18 @@ class ZoneController extends BaseController
 
         return response()->json(['status' => 'ok'], 200);
     }
+    public function defaultStatus($id){
 
+        $zone = $this->zoneRepo->getFirstWhere(
+            params: ['id' => $id]
+        );
+        $zone->is_default = 1;
+        $zone->status = 1;
+        $zone->save();
+
+        ZoneModel::where('id', '!=', $id)->update(['is_default' => 0]);
+        Toastr::success(translate('messages.zone_default_status_updated'));
+        return back();
+    }
 }
+

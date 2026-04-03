@@ -23,28 +23,28 @@
                 <div class="resturant-card card--bg-1">
                     <h4 class="title">{{$total_store}}</h4>
                     <span class="subtitle">{{translate('messages.total_stores')}}</span>
-                    <img class="resturant-icon" src="{{asset('assets/admin/img/total-store.png')}}" alt="store">
+                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/total-store.png')}}" alt="store">
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
                 <div class="resturant-card card--bg-2">
                     <h4 class="title">{{$active_stores}}</h4>
                     <span class="subtitle">{{translate('messages.active_stores')}}</span>
-                    <img class="resturant-icon" src="{{asset('assets/admin/img/active-store.png')}}" alt="store">
+                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/active-store.png')}}" alt="store">
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
                 <div class="resturant-card card--bg-3">
                     <h4 class="title">{{$inactive_stores}}</h4>
                     <span class="subtitle">{{translate('messages.inactive_stores')}}</span>
-                    <img class="resturant-icon" src="{{asset('assets/admin/img/close-store.png')}}" alt="store">
+                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/close-store.png')}}" alt="store">
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
                 <div class="resturant-card card--bg-4">
                     <h4 class="title">{{$recent_stores}}</h4>
                     <span class="subtitle">{{translate('messages.newly_joined_stores')}}</span>
-                    <img class="resturant-icon" src="{{asset('assets/admin/img/add-store.png')}}" alt="store">
+                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/add-store.png')}}" alt="store">
                 </div>
             </div>
         </div>
@@ -129,13 +129,13 @@
                             <span class="dropdown-header">{{ translate('messages.download_options') }}</span>
                             <a id="export-excel" class="dropdown-item" href="{{route('admin.store.export', ['type'=>'excel',request()->getQueryString()])}}">
                                 <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                    src="{{ asset('assets/admin') }}/svg/components/excel.svg"
+                                    src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
                                     alt="Image Description">
                                 {{ translate('messages.excel') }}
                             </a>
                             <a id="export-csv" class="dropdown-item" href="{{route('admin.store.export', ['type'=>'csv',request()->getQueryString()])}}">
                                 <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                    src="{{ asset('assets/admin') }}/svg/components/placeholder-csv-format.svg"
+                                    src="{{ asset('public/assets/admin') }}/svg/components/placeholder-csv-format.svg"
                                     alt="Image Description">
                                 .{{ translate('messages.csv') }}
                             </a>
@@ -176,9 +176,9 @@
                             <td>
                                 <div>
                                     <a href="{{route('admin.store.view', $store->id)}}" class="table-rest-info" alt="view store">
-                                    <img class="img--60 circle onerror-image" data-onerror-image="{{asset('assets/admin/img/160x160/img1.jpg')}}"
+                                    <img class="img--60 circle onerror-image" data-onerror-image="{{asset('public/assets/admin/img/160x160/img1.jpg')}}"
 
-                                            src="{{ $store['logo_full_url'] ?? asset('assets/admin/img/160x160/img1.jpg') }}"
+                                            src="{{ $store['logo_full_url'] ?? asset('public/assets/admin/img/160x160/img1.jpg') }}"
 
                                             >
                                         <div class="info"><div title="{{ $store?->name }}" class="text--title">
@@ -263,7 +263,7 @@
                 </div>
                 @if(count($stores) === 0)
                 <div class="empty--data">
-                    <img src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
+                    <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
                     <h5>
                         {{translate('no_data_found')}}
                     </h5>

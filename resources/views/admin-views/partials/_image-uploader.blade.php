@@ -27,14 +27,22 @@
     <div class="upload-file_custom {{ $aspectRatio }} h-100px">
         <input type="hidden" name="{{ $name }}_deleted" class="image-delete-flag" value="0">
         <input class="upload-file__input single_file_input" type="file" id="{{ $id }}" name="{{ $name }}"
-            accept="{{ $imageExtension }}" {{ $isRequired ? 'required' : '' }} data-max-size="{{ $maxSize }}">
+            accept="{{ $imageExtension }}" {{ !$existingImage && $isRequired ? 'required' : '' }}
+            data-max-size="{{ $maxSize }}">
+        @if (!$isRequired)
+            <button type="button" class="remove_btn remove_btn_outside btn icon-btn btn-circle btn-danger fs-14 lh-1"
+                style="--size: 20px;">
+                <i class="tio-clear"></i>
+            </button>
+        @endif
         <label for="{{ $id }}" class="upload-file__wrapper w-100 h-100 m-0 {{ $aspectRatio }}">
             <div class="upload-file-textbox text-center">
-                <img width="22" class="svg" src="{{ asset('assets/admin/img/document-upload.svg') }}" alt="img">
+                <img width="27" class="svg" src="{{ asset('public/assets/admin/img/document-upload.svg') }}" alt="img">
                 <h6 class="mt-1 color-656566 fw-medium fs-10 lh-base text-center">
-                    <span class="theme-clr">{{ translate('Click to upload') }}</span>
-                    <br>
-                    {{ translate('Or drag and drop') }}
+                    <span class="theme-clr">{{ translate('Add') }}</span>
+                    @if ($isRequired)
+                        <span class="text-danger d-none">*</span>
+                    @endif
                 </h6>
             </div>
             <img class="upload-file-img" loading="lazy" src="{{ $existingImage }}" data-default-src="" alt=""
@@ -46,19 +54,14 @@
                     <i class="tio-invisible"></i>
                 </button>
                 <button type="button" class="btn btn-outline-info icon-btn edit_btn">
-                    <i class="tio-edit"></i>
+                    <i class="tio-camera-enhance"></i>
                 </button>
-                @if (!$isRequired)
-                    <button type="button" class="remove_btn btn icon-btn">
-                        <i class="tio-delete text-danger"></i>
-                    </button>
-                @endif
             </div>
         </div>
     </div>
     @if ($textPosition == 'bottom')
-        <p class="mb-2 fs-12 gray-dark">
-            {{ translate($imageFormat . '. Less Than ' . $maxSize . 'MB')}} <span
+        <p class="mt-3 mb-2 fs-12 gray-dark">
+            {{ translate(strtoupper($imageFormat) . '. Less Than ' . $maxSize . 'MB')}} <span
                 class="font-medium text-title">{{ translate('(' . $size . ')')}}</span>
         </p>
     @endif

@@ -18,7 +18,9 @@ use App\Models\DeliveryManWallet;
 use App\Models\AccountTransaction;
 use Illuminate\Support\Facades\DB;
 use App\CentralLogics\CustomerLogic;
+use App\Models\ParcelPenaltyFee;
 use App\Models\DeliverymanReferralHistory;
+use App\Models\ParcelReturnFees;
 use App\Models\ParcelCancellation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -304,7 +306,7 @@ class OrderLogic
                         try {
                             Helpers::add_fund_push_notification($referar_user->id);
                             if (config('mail.status') && Helpers::get_mail_status('add_fund_mail_status_user') == '1' && Helpers::getNotificationStatusData('customer', 'customer_add_fund_to_wallet', 'mail_status')) {
-                                Mail::to($referar_user->email)->send(new \App\Mail\AddFundToWallet($refer_wallet_transaction));
+                                Mail::to($referar_user?->getRawOriginal('email'))->send(new \App\Mail\AddFundToWallet($refer_wallet_transaction));
                             }
                         } catch (\Exception $ex) {
                             info($ex->getMessage());
@@ -401,6 +403,8 @@ class OrderLogic
                 );
                 if ($order->delivery_man->earning == 1) {
                     $dmWallet->total_earning = $dmWallet->total_earning + $dm_commission + $dm_tips + $return_fee;
+                    $dmWallet->collected_cash = $dmWallet->collected_cash +$return_fee;
+                    self::createReturnFeeLog($order, $return_fee);
                 } else {
                     $adminWallet->total_commission_earning = $adminWallet->total_commission_earning + $dm_commission + $dm_tips + $return_fee;
                 }
@@ -454,6 +458,7 @@ class OrderLogic
                 $returnDate = Carbon::parse($order->parcelCancellation->return_date);
                 if ($returnDate->isPast() && isset($dmWallet)) {
                      $dmWallet->collected_cash = $dmWallet->collected_cash + $order->parcelCancellation->dm_penalty_fee??0;
+                     self::createParcelPenaltyLog($order, $order->parcelCancellation->dm_penalty_fee??0);
                 }
             }
 
@@ -646,9 +651,32 @@ class OrderLogic
             $Payable_Balance =  $over_flow_balance   > 0 ? 1 : 0;
             if ($Payable_Balance == 1 &&  $cash_in_hand_overflow  && $wallet_balance < 0 &&  $cash_in_hand_overflow_delivery_man < abs($over_flow_balance)) {
                 $dm->status = 0;
-                // $dm->auth_token = null;
+                try {
+                if(Helpers::getNotificationStatusData('deliveryman','deliveryman_account_block','push_notification_status') &&  isset($dm->fcm_token))
+                {
+                    $data = [
+                        'title' => translate('messages.suspended'),
+                        'description' => translate('Your account has been temporarily suspended due to exceeding the cash limit'),
+                        'order_id' => '',
+                        'image' => '',
+                        'type'=> 'block'
+                    ];
+                    Helpers::send_push_notif_to_device($dm->fcm_token, $data);
+
+                    DB::table('user_notifications')->insert([
+                        'data'=> json_encode($data),
+                        'delivery_man_id'=>$dm->id,
+                        'created_at'=>now(),
+                        'updated_at'=>now()
+                    ]);
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+                $dm->auth_token = null;
                 $dm->save();
             }
+            
         }
         return true;
     }
@@ -831,6 +859,8 @@ class OrderLogic
                 );
                 if ($order->delivery_man->earning == 1) {
                     $dmWallet->total_earning = $dmWallet->total_earning + $return_fee;
+                    $dmWallet->collected_cash = $dmWallet->collected_cash + $return_fee;
+                    self::createReturnFeeLog($order, $return_fee);
                 } else {
                     $adminWallet->total_commission_earning = $adminWallet->total_commission_earning  + $return_fee;
                 }
@@ -844,6 +874,7 @@ class OrderLogic
                 $returnDate = Carbon::parse($order->parcelCancellation->return_date);
                 if ($returnDate->isPast() && isset($dmWallet)) {
                      $dmWallet->collected_cash = $dmWallet->collected_cash + $order->parcelCancellation->dm_penalty_fee??0;
+                     self::createParcelPenaltyLog($order, $order->parcelCancellation->dm_penalty_fee??0);
                 }
             }
 
@@ -884,7 +915,7 @@ class OrderLogic
                 ]);
             }
             // if(config('mail.status') && $order?->customer?->email && Helpers::get_mail_status('refund_order_mail_status_user') == '1'  &&  Helpers::getNotificationStatusData('customer','customer_refund_request_approval','mail_status') ){
-            //     Mail::to($order->customer->email)->send(new \App\Mail\RefundedOrderMail($order->id));
+            //     Mail::to($order->customer?->getRawOriginal('email'))->send(new \App\Mail\RefundedOrderMail($order->id));
             // }
             } catch (\Throwable $th) {
                 info($th->getMessage());
@@ -966,6 +997,35 @@ class OrderLogic
                 info(["line___{$exception->getLine()}", $exception->getMessage()]);
             }
         return true;
+    }
+
+
+    public static  function createReturnFeeLog($order, $returnFee){
+            $returnFeeLog = new ParcelReturnFees();
+            $returnFeeLog->order_id = $order->id;
+            $returnFeeLog->delivery_man_id = $order->delivery_man_id ?? null;
+            $returnFeeLog->amount = $returnFee;
+            $returnFeeLog->save();
+
+            $returnFeeLog->transaction_id =Helpers::generate_transaction_id($returnFeeLog);
+            $returnFeeLog->save();
+        return $returnFeeLog;
+    }
+
+
+
+
+    public static   function createParcelPenaltyLog($order, $penaltyFee){
+        if($order->delivery_man_id){
+            $log = new ParcelPenaltyFee();
+            $log->order_id = $order->id;
+            $log->delivery_man_id = $order->delivery_man_id;
+            $log->amount = $penaltyFee;
+            $log->save();
+            $log->transaction_id =Helpers::generate_transaction_id($log);
+            $log->save();
+        }
+        return $log ?? null;
     }
 
 }

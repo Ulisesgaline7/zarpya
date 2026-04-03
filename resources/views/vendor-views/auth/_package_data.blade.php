@@ -18,62 +18,62 @@
 
                     @if ($package->pos)
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ translate('messages.POS') }} </span>
                         </li>
                     @endif
                     @if ($package->mobile_app)
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ translate('messages.mobile_app') }} </span>
                         </li>
                     @endif
                     @if ($package->chat)
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ translate('messages.chatting_options') }} </span>
                         </li>
                     @endif
                     @if ($package->review)
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ translate('messages.review_section') }} </span>
                         </li>
                     @endif
                     @if ($package->self_delivery)
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ translate('messages.self_delivery') }} </span>
                         </li>
                     @endif
                     @if ($package->max_order == 'unlimited')
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ isset($module) && $module == 'rental' ?  translate('messages.Unlimited_Trips') : translate('messages.Unlimited_Orders') }} </span>
                         </li>
                     @else
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ $package->max_order }}
                                 {{ isset($module) && $module == 'rental' ?  translate('messages.Trips') : translate('messages.Orders') }} </span>
@@ -81,17 +81,17 @@
                     @endif
                     @if ($package->max_product == 'unlimited')
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ translate('messages.Unlimited_uploads') }} </span>
                         </li>
                     @else
                         <li>
-                            <img src="{{ asset('assets/landing/img/check-1.svg') }}" class="check"
+                            <img src="{{ asset('/public/assets/landing/img/check-1.svg') }}" class="check"
                                 alt="">
-                            <img src="{{ asset('assets/landing/img/check-2.svg') }}" class="check-white"
+                            <img src="{{ asset('/public/assets/landing/img/check-2.svg') }}" class="check-white"
                                 alt=""> <span>
                                 {{ $package->max_product }}
                                 {{ translate('messages.uploads') }} </span>

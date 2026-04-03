@@ -23,6 +23,7 @@ class ParcelController extends Controller
 {
     public function orders(Request $request, $status)
     {
+
         $key = isset($request->search) ? explode(' ', $request->search) : null;
         if (session()->has('zone_filter') == false) {
             session()->put('zone_filter', 0);
@@ -31,7 +32,6 @@ class ParcelController extends Controller
         if (session()->has('order_filter')) {
             $request = json_decode(session('order_filter'));
         }
-        // dd($request->zone);
         Order::withOutGlobalScope(ZoneScope::class)->where(['checked' => 0, 'order_type' => 'parcel'])->update(['checked' => 1]);
 
         $orders = Order::withOutGlobalScope(ZoneScope::class)->with(['customer', 'store'])

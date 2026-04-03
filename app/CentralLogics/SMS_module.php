@@ -245,31 +245,6 @@ class SMS_module
 
 
 
-    public static function whatsapp($receiver, $message): string
-    {
-        $config = self::get_settings("twilio");
-        $response = "error";
-        if (isset($config) && $config["status"] == 1) {
-            $sid   = $config["sid"];
-            $token = $config["token"];
-            try {
-                $twilio = new Client($sid, $token);
-                $twilio->messages->create(
-                    "whatsapp:" . $receiver,
-                    [
-                        "from" => "whatsapp:+14155238886",
-                        "body" => $message,
-                    ]
-                );
-                $response = "success";
-            } catch (\Exception $exception) {
-                \Illuminate\Support\Facades\Log::error("WhatsApp Error: " . $exception->getMessage());
-                $response = "error";
-            }
-        }
-        return $response;
-    }
-
     public static function get_settings($name)
     {
         $config = DB::table('addon_settings')->where('key_name', $name)

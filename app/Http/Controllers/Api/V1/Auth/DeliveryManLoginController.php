@@ -155,7 +155,7 @@ class DeliveryManLoginController extends Controller
             }
             $mail_status = Helpers::get_mail_status('dm_registration_mail_status_admin');
             if(config('mail.status') && $mail_status == '1' && Helpers::getNotificationStatusData('admin','deliveryman_self_registration','mail_status')){
-                Mail::to($admin['email'])->send(new \App\Mail\DmRegistration('pending', $dm->f_name.' '.$dm->l_name));
+                Mail::to($admin?->getRawOriginal('email'))->send(new \App\Mail\DmRegistration('pending', $dm->f_name.' '.$dm->l_name));
             }
         }catch(\Exception $ex){
             info($ex->getMessage());

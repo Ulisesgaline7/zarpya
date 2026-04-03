@@ -487,7 +487,7 @@ class OrderController extends Controller
             return back();
         }
 
-        if ($request->order_status == 'delivered' && $order['transaction_reference'] == null && $order['payment_method'] != 'cash_on_delivery') {
+        if ($request->order_status == 'delivered' && $order['transaction_reference'] == null && !in_array($order['payment_method'], ['cash_on_delivery', 'wallet'])) {
             Toastr::warning(translate('messages.add_your_paymen_ref_first'));
             return back();
         }
@@ -607,7 +607,7 @@ class OrderController extends Controller
 
 
                 if(config('mail.status') && $order?->customer?->email && Helpers::get_mail_status('refund_order_mail_status_user') == '1'  &&  Helpers::getNotificationStatusData('customer','customer_refund_request_approval','mail_status') ){
-                    Mail::to($order->customer->email)->send(new \App\Mail\RefundedOrderMail($order->id));
+                    Mail::to($order->customer?->getRawOriginal('email'))->send(new \App\Mail\RefundedOrderMail($order->id));
                 }
             } catch (\Throwable $th) {
                 info($th->getMessage());
@@ -619,7 +619,7 @@ class OrderController extends Controller
                 Toastr::warning(translate('messages.you_can_not_cancel_a_completed_order'));
                 return back();
             }
-            
+
             $order->cancellation_reason = $request->reason;
             $order->canceled_by = 'admin';
 
@@ -681,10 +681,11 @@ class OrderController extends Controller
 
             $payments = $order->payments()->where('payment_method','cash_on_delivery')->exists();
             $cash_in_hand = $deliveryman?->wallet?->collected_cash ?? 0;
+            $cash_in_hand_overflow_status = BusinessSetting::where('key', 'cash_in_hand_overflow_delivery_man')->first()?->value;
             $dm_max_cash=BusinessSetting::where('key','dm_max_cash_in_hand')->first();
             $value=  $dm_max_cash?->value ?? 0;
 
-            if(($order->payment_method == "cash_on_delivery" || $payments) && (($cash_in_hand+$order->order_amount) >= $value)){
+            if($cash_in_hand_overflow_status && ($order->payment_method == "cash_on_delivery" || $payments) && $cash_in_hand+$order->order_amount >= $value){
                 return response()->json(['message'=> \App\CentralLogics\Helpers::format_currency($value) ." ".translate('max_cash_in_hand_exceeds')  ], 400);
             }
 
@@ -1152,6 +1153,10 @@ class OrderController extends Controller
             $details['status'] = true;
             $cart->push($details);
         }
+        if($cart->isEmpty()){
+            Toastr::error(translate('messages.cart_is_empty'));
+            return back();
+        }
 
         if ($request->session()->has('order_cart')) {
             session()->forget('order_cart');
@@ -1182,6 +1187,11 @@ class OrderController extends Controller
         }
         $cart = $request->session()->get('order_cart', collect([]));
         $store = $order->store;
+        $validity = $this->checkValidity($cart, $store, $request);
+        if ($validity['status_code'] != 200) {
+            Toastr::error($validity['message']);
+            return back();
+        }
         $coupon = null;
         $total_addon_price = 0;
         $product_price = 0;
@@ -1438,6 +1448,85 @@ class OrderController extends Controller
         return back();
     }
 
+    public function checkValidity($carts, $store, $request)
+    {
+        if ($carts->isEmpty()) {
+            return [
+                'status_code' => 403,
+                'code' => 'not_found',
+                'message' => translate('Cart is empty'),
+            ];
+        }
+        foreach ($carts as $c) {
+            if (!isset($c['status']) || $c['status'] !== false) {
+                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\ItemCampaign' || $c['item_type'] === 'AppModelsItemCampaign')) {
+                    $product = ItemCampaign::with('module')->active()->find($c['item_id']);
+                } else {
+                    $product = Item::with('module')->active()->find($c['item_id'] ?? $c['id']);
+                }
+
+                if ($product) {
+                    if ($product->store_id != $store->id) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'different_stores',
+                            'message' => translate('messages.Please_select_items_from_the_same_store'),
+                        ];
+                    }
+
+                    if ($product?->pharmacy_item_details?->is_prescription_required == '1' && empty($request->file('order_attachment'))) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'prescription',
+                            'message' => translate('messages.prescription_is_required_for_this_order'),
+                        ];
+                    }
+
+                    if ($product?->maximum_cart_quantity && $c['quantity'] > $product?->maximum_cart_quantity) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'quantity',
+                            'message' => translate('messages.maximum_cart_quantity_limit_over'),
+                        ];
+                    }
+
+                    if ($product?->module?->module_type != 'food') {
+                        if (
+                            is_array(json_decode($product['variations'], true)) && count(json_decode($product['variations'], true)) > 0 &&
+                            is_array($c['variation']) && count($c['variation']) > 0
+                        ) {
+                            $variant_data = Helpers::variation_price($product, json_encode($c['variation']));
+                            $stock = $variant_data['stock'];
+                        } else {
+                            $stock = $product?->stock;
+                        }
+
+                        if (config('module.' . $product->module->module_type)['stock']) {
+                            if ($c['quantity'] > $stock) {
+                                return [
+                                    'status_code' => 403,
+                                    'code' => 'stock',
+                                    'message' => $product?->name . ' ' . translate('messages.is_out_of_stock')
+                                ];
+                            }
+                        }
+                    }
+                } else {
+                    return[
+                        'status_code' => 403,
+                        'code' => 'not_found',
+                        'message' => translate('messages.product_not_found'),
+                    ];
+                }
+            }
+        }
+        return [
+            'status_code' => 200,
+            'code' => 'success',
+            'message' => translate('messages.order_updated_successfully'),
+        ];
+    }
+
     public function quick_view(Request $request)
     {
 
@@ -1624,14 +1713,6 @@ class OrderController extends Controller
     }
 
 
-    public function refund_settings()
-    {
-        $refund_active_status = BusinessSetting::where(['key' => 'refund_active_status'])->first();
-        $reasons = RefundReason::orderBy('id', 'desc')
-            ->paginate(config('default_pagination'));
-        return view('admin-views.refund.index', compact('refund_active_status', 'reasons'));
-    }
-
     public function refund_reason(Request $request)
     {
         $request->validate([
@@ -1644,36 +1725,22 @@ class OrderController extends Controller
         $reason = new RefundReason();
         $reason->reason = $request->reason[array_search('default', $request->lang)];
         $reason->save();
-        $data = [];
-        $default_lang = str_replace('_', '-', app()->getLocale());
-        foreach ($request->lang as $index => $key) {
-            if($default_lang == $key && !($request->reason[$index])){
-                if ($key != 'default') {
-                    array_push($data, array(
-                        'translationable_type' => 'App\Models\RefundReason',
-                        'translationable_id' => $reason->id,
-                        'locale' => $key,
-                        'key' => 'reason',
-                        'value' => $reason->reason,
-                    ));
-                }
-            }else{
-                if ($request->reason[$index] && $key != 'default') {
-                    array_push($data, array(
-                        'translationable_type' => 'App\Models\RefundReason',
-                        'translationable_id' => $reason->id,
-                        'locale' => $key,
-                        'key' => 'reason',
-                        'value' => $request->reason[$index],
-                    ));
-                }
-            }
-        }
-        Translation::insert($data);
+         Helpers::add_or_update_translations(request: $request, key_data:'reason' , name_field:'reason' , model_name: 'RefundReason' ,data_id: $reason->id,data_value: $reason->reason);
         Toastr::success(translate('Refund Reason Added Successfully'));
         return back();
     }
-    public function reason_edit(Request $request)
+
+    public function reasonEdit($id)
+    {
+        $reason =RefundReason::withoutGlobalScope('translate')->with('translations')->find($id);
+        $language = getWebConfig('language');
+        return response()->json([
+            'view' => view('admin-views.business-settings.settings.partials._refund_reason_edit', compact('reason','language'))->render(),
+        ]);
+    }
+
+
+    public function reasonUpdate(Request $request)
     {
         $request->validate([
             'reason' => 'required|max:191',
@@ -1681,39 +1748,11 @@ class OrderController extends Controller
         ],[
             'reason.0.required'=>translate('default_reason_is_required'),
         ]);
-        $refund_reason = RefundReason::findOrFail($request->reason_id);
-        $refund_reason->reason = $request->reason[array_search('default', $request->lang1)];
-        $refund_reason->save();
+        $reason = RefundReason::findOrFail($request->reason_id);
+        $reason->reason = $request->reason[array_search('default', $request->lang)];
+        $reason->save();
 
-        $default_lang = str_replace('_', '-', app()->getLocale());
-        foreach ($request->lang1 as $index => $key) {
-            if($default_lang == $key && !($request->reason[$index])){
-                if ($key != 'default') {
-                    Translation::updateOrInsert(
-                        [
-                            'translationable_type' => 'App\Models\RefundReason',
-                            'translationable_id' => $refund_reason->id,
-                            'locale' => $key,
-                            'key' => 'reason'
-                        ],
-                        ['value' => $refund_reason->reason]
-                    );
-                }
-            }else{
-                if ($request->reason[$index] && $key != 'default') {
-                    Translation::updateOrInsert(
-                        [
-                            'translationable_type' => 'App\Models\RefundReason',
-                            'translationable_id' => $refund_reason->id,
-                            'locale' => $key,
-                            'key' => 'reason'
-                        ],
-                        ['value' => $request->reason[$index]]
-                    );
-                }
-            }
-        }
-
+        Helpers::add_or_update_translations(request: $request, key_data:'reason' , name_field:'reason' , model_name: 'RefundReason' ,data_id: $reason->id,data_value: $reason->reason);
 
         Toastr::success(translate('Refund Reason Updated Successfully'));
         return back();
@@ -1776,7 +1815,7 @@ class OrderController extends Controller
             }
 
             if(config('mail.status') && $order?->customer?->email && Helpers::get_mail_status('refund_request_deny_mail_status_user') == '1' &&  Helpers::getNotificationStatusData('customer','customer_refund_request_rejaction','mail_status')){
-                Mail::to($order->customer->email)->send(new RefundRejected($order->id));
+                Mail::to($order->customer?->getRawOriginal('email'))->send(new RefundRejected($order->id));
             }
         } catch (\Throwable $th) {
             info($th->getMessage());
