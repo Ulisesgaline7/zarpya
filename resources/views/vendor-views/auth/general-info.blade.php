@@ -31,26 +31,29 @@
     </style>
 @endpush
 @section('content')
-    <section class="m-0 py-5">
+    <section class="m-0 py-5" style="background: #f8fafc;">
         <div class="container">
             <!-- Page Header -->
-            <div class="section-header">
-                <h2 class="title mb-2">{{ translate('messages.vendor') }} <span
-                        class="text--base">{{ translate('application') }}</span></h2>
+            <div class="section-header text-center mb-5">
+                <div class="contact-icon mx-auto mb-4" style="background: var(--digital-purple); width: 100px; height: 100px; border-radius: 30px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    <i class="fas fa-anchor"></i>
+                </div>
+                <h2 class="display-font" style="font-size: 3rem;">Registra tu <span class="text--base" style="color: var(--cyan-tech) !important;">Puerto Base</span></h2>
+                <p class="fs-5 text-muted">Únete a la red comercial más grande de Honduras y comienza a zarpar con nosotros.</p>
             </div>
             @php($language = \App\CentralLogics\Helpers::get_business_settings('language'))
             <!-- End Page Header -->
 
             <!-- Stepper -->
-            <div class="stepper">
+            <div class="stepper mb-5">
                 <div id="show-step1" class="stepper-item active">
-                    <div class="step-name">{{ translate('General Info') }}</div>
+                    <div class="step-name">Info del Puerto</div>
                 </div>
                 <div class="stepper-item" id="show-step2">
-                    <div class="step-name">{{ translate('Business Plan') }}</div>
+                    <div class="step-name">Plan de Travesía</div>
                 </div>
                 <div class="stepper-item">
-                    <div class="step-name">{{ translate('Complete') }}</div>
+                    <div class="step-name">Anclaje Listo</div>
                 </div>
             </div>
             <!-- Stepper -->
@@ -58,10 +61,10 @@
 
             <form enctype="multipart/form-data" id="form-id">
                 <div id="reg-form-div">
-                    <div class="card __card mb-3">
-                        <div class="card-header">
-                            <h5 class="card-title">
-                                {{ translate('messages.vendor_info') }}
+                    <div class="card __card mb-4 shadow-sm" style="border-radius: 25px; border: none;">
+                        <div class="card-header bg-white py-4" style="border-radius: 25px 25px 0 0;">
+                            <h5 class="card-title display-font mb-0">
+                                <i class="fas fa-info-circle me-2 text--base"></i> Información del Puerto
                             </h5>
                         </div>
                         <div class="card-body p-4">
