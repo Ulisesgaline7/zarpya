@@ -139,6 +139,27 @@ class DeliveryMan extends Authenticatable
         return $this->belongsTo(Zone::class);
     }
 
+    public function level()
+    {
+        return $this->belongsTo(\App\Models\DeliverymanLevel::class, 'level_id');
+    }
+
+    public function stat()
+    {
+        return $this->hasOne(\App\Models\DmStat::class, 'delivery_man_id');
+    }
+
+    public function bonuses()
+    {
+        return $this->hasMany(\App\Models\DmBonus::class, 'delivery_man_id');
+    }
+
+    public function achievements()
+    {
+        return $this->belongsToMany(\App\Models\DmAchievement::class, 'dm_achievement_unlocks', 'delivery_man_id', 'achievement_id')
+            ->withPivot('unlocked_at');
+    }
+
     public function reviews()
     {
         return $this->hasMany(DMReview::class);

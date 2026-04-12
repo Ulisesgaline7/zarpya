@@ -68,6 +68,11 @@ return [
             'driver' => 'session',
             'provider' => 'delivery_men',
         ],
+
+        'taxi_driver' => [
+            'driver' => 'passport',
+            'provider' => 'taxi_drivers',
+        ],
     ],
 
     /*
@@ -111,6 +116,11 @@ return [
         'delivery_men' => [
             'driver' => 'database',
             'table' => 'delivery_men',
+        ],
+
+        'taxi_drivers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TaxiDriver::class,
         ],
     ],
 

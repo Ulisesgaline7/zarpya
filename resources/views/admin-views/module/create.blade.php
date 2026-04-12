@@ -120,7 +120,9 @@
                             <select name="module_type" id="module_type" class="form-control text-capitalize module-change">
                                 <option disabled selected>{{translate('messages.select_business_module_type')}}</option>
                                 @foreach (config('module.module_type') as $key)
+                                @if($key != 'rental' || addon_published_status('Rental'))
                                 <option class="" value="{{$key}}">{{translate($key)}}</option>
+                                @endif
                                 @endforeach
                             </select>
                             <small class="text-danger">{{translate('messages.business_module_type_change_warning')}}</small>
@@ -143,14 +145,12 @@
                             <div class="card-body p-0">
                                 <div class="module-radio-group">
                                 @foreach (config('module.module_type') as $key)
-                                @if($key != 'rental')
                                 <label class="form-check form--check">
                                     <input class="form-check-input" type="radio" name="module_type" value="{{$key}}">
                                     <span class="form-check-label">
                                         {{translate($key)}}
                                     </span>
                                 </label>
-                                @endif
                                 @endforeach
                                 </div>
                             </div>

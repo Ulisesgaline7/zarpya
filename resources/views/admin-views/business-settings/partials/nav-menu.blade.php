@@ -36,6 +36,15 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Request::is('admin/business-settings/business-setup/automated-message') ?'active':'' }}" href="{{ route('admin.business-settings.business-setup',  ['tab' => 'automated-message']) }}"  aria-disabled="true">{{translate('Automated Message')}}</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('admin/business-settings/business-setup/ad-surge-settings') ?'active':'' }}" href="{{ route('admin.business-settings.business-setup',  ['tab' => 'ad-surge-settings']) }}"  aria-disabled="true">{{translate('Ads & Surge')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('admin/business-settings/business-setup/customer-subscriptions') ?'active':'' }}" href="{{ route('admin.business-settings.business-setup',  ['tab' => 'customer-subscriptions']) }}"  aria-disabled="true">{{translate('Suscripciones_Clientes')}}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('admin/business-settings/business-setup/media-settings') ?'active':'' }}" href="{{ route('admin.business-settings.business-setup',  ['tab' => 'media-settings']) }}"  aria-disabled="true">{{translate('Optimización_Media')}}</a>
+                </li>
             </ul>
             <!-- End Nav -->
              <div class="arrow-area">

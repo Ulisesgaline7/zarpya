@@ -37,6 +37,7 @@
         "razorpay/razorpay": "^2.8",
         "stripe/stripe-php": "^10.10",
         "twilio/sdk": "^6.39",
+        "algolia/algoliasearch-client-php": "^3.4",
         "xendit/xendit-php": "^2.19",
         "symfony/http-foundation": "^5.4.50 || ^6.4.29 || ^7.3.7"
     },

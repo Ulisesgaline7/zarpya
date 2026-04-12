@@ -48,6 +48,12 @@ class Module extends Model
         'theme_id',
         'description',
         'all_zone_service',
+        'base_price',
+        'price_per_km',
+        'price_per_minute',
+        'minimum_fare',
+        'commission_percent',
+        'deposit',
     ];
 
 

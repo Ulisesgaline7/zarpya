@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\DemoMaskable;
+use App\Traits\Searchable;
 use Modules\Rental\Entities\Trips;
 use Modules\Rental\Entities\TripTransaction;
 use Modules\Rental\Entities\Vehicle;
@@ -84,7 +85,7 @@ use Illuminate\Support\Str;
  */
 class Store extends Model
 {
-    use ReportFilter, DemoMaskable;
+    use ReportFilter, DemoMaskable, Searchable;
     /**
      * The attributes that are mass assignable.
      *
@@ -388,6 +389,16 @@ class Store extends Model
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function restaurant_credits(): HasOne
+    {
+        return $this->hasOne(RestaurantCredit::class);
+    }
+
+    public function credit_transactions(): HasMany
+    {
+        return $this->hasMany(CreditTransaction::class);
     }
 
     public function module(): BelongsTo

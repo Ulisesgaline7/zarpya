@@ -139,7 +139,7 @@ trait PlaceNewOrder
 
             $module_wise_delivery_charge = $zone->modules()->where('modules.id', getModuleId($request->header('moduleId')))->first();
 
-            $deliveryChargeData = $this->getDeliveryCharge($request, $zone, $store, $module_wise_delivery_charge, $delivery_charge, getModuleId($request->header('moduleId')));
+            $deliveryChargeData = $this->getDeliveryCharge($request, $zone, $store, $module_wise_delivery_charge, $delivery_charge, getModuleId($request->header('moduleId')), $request['order_amount'] ?? 0);
 
             $delivery_charge = data_get($deliveryChargeData, 'delivery_charge', 0);
             $original_delivery_charge = data_get($deliveryChargeData, 'original_delivery_charge', 0);
@@ -345,6 +345,17 @@ trait PlaceNewOrder
                         $total_price = $total_price - data_get($discount_data, 'calculated_amount');
                         $order->ref_bonus_amount = data_get($discount_data, 'calculated_amount');
                     }
+
+                    // Apply Subscription Item Discount
+                    $subscription = $user?->active_subscription();
+                    if ($subscription) {
+                        $benefits = $subscription->getBenefits();
+                        if (isset($benefits['discount_percentage'])) {
+                            $subscription_discount = ($total_price * $benefits['discount_percentage']) / 100;
+                            $total_price -= $subscription_discount;
+                            $order->subscription_discount_amount = $subscription_discount;
+                        }
+                    }
                 }
 
                 $total_price = max($total_price, 0);
@@ -418,6 +429,33 @@ trait PlaceNewOrder
                 $order->store_discount_amount = round($store_discount_amount, config('round_up_to_digit'));
                 $order->tax_percentage = 0;
                 $order->total_tax_amount = round($tax_amount, config('round_up_to_digit'));
+
+                // ── Envío gratis por suscripción ──────────────────────────────
+                if (isset($subscription) && $subscription && $order->delivery_charge > 0) {
+                    $benefits = $subscription->getBenefits();
+                    $threshold = $benefits['delivery_free_threshold'] ?? PHP_INT_MAX;
+                    $eligibleForFree = false;
+
+                    if ($subscription->type === 'premium') {
+                        // Premium: siempre gratis
+                        $eligibleForFree = true;
+                    } elseif ($subscription->type === 'plus' && $threshold > 0) {
+                        // Plus: gratis si el pedido supera el umbral
+                        $orderSubtotal = $product_price + $total_addon_price
+                            - $store_discount_amount - $coupon_discount_amount
+                            - $flash_sale_admin_discount_amount - $flash_sale_vendor_discount_amount;
+                        if ($orderSubtotal >= $threshold) {
+                            $eligibleForFree = true;
+                        }
+                    }
+
+                    if ($eligibleForFree) {
+                        $order->delivery_charge = 0;
+                        $free_delivery_by = 'admin';
+                    }
+                }
+                // ─────────────────────────────────────────────────────────────
+
                 $order->order_amount = round($total_price + $tax_amount + $order->delivery_charge, config('round_up_to_digit'));
                 $order->free_delivery_by = $free_delivery_by;
             } else {
@@ -865,7 +903,7 @@ trait PlaceNewOrder
         ];
     }
 
-    private function getDeliveryCharge($request, $zone, $store, $module_wise_delivery_charge, $delivery_charge, $moduleId)
+    private function getDeliveryCharge($request, $zone, $store, $module_wise_delivery_charge, $delivery_charge, $moduleId, $orderAmount = 0)
     {
         $increased = 0;
         $schedule_at = $request->schedule_at ? \Carbon\Carbon::parse($request->schedule_at) : now();
@@ -873,9 +911,25 @@ trait PlaceNewOrder
         if ($surge['price'] > 0) {
             $increased = $surge['price'];
         }
+
+        // Dynamic Surge Pricing (Weather, Traffic, Demand)
+        $dynamicSurge = app(\App\Services\SurgeCalculationService::class)->calculateMultiplier(
+            $request->latitude,
+            $request->longitude,
+            $store?->latitude,
+            $store?->longitude,
+            $zone->id
+        );
+        
+        $dynamicMultiplier = $dynamicSurge['multiplier'];
         $vehicleExtraCharge = $this->getVehicleExtraCharge($request->distance ?? 0);
         $extra_charges = $vehicleExtraCharge['extraCharge'];
         $vehicle_id = $vehicleExtraCharge['vehicle_id'];
+
+        // Customer Subscription Benefits
+        $user = auth('api')->user();
+        $subscription = $user?->active_subscription();
+        $benefits = $subscription ? $subscription->getBenefits() : null;
 
         if ($request->order_type !== 'parcel') {
 
@@ -961,6 +1015,20 @@ trait PlaceNewOrder
                 $original_delivery_charge += $extra;
             }
         }
+
+        // Apply Dynamic Multiplier (Weather, Traffic, Demand)
+        if ($dynamicMultiplier > 1.0) {
+            $delivery_charge *= $dynamicMultiplier;
+            $original_delivery_charge *= $dynamicMultiplier;
+        }
+
+        // Apply Subscription Free Delivery
+        if ($benefits && isset($benefits['delivery_free_threshold'])) {
+            if ($orderAmount >= $benefits['delivery_free_threshold']) {
+                $delivery_charge = 0;
+            }
+        }
+
         return [
             'delivery_charge' => $delivery_charge,
             'original_delivery_charge' => $original_delivery_charge ?? 0,

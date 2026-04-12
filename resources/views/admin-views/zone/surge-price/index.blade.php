@@ -4,13 +4,179 @@
 
 @push('css_or_js')
 <meta name="csrf-token" content="{{ csrf_token() }}">
-
 <script type="text/javascript" src="{{asset('public/assets/admin/js/moment.min.js')}}"></script>
 <script type="text/javascript" src="{{asset('public/assets/admin/js/daterangepicker.min.js')}}"></script>
+<style>
+/* ── Multiplicadores dinámicos ─────────────────────────── */
+.dyn-card { border-radius: 10px; border: 2px solid #e9ecef; transition: border-color .15s, box-shadow .15s; cursor: default; }
+.dyn-card.active-now { border-color: #28a745; box-shadow: 0 0 0 3px rgba(40,167,69,.15); }
+.dyn-card.rain-on    { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.15); }
+.dyn-mult { font-size: 1.6rem; font-weight: 900; line-height: 1; }
+.dyn-toggle { width: 44px; height: 22px; }
+.weather-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; }
+</style>
 @endpush
 
 @section('content')
 <div class="content container-fluid">
+
+{{-- ══════════════════════════════════════════════════════════════
+     PANEL DE MULTIPLICADORES DINÁMICOS
+     ══════════════════════════════════════════════════════════════ --}}
+@php
+    $dynRules    = \App\Models\DynamicPricingRule::orderByDesc('priority')->get()->keyBy('rule_type');
+    $rainActive  = \App\CentralLogics\DeliveryPricingService::isRainActive();
+    $apiKey      = \App\Models\BusinessSetting::where('key','openweather_api_key')->first()?->value;
+    $lastCheck   = \App\Models\BusinessSetting::where('key','weather_last_check')->first();
+    $weatherData = $lastCheck?->value ? json_decode($lastCheck->value, true) : null;
+
+    $cards = [
+        'rain'         => ['emoji'=>'🌧️', 'label'=>'Lluvia',        'color'=>'#0ea5e9', 'auto'=>'API clima / manual'],
+        'rush_hour'    => ['emoji'=>'🍽️', 'label'=>'Hora pico',     'color'=>'#f59e0b', 'auto'=>'12–1pm · 7–9pm'],
+        'night'        => ['emoji'=>'🌙', 'label'=>'Noche',          'color'=>'#6366f1', 'auto'=>'9pm–12am'],
+        'high_demand'  => ['emoji'=>'🔥', 'label'=>'Alta demanda',   'color'=>'#ef4444', 'auto'=>'Automático (Redis)'],
+        'weekend'      => ['emoji'=>'📅', 'label'=>'Fin de semana',  'color'=>'#10b981', 'auto'=>'Sáb y Dom'],
+    ];
+@endphp
+
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header border-0 d-flex justify-content-between align-items-center py-3">
+        <div>
+            <h4 class="mb-0">⚡ Multiplicadores de Precio Dinámico</h4>
+            <small class="text-muted">Se aplican automáticamente. El de mayor valor activo gana.</small>
+        </div>
+        <a href="{{ route('admin.zarpya.pricing.rules') }}" class="btn btn-sm btn-outline-secondary">
+            Configurar reglas
+        </a>
+    </div>
+    <div class="card-body pt-0">
+
+        {{-- Tarjetas de multiplicadores --}}
+        <div class="row g-3 mb-3">
+            @foreach($cards as $type => $meta)
+            @php
+                $rule = $dynRules[$type] ?? null;
+                $mult = $rule?->multiplier ?? '—';
+                $multMin = $rule?->multiplier_min;
+                $multMax = $rule?->multiplier_max;
+                $isOn    = (bool) $rule?->status;
+                $isNow   = $rule?->isActive();
+                $isRainCard = ($type === 'rain');
+                $cardClass = $isRainCard && $rainActive ? 'rain-on' : ($isNow ? 'active-now' : '');
+            @endphp
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="dyn-card p-3 text-center h-100 {{ $cardClass }}">
+                    <div style="font-size:1.6rem;">{{ $meta['emoji'] }}</div>
+                    <div class="dyn-mult mt-1" style="color:{{ $meta['color'] }};">
+                        @if($multMin && $multMax)
+                            ×{{ $multMin }}–{{ $multMax }}
+                        @else
+                            ×{{ $mult }}
+                        @endif
+                    </div>
+                    <div class="small fw-semibold mt-1">{{ $meta['label'] }}</div>
+                    <div class="text-muted" style="font-size:11px;">{{ $meta['auto'] }}</div>
+
+                    @if($isRainCard && $rainActive)
+                        <span class="badge badge-soft-primary mt-1" style="font-size:10px;">ACTIVO</span>
+                    @elseif(!$isRainCard && $isNow)
+                        <span class="badge badge-soft-success mt-1" style="font-size:10px;">ACTIVO</span>
+                    @endif
+
+                    {{-- Toggle on/off --}}
+                    @if($rule)
+                    <div class="mt-2">
+                        <label class="toggle-switch toggle-switch-sm mb-0">
+                            <input type="checkbox" class="toggle-switch-input dyn-status-toggle"
+                                data-id="{{ $rule->id }}"
+                                data-url="{{ route('admin.zarpya.pricing.rule.status') }}"
+                                {{ $isOn ? 'checked' : '' }}>
+                            <span class="toggle-switch-label"><span class="toggle-switch-indicator"></span></span>
+                        </label>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+
+            {{-- Widget clima --}}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="dyn-card p-3 text-center h-100 {{ $rainActive ? 'rain-on' : '' }}"
+                     style="{{ $rainActive ? 'background:#e0f2fe;' : 'background:#f8f9fa;' }}">
+                    @if($weatherData)
+                        <div style="font-size:1.6rem;">{{ $weatherData['is_raining'] ? '🌧️' : '☀️' }}</div>
+                        <div class="fw-bold mt-1" style="font-size:1.1rem;">
+                            {{ $weatherData['temp'] ? round($weatherData['temp']).'°C' : '—' }}
+                        </div>
+                        <div class="small text-muted">{{ ucfirst($weatherData['description'] ?? '') }}</div>
+                        <div style="font-size:10px;" class="text-muted">
+                            {{ isset($weatherData['checked_at']) ? \Carbon\Carbon::parse($weatherData['checked_at'])->format('H:i') : '' }}
+                        </div>
+                    @else
+                        <div style="font-size:1.6rem;">🌡️</div>
+                        <div class="small text-muted mt-1">Sin datos</div>
+                        <div style="font-size:10px;" class="text-muted">Configura API</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Fila de acciones: lluvia + API --}}
+        <div class="row g-3 align-items-center">
+            {{-- Toggle lluvia manual --}}
+            <div class="col-md-5">
+                <div class="d-flex align-items-center gap-3 p-3 rounded {{ $rainActive ? 'bg-soft-warning' : 'bg-light' }}"
+                     style="border-radius:8px!important;">
+                    <span style="font-size:1.4rem;">🌧️</span>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">Modo lluvia manual</div>
+                        <div class="text-muted" style="font-size:11px;">
+                            {{ $rainActive ? 'Activo — se desactiva en 2h' : 'Inactivo' }}
+                        </div>
+                    </div>
+                    <form action="{{ route('admin.zarpya.pricing.rain.toggle') }}" method="POST" class="mb-0">
+                        @csrf
+                        <input type="hidden" name="active" value="{{ $rainActive ? 0 : 1 }}">
+                        <button class="btn btn-sm btn-{{ $rainActive ? 'warning' : 'outline-warning' }}">
+                            {{ $rainActive ? '🔴 Desactivar' : '🟢 Activar' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {{-- Estado API OpenWeather --}}
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-3 p-3 rounded bg-light">
+                    <span style="font-size:1.4rem;">🌐</span>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">OpenWeatherMap API</div>
+                        <div style="font-size:11px;">
+                            @if($apiKey)
+                                <span class="text-success">✓ Configurada — verifica cada 15 min</span>
+                            @else
+                                <span class="text-danger">✗ Sin API key</span>
+                            @endif
+                        </div>
+                    </div>
+                    @if(!$apiKey)
+                    <a href="{{ route('admin.business-settings.third-party.weather-api') }}"
+                       class="btn btn-sm btn-outline-primary">Configurar</a>
+                    @else
+                    <button class="btn btn-sm btn-outline-secondary" id="check-weather-btn">🔄</button>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Enlace a configuración completa --}}
+            <div class="col-md-3 text-right">
+                <a href="{{ route('admin.zarpya.pricing.rules') }}" class="btn btn-sm btn-primary">
+                    ⚙️ Gestionar multiplicadores
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- ══════════════════════════════════════════════════════════════ --}}
 
     <h3 class="mb-20">{{translate('Create New Surge Price') }}</h3>
       <form action="{{ route('admin.business-settings.zone.surge-price.store') }}" method="post" id="surge_form">
@@ -1183,5 +1349,58 @@ document.addEventListener('DOMContentLoaded', function () {
     priceTypeSelect.addEventListener('change', updateMaxLimit);
     updateMaxLimit();
 });
+</script>
+
+{{-- JS para multiplicadores dinámicos --}}
+<script>
+// Toggle on/off de reglas dinámicas
+document.querySelectorAll('.dyn-status-toggle').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+        fetch(this.dataset.url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+            },
+            body: JSON.stringify({ id: this.dataset.id, status: this.checked ? 1 : 0 })
+        }).then(function(r) {
+            if (r.ok) location.reload();
+            else toastr.error('Error al actualizar');
+        });
+    });
+});
+
+// Verificar clima ahora
+var checkWeatherBtn = document.getElementById('check-weather-btn');
+if (checkWeatherBtn) {
+    checkWeatherBtn.addEventListener('click', function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = '⏳';
+        fetch('{{ route("admin.zarpya.pricing.rain.check-weather") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+            }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                toastr.success(data.message);
+                setTimeout(function() { location.reload(); }, 1500);
+            } else {
+                toastr.error(data.message || 'Error al verificar clima');
+                btn.disabled = false;
+                btn.textContent = '🔄';
+            }
+        })
+        .catch(function() {
+            toastr.error('Error de conexión');
+            btn.disabled = false;
+            btn.textContent = '🔄';
+        });
+    });
+}
 </script>
 @endpush

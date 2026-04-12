@@ -13,9 +13,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\TaxModule\Entities\Taxable;
 
+use App\Traits\Searchable;
+
 class Item extends Model
 {
-    use HasFactory, ReportFilter;
+    use HasFactory, Searchable, ReportFilter;
     protected $guarded = ['id'];
     protected $with = ['translations','storage'];
     protected $casts = [

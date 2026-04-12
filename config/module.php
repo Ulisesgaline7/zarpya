@@ -1,8 +1,8 @@
-<?php
+<?php 
 
 return [
     'module_type'=>[
-        'grocery', 'food', 'pharmacy', 'ecommerce','parcel','rental'
+        'grocery', 'food', 'pharmacy', 'ecommerce','parcel','rental','taxi','services'
     ],
 
     'grocery'=>[
@@ -155,8 +155,62 @@ return [
         'basic'=>false,
         'halal'=>false,
         'brand'=>false,
-        'generic _name'=>false,
+        'generic_name'=>false,
         'description'=>'',
         'is_rental'=>true,
+    ],
+
+    'taxi'=>[
+        'order_status'=>['accepted'=>false],
+        'order_place_to_schedule_interval'=>false,
+        'add_on'=>false,
+        'stock'=>false,
+        'veg_non_veg'=>false,
+        'unit'=>false,
+        'order_attachment'=>false,
+        'always_open'=>true,
+        'all_zone_service'=>false,
+        'item_available_time'=>false,
+        'show_restaurant_text'=>false,
+        'is_parcel'=>false,
+        'organic'=>false,
+        'cutlery'=>false,
+        'common_condition'=>false,
+        'nutrition'=>false,
+        'allergy'=>false,
+        'basic'=>false,
+        'halal'=>false,
+        'brand'=>false,
+        'generic_name'=>false,
+        'description'=>'Servicio de taxi con tarifas por zona y precios dinámicos',
+        'is_rental'=>false,
+        'is_taxi'=>true,
+    ],
+
+    'services'=>[
+        'order_status'=>['accepted'=>false],
+        'order_place_to_schedule_interval'=>false,
+        'add_on'=>false,
+        'stock'=>false,
+        'veg_non_veg'=>false,
+        'unit'=>false,
+        'order_attachment'=>false,
+        'always_open'=>true,
+        'all_zone_service'=>false,
+        'item_available_time'=>false,
+        'show_restaurant_text'=>false,
+        'is_parcel'=>false,
+        'organic'=>false,
+        'cutlery'=>false,
+        'common_condition'=>false,
+        'nutrition'=>false,
+        'allergy'=>false,
+        'basic'=>false,
+        'halal'=>false,
+        'brand'=>false,
+        'generic_name'=>false,
+        'description'=>'Servicios profesionales (plomería, electricidad, limpieza, etc.)',
+        'is_rental'=>false,
+        'is_services'=>true,
     ],
 ];

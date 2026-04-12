@@ -345,6 +345,7 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::post('update-store', 'BusinessSettingsController@update_store')->name('update-store');
             Route::post('update-order', 'BusinessSettingsController@update_order')->name('update-order');
             Route::post('update-priority', 'BusinessSettingsController@update_priority')->name('update-priority');
+            Route::post('update-ad-surge', 'BusinessSettingsController@update_ad_surge')->name('update-ad-surge');
             Route::get('app-settings', 'BusinessSettingsController@app_settings')->name('app-settings');
             Route::POST('app-settings', 'BusinessSettingsController@update_app_settings')->name('app-settings');
             Route::get('websocket', 'BusinessSettingsController@websocket')->name('websocket');
@@ -518,6 +519,10 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
                 //file_system
                 Route::get('storage-connection', 'BusinessSettingsController@storage_connection_index')->name('storage_connection_index');
                 Route::post('storage-connection-update/{name}', 'BusinessSettingsController@storage_connection_update')->name('storage_connection_update');
+                // APIs de Clima (OpenWeatherMap)
+                Route::get('weather-api', 'BusinessSettingsController@weather_api_index')->name('weather-api');
+                Route::post('weather-api-update', 'BusinessSettingsController@weather_api_update')->name('weather-api-update');
+                Route::post('weather-api-zone-check', 'BusinessSettingsController@weather_api_zone_check')->name('weather-api-zone-check');
             });
             // Offline payment Methods
             Route::get('/offline-payment', 'OfflinePaymentMethodController@index')->name('offline');
@@ -872,6 +877,107 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
                 Route::get('change-status/{id}/{status}', 'DeliveryManDisbursementController@statusById')->name('change-status');
                 Route::get('export/{id}/{type?}', 'DeliveryManDisbursementController@export')->name('export');
             });
+        });
+
+        // ================================================================
+        // ZARPYA MODULE ROUTES
+        // ================================================================
+        
+        // Zarpya - Ads Credits
+        Route::post('zarpya/ads/credits/add', 'AdCreditAdminController@add')->name('ads.credits.add');
+
+        // Zarpya - Planes Fundadores
+        Route::prefix('zarpya/founder-plans')->name('founder-plans.')->group(function () {
+            Route::get('/',                    'FounderPlanController@index')->name('index');
+            Route::post('toggle-slots/{id}',   'FounderPlanController@toggleSlots')->name('toggle-slots');
+            Route::post('close-all',           'FounderPlanController@closeAll')->name('close-all');
+            Route::post('assign',              'FounderPlanController@assignToStore')->name('assign');
+        });
+        Route::group(['prefix' => 'zarpya/pricing', 'as' => 'zarpya.pricing.'], function () {
+            // Category Pricing
+            Route::get('categories', 'DeliveryCategoryPricingController@index')->name('categories');
+            Route::post('category/store', 'DeliveryCategoryPricingController@store')->name('category.store');
+            Route::get('category/{id}/edit', 'DeliveryCategoryPricingController@edit')->name('category.edit');
+            Route::post('category/{id}', 'DeliveryCategoryPricingController@update')->name('category.update');
+            Route::post('category/status', 'DeliveryCategoryPricingController@status')->name('category.status');
+            Route::delete('category/{id}', 'DeliveryCategoryPricingController@destroy')->name('category.destroy');
+            
+            // Dynamic Pricing Rules
+            Route::get('dynamic-rules', 'DynamicPricingRuleController@index')->name('rules');
+            Route::post('rule/store', 'DynamicPricingRuleController@store')->name('rule.store');
+            Route::post('rule/{id}', 'DynamicPricingRuleController@update')->name('rule.update');
+            Route::post('rule/status', 'DynamicPricingRuleController@status')->name('rule.status');
+            Route::post('rain/toggle', 'DynamicPricingRuleController@toggleRain')->name('rain.toggle');
+            Route::post('rain/check-weather', 'DynamicPricingRuleController@checkWeatherNow')->name('rain.check-weather');
+            Route::delete('rule/{id}', 'DynamicPricingRuleController@destroy')->name('rule.destroy');
+            
+            // Deliveryman Levels
+            Route::get('levels', 'DeliverymanLevelController@index')->name('levels');
+            Route::get('levels/ranking', 'DeliverymanLevelController@ranking')->name('ranking');
+            Route::post('level/store', 'DeliverymanLevelController@store')->name('level.store');
+            Route::get('level/{id}/edit', 'DeliverymanLevelController@edit')->name('level.edit');
+            Route::post('level/{id}', 'DeliverymanLevelController@update')->name('level.update');
+            Route::post('level/status', 'DeliverymanLevelController@status')->name('level.status');
+        });
+
+        // Zarpya - Taxi
+        Route::group(['prefix' => 'zarpya/taxi', 'as' => 'zarpya.taxi.'], function () {
+            // Taxi Rates
+            Route::get('rates', 'TaxiAdminController@rates')->name('rates');
+            Route::post('rate/store', 'TaxiAdminController@storeRate')->name('rate.store');
+            Route::post('rate/{id}', 'TaxiAdminController@updateRate')->name('rate.update');
+            Route::post('rate/status', 'TaxiAdminController@rateStatus')->name('rate.status');
+            Route::delete('rate/{id}', 'TaxiAdminController@destroyRate')->name('rate.destroy');
+            
+            // Taxi Rides
+            Route::get('rides', 'TaxiAdminController@rides')->name('rides');
+            Route::get('ride/{id}', 'TaxiAdminController@showRide')->name('ride.show');
+
+            // Conductores de Taxi (separados de repartidores)
+            Route::get('drivers', 'TaxiAdminController@drivers')->name('drivers');
+            Route::get('driver/{id}', 'TaxiAdminController@showDriver')->name('driver.show');
+            Route::post('driver/store', 'TaxiAdminController@storeDriver')->name('driver.store');
+            Route::post('driver/status', 'TaxiAdminController@driverStatus')->name('driver.status');
+            Route::delete('driver/{id}', 'TaxiAdminController@destroyDriver')->name('driver.destroy');
+        });
+
+        // Zarpya - Rental
+        Route::group(['prefix' => 'zarpya/rental', 'as' => 'zarpya.rental.'], function () {
+            // Vehicles
+            Route::get('vehicles', 'RentalAdminController@vehicles')->name('vehicles');
+            Route::post('vehicle/store', 'RentalAdminController@storeVehicle')->name('vehicle.store');
+            Route::get('vehicle/{id}/edit', 'RentalAdminController@editVehicle')->name('vehicle.edit');
+            Route::post('vehicle/{id}', 'RentalAdminController@updateVehicle')->name('vehicle.update');
+            Route::delete('vehicle/{id}', 'RentalAdminController@destroyVehicle')->name('vehicle.destroy');
+            
+            // Bookings
+            Route::get('bookings', 'RentalAdminController@bookings')->name('bookings');
+            Route::post('booking/{id}/status', 'RentalAdminController@updateBookingStatus')->name('booking.status');
+        });
+
+        // Zarpya - Services
+        Route::group(['prefix' => 'zarpya/services', 'as' => 'zarpya.services.'], function () {
+            // Categories
+            Route::get('categories', 'ServiceAdminController@categories')->name('categories');
+            Route::post('category/store', 'ServiceAdminController@storeCategory')->name('category.store');
+            Route::patch('category/{id}', 'ServiceAdminController@updateCategory')->name('category.update');
+            Route::post('category/status', 'ServiceAdminController@categoryStatus')->name('category.status');
+            
+            // Providers
+            Route::get('providers', 'ServiceAdminController@providers')->name('providers');
+            Route::get('provider/{id}', 'ServiceAdminController@showProvider')->name('provider.show');
+            Route::post('provider/{id}/approve', 'ServiceAdminController@approveProvider')->name('provider.approve');
+            Route::post('provider/featured', 'ServiceAdminController@toggleFeatured')->name('provider.featured');
+            
+            // Requests
+            Route::get('requests', 'ServiceAdminController@requests')->name('requests');
+        });
+
+        // Zarpya - WhatsApp Notifications
+        Route::group(['prefix' => 'zarpya/whatsapp', 'as' => 'zarpya.whatsapp.'], function () {
+            Route::get('logs', 'WhatsappLogController@index')->name('logs');
+            Route::get('retry/{id}', 'WhatsappLogController@retry')->name('retry');
+            Route::post('webhook', 'WhatsappLogController@webhook')->name('webhook');
         });
     });
 });

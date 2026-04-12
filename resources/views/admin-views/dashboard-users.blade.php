@@ -1,600 +1,471 @@
 @extends('layouts.admin.app')
 
-@section('title', \App\Models\BusinessSetting::where(['key' => 'business_name'])->first()->value ?? translate('messages.dashboard'))
+@section('title', \App\Models\BusinessSetting::where(['key' => 'business_name'])->first()->value ?? 'Dashboard')
 
 @push('css_or_js')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<style>
+/* ── Tarjetas de perfil ─────────────────────────────────────── */
+.profile-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform .15s, box-shadow .15s;
+    border: none;
+}
+.profile-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.10); }
+
+.profile-card .card-header {
+    padding: 20px 20px 14px;
+    border-bottom: none;
+}
+.profile-card .profile-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+}
+.profile-card .big-number {
+    font-size: 2.2rem; font-weight: 700; line-height: 1;
+}
+.profile-card .label { font-size: 13px; color: #6c757d; font-weight: 500; }
+
+/* Colores por perfil */
+.profile-clientes  .card-header { background: linear-gradient(135deg,#e8f5e9,#f1f8e9); }
+.profile-clientes  .profile-icon { background: #28a74520; color: #28a745; }
+.profile-clientes  .big-number   { color: #28a745; }
+
+.profile-zarperos  .card-header { background: linear-gradient(135deg,#e3f2fd,#e8eaf6); }
+.profile-zarperos  .profile-icon { background: #005555; color: #fff; }
+.profile-zarperos  .big-number   { color: #005555; }
+
+.profile-empleados .card-header { background: linear-gradient(135deg,#fff8e1,#fff3e0); }
+.profile-empleados .profile-icon { background: #ffa80020; color: #ffa800; }
+.profile-empleados .big-number   { color: #ffa800; }
+
+/* ── Mini stat chips ────────────────────────────────────────── */
+.stat-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    font-size: 13px;
+    text-decoration: none;
+    color: inherit;
+    transition: background .12s;
+}
+.stat-chip:hover { background: #e9ecef; color: inherit; text-decoration: none; }
+.stat-chip .dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.stat-chip .chip-num { font-weight: 700; font-size: 15px; margin-left: auto; }
+
+/* ── Nivel Zarpero badge ────────────────────────────────────── */
+.level-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.level-standard { background:#28a74520; color:#28a745; border:1px solid #28a74540; }
+.level-pro       { background:#007bff20; color:#007bff; border:1px solid #007bff40; }
+.level-elite     { background:#6f42c120; color:#6f42c1; border:1px solid #6f42c140; }
+
+/* ── Satisfacción ───────────────────────────────────────────── */
+.satisfaction-bar { height: 8px; border-radius: 8px; background: #e9ecef; overflow: hidden; }
+.satisfaction-bar .fill { height: 100%; border-radius: 8px; transition: width .4s; }
+
+/* ── Mapa ───────────────────────────────────────────────────── */
+.map-wrapper { border-radius: 12px; overflow: hidden; height: 280px; }
+#map-canvas  { width: 100%; height: 100%; }
+</style>
 @endpush
 
 @section('content')
 <div class="content container-fluid">
-    @if(auth('admin')->user()->role_id == 1)
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="row align-items-center py-2">
-            <div class="col-sm mb-2 mb-sm-0">
-                <div class="d-flex align-items-center">
-                    <img src="{{asset('/public/assets/admin/img/new-img/users.svg')}}" alt="img">
-                    <div class="w-0 flex-grow pl-3">
-                        <h1 class="page-header-title mb-0">{{ translate('messages.User Overview') }}</h1>
-                        <p class="page-header-text m-0">{{translate('Hello,_here_you_can_manage_your_users_by_zone.')}}
-                        </p>
+@if(auth('admin')->user()->role_id == 1)
+
+{{-- ── Encabezado ──────────────────────────────────────────────── --}}
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-header-title mb-0">👥 Gestión de Usuarios</h1>
+            <p class="page-header-text m-0 text-muted">Resumen de clientes, Zarperos y empleados por zona</p>
+        </div>
+        <div class="col-auto">
+            <select name="zone_id" class="form-control js-select2-custom set-filter"
+                    data-url="{{ url()->full() }}" data-filter="zone_id" style="min-width:200px;">
+                <option value="all">Todas las zonas</option>
+                @foreach(\App\Models\Zone::orderBy('name')->get() as $zone)
+                    <option value="{{ $zone->id }}" {{ $params['zone_id'] == $zone->id ? 'selected' : '' }}>
+                        {{ $zone->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+</div>
+
+{{-- ── Tres perfiles principales ───────────────────────────────── --}}
+@php
+    $total_customers  = $blocked_customers + $active_customers;
+    $total_deliveryman = $inactive_deliveryman + $active_deliveryman + $blocked_deliveryman;
+    $total_employees  = $employees->count();
+
+    // Niveles Zarpero
+    $levelCounts = [];
+    if(\Illuminate\Support\Facades\Schema::hasTable('deliveryman_levels')) {
+        $levelCounts = \App\Models\DeliverymanLevel::withCount('deliverymen')
+            ->orderBy('sort_order')->get();
+    }
+@endphp
+
+<div class="row g-3 mb-4">
+
+    {{-- CLIENTES --}}
+    <div class="col-lg-4">
+        <div class="card profile-card profile-clientes h-100">
+            <div class="card-header d-flex align-items-center gap-3">
+                <div class="profile-icon">👤</div>
+                <div>
+                    <div class="big-number">{{ number_format($total_customers) }}</div>
+                    <div class="label">Clientes registrados</div>
+                </div>
+                <a href="{{ route('admin.users.customer.list') }}" class="btn btn-sm btn-outline-success ml-auto">
+                    Ver todos
+                </a>
+            </div>
+            <div class="card-body pt-2 pb-3">
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ route('admin.users.customer.list', ['filter' => 'active']) }}" class="stat-chip">
+                        <span class="dot" style="background:#28a745;"></span>
+                        <span>Clientes activos</span>
+                        <span class="chip-num text-success">{{ number_format($active_customers) }}</span>
+                    </a>
+                    <a href="{{ route('admin.users.customer.list', ['filter' => 'new']) }}" class="stat-chip">
+                        <span class="dot" style="background:#007bff;"></span>
+                        <span>Nuevos este mes</span>
+                        <span class="chip-num text-primary">{{ number_format($newly_joined) }}</span>
+                    </a>
+                    <a href="{{ route('admin.users.customer.list', ['filter' => 'blocked']) }}" class="stat-chip">
+                        <span class="dot" style="background:#dc3545;"></span>
+                        <span>Bloqueados</span>
+                        <span class="chip-num text-danger">{{ number_format($blocked_customers) }}</span>
+                    </a>
+                </div>
+
+                {{-- Satisfacción compacta --}}
+                <div class="mt-3 pt-3 border-top">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small fw-semibold text-muted">Satisfacción del cliente</span>
+                        <span class="small text-muted">{{ $reviews }} reseñas</span>
+                    </div>
+                    @php
+                        $pos_pct = $reviews > 0 ? round($positive_reviews / $reviews * 100) : 0;
+                        $neg_pct = $reviews > 0 ? round($negative_reviews / $reviews * 100) : 0;
+                    @endphp
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="small" style="width:60px;">Positivas</span>
+                        <div class="satisfaction-bar flex-grow-1">
+                            <div class="fill" style="width:{{ $pos_pct }}%; background:#28a745;"></div>
+                        </div>
+                        <span class="small fw-bold text-success" style="width:35px; text-align:right;">{{ $pos_pct }}%</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small" style="width:60px;">Negativas</span>
+                        <div class="satisfaction-bar flex-grow-1">
+                            <div class="fill" style="width:{{ $neg_pct }}%; background:#dc3545;"></div>
+                        </div>
+                        <span class="small fw-bold text-danger" style="width:35px; text-align:right;">{{ $neg_pct }}%</span>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-sm-auto min--280">
-                <select name="zone_id" class="form-control js-select2-custom set-filter" data-url="{{ url()->full() }}"
-                    data-filter="zone_id">
-                    <option value="all">{{ translate('messages.All_Zones') }}</option>
-                    @foreach(\App\Models\Zone::orderBy('name')->get() as $zone)
-                        <option value="{{$zone['id']}}" {{$params['zone_id'] == $zone['id'] ? 'selected' : ''}}>
-                            {{$zone['name']}}
-                        </option>
-                    @endforeach
-                </select>
             </div>
         </div>
     </div>
-    <!-- End Page Header -->
 
-    <div class="row g-2 pb-4 mb-0">
-        <div class="col-sm-6 col-lg-4">
-            <a href="{{ route('admin.users.customer.list', ['zone_id' => $params['zone_id'] ?? null]) }}">
-                <div class="__user-dashboard-card">
-                    <div class="__user-dashboard-card-thumbs">
-                        @php($total_customers = $blocked_customers + $active_customers)
-                        <div class="more-icon">
-                            +{{$total_customers >= 4 ? $total_customers - 2 : $total_customers}}
-                        </div>
-                        @foreach ($customers as $key => $customer)
-                            <img src="{{ $customer['image_full_url'] }}" class="onerror-image"
-                                data-onerror-image="{{asset('public/assets/admin/img/160x160/img2.jpg')}}" alt="new-img">
-                        @endforeach
-                    </div>
-                    <h3 class="title">{{$total_customers}}</h3>
-                    <h5 class="subtitle text-capitalize">{{translate('messages.total_customer')}}</h5>
+    {{-- ZARPEROS (Repartidores) --}}
+    <div class="col-lg-4">
+        <div class="card profile-card profile-zarperos h-100">
+            <div class="card-header d-flex align-items-center gap-3">
+                <div class="profile-icon">🛵</div>
+                <div>
+                    <div class="big-number">{{ number_format($total_deliveryman) }}</div>
+                    <div class="label">Zarperos registrados</div>
                 </div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <a href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null]) }}">
-                <div class="__user-dashboard-card" style="--theme-clr:#006AB4">
-
-                    <div class="__user-dashboard-card-thumbs">
-                        @php($total_deliveryman = $inactive_deliveryman + $active_deliveryman + $blocked_deliveryman )
-                        <div class="more-icon">
-                            +{{$total_deliveryman >= 4 ? $total_deliveryman - 2 : $total_deliveryman}}
-                        </div>
-                        @foreach ($delivery_man as $key => $dm)
-                            <img src="{{ $dm['image_full_url'] }}" class="onerror-image"
-                                data-onerror-image="{{asset('public/assets/admin/img/160x160/img2.jpg')}}" alt="new-img">
-                        @endforeach
-                    </div>
-                    <h3 class="title">{{$total_deliveryman}}</h3>
-                    <h5 class="subtitle text-capitalize">{{translate('messages.total_delivery_man')}}</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <a href="{{ route('admin.users.employee.list', ['zone_id' => $params['zone_id'] ?? null]) }}">
-                <div class="__user-dashboard-card" style="--theme-clr:#FFA800">
-                    <div class="__user-dashboard-card-thumbs">
-                        @php($total_employees = $employees->count())
-                        <div class="more-icon">
-                            +{{$total_employees >= 4 ? $total_employees - 2 : $total_employees}}
-                        </div>
-                        @foreach ($employees as $key => $item)
-                            @if ($key == 2)
-                                @break
-                            @endif
-                            <img src="{{ $item['image_full_url'] }}" class="onerror-image"
-                                data-onerror-image="{{asset('public/assets/admin/img/160x160/img2.jpg')}}" alt="new-img">
-                        @endforeach
-                    </div>
-                    <h3 class="title">{{$total_employees}}</h3>
-                    <h5 class="subtitle text-capitalize">{{translate('messages.total_employee')}}</h5>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <h4 class="mb-md-3">{{ translate('Customer Statistics') }}</h4>
-
-    <div class="row g-2 pb-4 mb-0">
-        <div class="col-lg-8">
-            <div class="row g-2">
-                <div class="col-md-4">
-                    <div class="row gap__10">
-                        <div class="col-md-12 col-sm-6">
-                            <a
-                                href="{{ route('admin.users.customer.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'active']) }}">
-                                <div class="__customer-statistics-card">
-                                    <div class="title">
-                                        <img src="{{asset('/public/assets/admin/img/new-img/customer/active.svg')}}"
-                                            alt="new-img">
-                                        <h4>{{$active_customers}}</h4>
-                                    </div>
-                                    <h4 class="subtitle text-capitalize">{{translate('messages.active_customer')}}</h4>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-md-12 col-sm-6">
-                            <a
-                                href="{{ route('admin.users.customer.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'new']) }}">
-                                <div class="__customer-statistics-card" style="--clr:#006AB4">
-                                    <div class="title">
-                                        <img src="{{asset('/public/assets/admin/img/new-img/customer/newly.svg')}}"
-                                            alt="new-img">
-                                        <h4>{{$newly_joined}}</h4>
-                                    </div>
-                                    <h4 class="subtitle text-capitalize">{{translate('messages.newly_joined')}}</h4>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-md-12 col-sm-6">
-                            <a
-                                href="{{ route('admin.users.customer.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'blocked']) }}">
-                                <div class="__customer-statistics-card" style="--clr:#FF5A54">
-                                    <div class="title">
-                                        <img src="{{asset('/public/assets/admin/img/new-img/customer/blocked.svg')}}"
-                                            alt="new-img">
-                                        <h4>{{$blocked_customers}}</h4>
-                                    </div>
-                                    <h4 class="subtitle text-capitalize">{{translate('messages.blocked_customer')}}</h4>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="card h-100">
-                        <div class="card-body pb-0">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center __gap-12px">
-                                <div class="__gross-amount">
-                                    {{-- <h6>$855.8K</h6> --}}
-                                    <span class="text-capitalize">{{translate('messages.customer_growth')}}</span>
-                                </div>
-                                <div class="chart--label __chart-label p-0 ml-auto">
-                                    <span class="indicator chart-bg-2"></span>
-                                    <span class="info">
-                                        <span>{{translate('messages.this_year')}}</span> ({{ now()->year }})
-                                    </span>
-                                </div>
-                            </div>
-                            <div id="customer-growth-chart"></div>
-                        </div>
-                    </div>
-                </div>
+                <a href="{{ route('admin.users.delivery-man.list') }}" class="btn btn-sm ml-auto"
+                   style="background:#005555; color:#fff; border:none;">
+                    Ver todos
+                </a>
             </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="__customer-satisfaction">
-                <div class="px-2">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="subtitle text-capitalize">{{translate('messages.customer_satisfaction')}}</h5>
-                        <img src="{{asset('/public/assets/admin/img/new-img/satisfactions.png')}}" alt="new-img">
-                    </div>
-                    <div class="px-sm-2">
-                        <h4 class="review-count">{{$reviews}}</h4>
-                        <span class="review-received text-capitalize">{{translate('messages.review_received')}}</span>
-                    </div>
+            <div class="card-body pt-2 pb-3">
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ route('admin.users.delivery-man.list', ['filter' => 'active']) }}" class="stat-chip">
+                        <span class="dot" style="background:#28a745;"></span>
+                        <span>En línea ahora</span>
+                        <span class="chip-num" style="color:#005555;">{{ number_format($active_deliveryman) }}</span>
+                    </a>
+                    <a href="{{ route('admin.users.delivery-man.list', ['filter' => 'new']) }}" class="stat-chip">
+                        <span class="dot" style="background:#17a2b8;"></span>
+                        <span>Nuevos este mes</span>
+                        <span class="chip-num text-info">{{ number_format($newly_joined_deliveryman) }}</span>
+                    </a>
+                    <a href="{{ route('admin.users.delivery-man.list', ['filter' => 'inactive']) }}" class="stat-chip">
+                        <span class="dot" style="background:#ffc107;"></span>
+                        <span>Fuera de línea</span>
+                        <span class="chip-num text-warning">{{ number_format($inactive_deliveryman) }}</span>
+                    </a>
+                    <a href="{{ route('admin.users.delivery-man.list', ['filter' => 'blocked']) }}" class="stat-chip">
+                        <span class="dot" style="background:#dc3545;"></span>
+                        <span>Suspendidos</span>
+                        <span class="chip-num text-danger">{{ number_format($blocked_deliveryman) }}</span>
+                    </a>
                 </div>
-                <ul class="__customer-review">
-                    <li
-                        title="{{ translate('positive_review_given_total') . ' ' . $positive_reviews . ' ' . translate('messages.customers')  }} ({{ translate('Scale: 4-5') }}) ">
 
-                        <span class="tag">{{ translate('Positive') }}</span>
-                        @php($positive_parcent = $positive_reviews > 0 ? round($positive_reviews / $reviews * 100) : 0)
-                        <span class="review">
-                            <i class="tio-user-big" @if ($positive_parcent >= 5) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 20) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 30) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 40) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 50) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 60) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 70) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 80) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 87) style="--clr:#00AA6D;" @endif></i>
-                            <i class="tio-user-big" @if ($positive_parcent >= 95) style="--clr:#00AA6D;" @endif></i>
-                        </span>
-                        <span class="ratio">{{$positive_parcent}}%</span>
-                    </li>
-                    <li
-                        title="{{ translate('good_review_given_total') . ' ' . $good_reviews . ' ' . translate('messages.customers') }} ({{ translate('Scale: 3') }})">
-
-                        <span class="tag">{{ translate('Good') }}</span>
-                        @php($good_parcent = $good_reviews > 0 ? round($good_reviews / $reviews * 100) : 0)
-                        <span class="review">
-                            <i class="tio-user-big" @if ($good_parcent >= 5) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 20) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 30) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 40) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 50) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 60) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 70) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 80) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 87) style="--clr:#FEB019;" @endif></i>
-                            <i class="tio-user-big" @if ($good_parcent >= 95) style="--clr:#FEB019;" @endif></i>
-                        </span>
-                        <span class="ratio">{{$good_parcent}}%</span>
-                    </li>
-                    <li
-                        title="{{ translate('neutral_review_given_total') . ' ' . $neutral_reviews . ' ' . translate('messages.customers') }} ({{ translate('Scale: 2') }})">
-                        <span class="tag">{{ translate('Neutral') }}</span>
-                        @php($neutral_parcent = $neutral_reviews > 0 ? round($neutral_reviews / $reviews * 100) : 0)
-                        <span class="review">
-                            <i class="tio-user-big" @if ($neutral_parcent >= 5) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 20) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 30) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 40) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 50) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 60) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 70) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 80) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 87) style="--clr:#0177CD;" @endif></i>
-                            <i class="tio-user-big" @if ($neutral_parcent >= 95) style="--clr:#0177CD;" @endif></i>
-                        </span>
-                        <span class="ratio">{{$neutral_parcent}}%</span>
-                    </li>
-                    <li
-                        title="{{ translate('negative_review_given_total') . ' ' . $negative_reviews . ' ' . translate('messages.customers') }} ({{ translate('Scale: 1') }})">
-                        <span class="tag">{{ translate('Negetive') }}</span>
-                        @php($negative_percent = $negative_reviews > 0 ? round($negative_reviews / $reviews * 100) : 0)
-                                                <span class="review">
-                                                    <i class="tio-user-big" @if ($negative_percent >= 5) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 20) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 30) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 40) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 50) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 60) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 70) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 80) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 87) style="--clr:#FF7E7E;" @endif></i>
-                                                    <i class="tio-user-big" @if ($negative_percent >= 95) style="--clr:#FF7E7E;" @endif></i>
-                                                </span>
-                                                <span class="ratio">{{$negative_percent}}%</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <h4 class="mb-md-3">{{ translate('Deliveryman Statistics') }}</h4>
-                            <div class="row g-2">
-                                <div class="col-lg-8">
-                                    <div class="row gap__10">
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'active']) }}">
-                                                <div class="__customer-statistics-card h-100">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/deliveryman/active.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$active_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.active_delivery_man')}}</h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'new']) }}">
-                                                <div class="__customer-statistics-card h-100" style="--clr:#006AB4">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/deliveryman/newly.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$newly_joined_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.newly_joined_delivery_man')}}
-                                                    </h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'inactive']) }}">
-                                                <div class="__customer-statistics-card h-100" style="--clr:#FF5A54">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/deliveryman/in-active.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$inactive_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.inactive_deliveryman')}}</h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'blocked']) }}">
-                                                <div class="__customer-statistics-card h-100" style="--clr:#FF5A54">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/customer/blocked.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$blocked_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.Blocked_deliveryman')}}</h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="__map-wrapper-2 mt-3">
-                                        <div class="map-pop-deliveryman">
-                                            <form action="javascript:" id="search-form" class="map-pop-deliveryman-inner">
-                                                <label>{{ translate('Currently Active Delivery Men') }} </label>
-                                                <div class="position-relative mx-auto">
-                                                    <i class="tio-search"></i>
-                                                    <input type="text" name="search" class="form-control"
-                                                        placeholder="{{translate('Search Delivery Man ...')}}">
-                                                </div>
-                                                <a href="{{ route('admin.users.delivery-man.list') }}"
-                                                    class="link">{{ translate('View All Delivery Men') }}</a>
-                                            </form>
-                                        </div>
-                                        <div class="map-warper map-wrapper-2 rounded">
-                                            <div id="map-canvas" class="rounded"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="card h-100" id="top-deliveryman-view">
-                                        @include('admin-views.partials._top-deliveryman', ['top_deliveryman' => $data['top_deliveryman']])
-                                    </div>
-                                </div>
-                            </div>
-                        @else
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="row align-items-center">
-            <div class="col-sm mb-2 mb-sm-0">
-                <h1 class="page-header-title">{{translate('messages.welcome')}}, {{auth('admin')->user()->f_name}}.</h1>
-                <p class="page-header-text">{{translate('messages.employee_welcome_message')}}</p>
+                {{-- Niveles Zarpero --}}
+                @if($levelCounts->count())
+                <div class="mt-3 pt-3 border-top">
+                    <div class="small fw-semibold text-muted mb-2">Distribución por nivel</div>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach($levelCounts as $lv)
+                        <a href="{{ route('admin.zarpya.pricing.levels') }}"
+                           class="level-pill level-{{ $lv->slug }}" style="text-decoration:none;">
+                            {{ $lv->name }} · {{ $lv->deliverymen_count }}
+                        </a>
+                        @endforeach
+                    </div>
+                    <a href="{{ route('admin.zarpya.pricing.ranking') }}"
+                       class="btn btn-sm btn-outline-secondary mt-2 w-100">
+                        🏆 Ver ranking semanal
+                    </a>
+                </div>
+                @endif
             </div>
         </div>
     </div>
-    <!-- End Page Header -->
-    @endif
+
+    {{-- EMPLEADOS --}}
+    <div class="col-lg-4">
+        <div class="card profile-card profile-empleados h-100">
+            <div class="card-header d-flex align-items-center gap-3">
+                <div class="profile-icon">🏢</div>
+                <div>
+                    <div class="big-number">{{ number_format($total_employees) }}</div>
+                    <div class="label">Empleados del sistema</div>
+                </div>
+                <a href="{{ route('admin.users.employee.list') }}" class="btn btn-sm btn-outline-warning ml-auto">
+                    Ver todos
+                </a>
+            </div>
+            <div class="card-body pt-2 pb-3">
+                <div class="d-flex flex-column gap-2">
+                    @forelse($employees->take(5) as $emp)
+                    <div class="stat-chip">
+                        <img src="{{ $emp->image_full_url }}" class="rounded-circle"
+                             width="28" height="28" style="object-fit:cover;"
+                             onerror="this.src='{{ asset('public/assets/admin/img/160x160/img2.jpg') }}'">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold" style="font-size:13px;">{{ $emp->f_name }} {{ $emp->l_name }}</div>
+                            <div class="text-muted" style="font-size:11px;">{{ $emp->role?->name ?? 'Sin rol' }}</div>
+                        </div>
+                        @if($emp->is_logged_in ?? false)
+                            <span class="dot" style="background:#28a745;" title="En línea"></span>
+                        @endif
+                    </div>
+                    @empty
+                    <p class="text-muted small mb-0">Sin empleados registrados.</p>
+                    @endforelse
+                </div>
+
+                @if($total_employees > 5)
+                <div class="mt-2 text-center">
+                    <a href="{{ route('admin.users.employee.list') }}" class="small text-muted">
+                        +{{ $total_employees - 5 }} empleados más →
+                    </a>
+                </div>
+                @endif
+
+                <div class="mt-3 pt-3 border-top">
+                    <a href="{{ route('admin.users.employee.add-new') }}" class="btn btn-sm btn-warning w-100">
+                        + Agregar empleado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ── Crecimiento de clientes + Mapa de Zarperos ──────────────── --}}
+<div class="row g-3 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0">
+                <h5 class="card-title mb-0">📈 Crecimiento de clientes</h5>
+                <small class="text-muted">Nuevos registros por mes — {{ now()->year }}</small>
+            </div>
+            <div class="card-body">
+                <div id="customer-growth-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0">🗺️ Zarperos activos en el mapa</h5>
+                    <small class="text-muted">Ubicación en tiempo real</small>
+                </div>
+                <a href="{{ route('admin.users.delivery-man.list') }}" class="btn btn-sm btn-outline-secondary">
+                    Ver lista completa
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="px-3 pb-2">
+                    <form action="javascript:" id="search-form">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="tio-search"></i></span>
+                            </div>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="Buscar Zarpero por nombre...">
+                        </div>
+                    </form>
+                </div>
+                <div class="map-wrapper mx-3 mb-3">
+                    <div id="map-canvas"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ── Top Zarperos ─────────────────────────────────────────────── --}}
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header border-0 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">🏆 Top Zarperos del período</h5>
+                <a href="{{ route('admin.zarpya.pricing.ranking') }}" class="btn btn-sm btn-warning">
+                    Ver ranking completo
+                </a>
+            </div>
+            <div class="card-body p-0" id="top-deliveryman-view">
+                @include('admin-views.partials._top-deliveryman', ['top_deliveryman' => $data['top_deliveryman']])
+            </div>
+        </div>
+    </div>
+</div>
+
+@else
+{{-- Vista para empleados sin rol de admin --}}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-header-title">Bienvenido, {{ auth('admin')->user()->f_name }}</h1>
+            <p class="page-header-text">No tienes acceso al resumen completo de usuarios.</p>
+        </div>
+    </div>
+</div>
+@endif
 </div>
 @endsection
 
 @push('script_2')
-<!-- Apex Charts -->
-<script src="{{asset('/public/assets/admin/js/apex-charts/apexcharts.js')}}"></script>
-<!-- Apex Charts -->
-
+<script src="{{ asset('/public/assets/admin/js/apex-charts/apexcharts.js') }}"></script>
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{\App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value}}&callback=initialize&libraries=drawing,places,marker&v=3.61"></script>
-
-<script>
-    "use strict";
-    let map; // Global declaration of the map
-    let drawingManager;
-    let lastpolygon = null;
-    let polygons = [];
-    let dmMarkers = [];
-
-    function resetMap(controlDiv) {
-        // Set CSS for the control border.
-        const controlUI = document.createElement("div");
-        controlUI.style.backgroundColor = "#fff";
-        controlUI.style.border = "2px solid #fff";
-        controlUI.style.borderRadius = "3px";
-        controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
-        controlUI.style.cursor = "pointer";
-        controlUI.style.marginTop = "8px";
-        controlUI.style.marginBottom = "22px";
-        controlUI.style.textAlign = "center";
-        controlUI.title = "Reset map";
-        controlDiv.appendChild(controlUI);
-        // Set CSS for the control interior.
-        const controlText = document.createElement("div");
-        controlText.style.color = "rgb(25,25,25)";
-        controlText.style.fontFamily = "Roboto,Arial,sans-serif";
-        controlText.style.fontSize = "10px";
-        controlText.style.lineHeight = "16px";
-        controlText.style.paddingLeft = "2px";
-        controlText.style.paddingRight = "2px";
-        controlText.innerHTML = "X";
-        controlUI.appendChild(controlText);
-        // Setup the click event listeners: simply set the map to Chicago.
-        controlUI.addEventListener("click", () => {
-            lastpolygon.setMap(null);
-            $('#coordinates').val('');
-
-        });
-    }
-
-    function initialize() {
-        @php($default_location = \App\Models\BusinessSetting::where('key', 'default_location')->first())
-        @php($default_location = $default_location->value ? json_decode($default_location->value, true) : 0)
-        var myLatlng = {
-            lat: {{ $default_location ? $default_location['lat'] : '23.757989' }},
-            lng: {{ $default_location ? $default_location['lng'] : '90.360587' }}
-            };
-        var dmbounds = new google.maps.LatLngBounds(null);
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}"
-
-        var myOptions = {
-            zoom: 13,
-            center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            mapId: mapId,
-
-        }
-        var deliveryMan = <?php echo json_encode($deliveryMen); ?>;
-        map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
-
-        var infowindow = new google.maps.InfoWindow();
-
-        map.fitBounds(dmbounds);
-        const { AdvancedMarkerElement } = google.maps.marker;
-
-        deliveryMan.forEach(dm => {
-            if (dm.lat) {
-                const point = new google.maps.LatLng(dm.lat, dm.lng);
-                dmbounds.extend(point);
-                map.fitBounds(dmbounds);
-
-                const activeIconContent = document.createElement("img");
-                activeIconContent.src = "{{ asset('public/assets/admin/img/delivery_boy_active.png') }}";
-                activeIconContent.alt = "Active DM";
-                activeIconContent.style.width = '100%';
-                activeIconContent.style.height = '100%';
-                activeIconContent.style.borderRadius = '50%';
-
-                const marker = new AdvancedMarkerElement({
-                    position: point,
-                    map: map,
-                    title: dm.image,
-                    content: activeIconContent,
-                });
-
-                dmMarkers[dm.id] = marker;
-
-                google.maps.event.addListener(marker, 'click', function () {
-                    infowindow.setContent(`
-                <div style='float:left'>
-                    <img style='max-height:40px;wide:auto;' src='${dm.image_link}'>
-                </div>
-                <div style='float:right; padding: 10px;'>
-                    <b>${dm.name}</b><br/>
-                    ${dm.location}<br/>
-                    Assigned Order: ${dm.assigned_order_count}
-                </div>`);
-                    infowindow.open(map, marker);
-                });
-            }
-        });
-
-    }
-
-    $('#search-form').on('submit', function (e) {
-        initialize();
-        var deliveryMan = <?php echo json_encode($deliveryMen); ?>;
-        var infowindow = new google.maps.InfoWindow();
-        let formData = new FormData(this);
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.post({
-            url: '{{ route('admin.users.delivery-man.active-search') }}',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: function (data) {
-                let itemCount = 0;
-                if (data.dm) {
-                    deliveryMan.forEach(item => {
-
-                        const isDMActive = data.dm.some(ddm => ddm.id === item.id);
-                        if (isDMActive) {
-                            itemCount++
-                        }
-                        const icon = isDMActive ?
-                            "{{ asset('public/assets/admin/img/delivery_boy_active.png') }}" :
-                            "{{ asset('public/assets/admin/img/delivery_boy_map_inactive.png') }}";
-
-                        const newIconContent = document.createElement("img");
-                        newIconContent.src = icon;
-                        newIconContent.alt = isDMActive ? "Active" : "Inactive";
-                        newIconContent.style.width = '100%';
-                        newIconContent.style.height = '100%';
-                        newIconContent.style.borderRadius = '50%';
-
-                        const markerToUpdate = dmMarkers[item.id];
-                        if (markerToUpdate) {
-                            markerToUpdate.content = newIconContent;
-
-                            if (isDMActive) {
-                                itemCount++
-                            }
-
-                            map.panTo(markerToUpdate.position);
-                            map.setZoom(20);
-                            let dmViewContent = `
-                <div style='float:left'>
-                    <img style='max-height:40px;wide:auto;'  src='${item.image_link}'>
-                </div>
-                <div style='float:right; padding: 10px;'>
-                    <b>${item.name}</b><br/>
-                    ${item.location}<br/>
-                    Assigned Order: ${item.assigned_order_count}
-                </div>`
-
-                            if (isDMActive && itemCount == 1) {
-                                infowindow.setContent(dmViewContent);
-                                infowindow.open(map, markerToUpdate);
-                            } else {
-                                google.maps.event.addListener(markerToUpdate, 'click', function () {
-                                    infowindow.setContent(dmViewContent);
-                                    infowindow.open(map, markerToUpdate);
-                                });
-                            }
-                        }
-                    });
-                } else {
-                    toastr.error('Delivery Man not found', {
-                        CloseButton: true,
-                        ProgressBar: true
-                    });
-                }
-            },
-        });
-    });
-
-
-    let options = {
-        series: [{
-            name: '{{ translate('New_Customer_Growth') }}',
-            data: [{{$last_year_users > 0 ? number_format($user_data[1] / $last_year_users, 2) : 0}},
-           {{$user_data[1] > 0 ? number_format($user_data[2] / $user_data[1], 2) : 0}},
-           {{$user_data[2] > 0 ? number_format($user_data[3] / $user_data[2], 2) : 0}},
-           {{$user_data[3] > 0 ? number_format($user_data[4] / $user_data[3], 2) : 0}},
-           {{$user_data[4] > 0 ? number_format($user_data[5] / $user_data[4], 2) : 0}},
-           {{$user_data[5] > 0 ? number_format($user_data[6] / $user_data[5], 2) : 0}},
-           {{$user_data[6] > 0 ? number_format($user_data[7] / $user_data[6], 2) : 0}},
-           {{$user_data[7] > 0 ? number_format($user_data[8] / $user_data[7], 2) : 0}},
-           {{$user_data[8] > 0 ? number_format($user_data[9] / $user_data[8], 2) : 0}},
-           {{$user_data[9] > 0 ? number_format($user_data[10] / $user_data[9], 2) : 0}},
-           {{$user_data[10] > 0 ? number_format($user_data[11] / $user_data[10], 2) : 0}},
-           {{$user_data[11] > 0 ? number_format($user_data[12] / $user_data[11], 2) : 0}}]
-        }],
-        chart: {
-            height: 235,
-            type: 'area',
-            toolbar: {
-                show: false
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            curve: 'straight',
-            width: 2,
-        },
-        colors: ['#107980'],
-        fill: {
-            type: 'gradient',
-            colors: ['#107980'],
-        },
-        xaxis: {
-            //   type: 'datetime',
-            categories: ["{{ translate('Jan') }}", "{{ translate('Feb') }}", "{{ translate('Mar') }}", "{{ translate('Apr') }}", "{{ translate('May') }}", "{{ translate('Jun') }}", "{{ translate('Jul') }}", "{{ translate('Aug') }}", "{{ translate('Sep') }}", "{{ translate('Oct') }}", "{{ translate('Nov') }}", "{{ translate('Dec') }}"]
-        },
-        tooltip: {
-            x: {
-                format: 'dd/MM/yy HH:mm'
-            },
-        },
-    };
-
-    let chart = new ApexCharts(document.querySelector("#customer-growth-chart"), options);
-    chart.render();
-
-
+    src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key','map_api_key')->first()->value }}&callback=initialize&libraries=drawing,places,marker&v=3.61">
 </script>
 
+<script>
+"use strict";
+let map, infowindow, dmMarkers = [];
+
+function initialize() {
+    @php($default_location = \App\Models\BusinessSetting::where('key','default_location')->first())
+    @php($default_location = $default_location?->value ? json_decode($default_location->value, true) : null)
+    const center = {
+        lat: {{ $default_location['lat'] ?? 14.0818 }},
+        lng: {{ $default_location['lng'] ?? -87.2068 }}
+    };
+    const mapId = "{{ \App\Models\BusinessSetting::where('key','map_api_key')->first()?->value }}";
+    map = new google.maps.Map(document.getElementById('map-canvas'), {
+        zoom: 13, center, mapTypeId: 'roadmap', mapId,
+    });
+    infowindow = new google.maps.InfoWindow();
+    const { AdvancedMarkerElement } = google.maps.marker;
+    const dmbounds = new google.maps.LatLngBounds(null);
+    const deliveryMen = <?php echo json_encode($deliveryMen); ?>;
+
+    deliveryMen.forEach(dm => {
+        if (!dm.lat) return;
+        const point = new google.maps.LatLng(dm.lat, dm.lng);
+        dmbounds.extend(point);
+        const img = document.createElement('img');
+        img.src = "{{ asset('public/assets/admin/img/delivery_boy_active.png') }}";
+        img.style.cssText = 'width:36px;height:36px;border-radius:50%;';
+        const marker = new AdvancedMarkerElement({ position: point, map, content: img });
+        dmMarkers[dm.id] = marker;
+        marker.addListener('click', () => {
+            infowindow.setContent(`
+                <div style="display:flex;gap:10px;align-items:center;padding:4px;">
+                    <img src="${dm.image_link}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                    <div>
+                        <strong>${dm.name}</strong><br>
+                        <small>${dm.location}</small><br>
+                        <small>Pedidos asignados: ${dm.assigned_order_count}</small>
+                    </div>
+                </div>`);
+            infowindow.open(map, marker);
+        });
+    });
+    if (!dmbounds.isEmpty()) map.fitBounds(dmbounds);
+}
+
+$('#search-form').on('submit', function(e) {
+    e.preventDefault();
+    const deliveryMen = <?php echo json_encode($deliveryMen); ?>;
+    $.post({
+        url: '{{ route('admin.users.delivery-man.active-search') }}',
+        data: new FormData(this),
+        cache: false, contentType: false, processData: false,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        success(data) {
+            if (!data.dm) { toastr.error('Zarpero no encontrado'); return; }
+            let first = true;
+            deliveryMen.forEach(item => {
+                const active = data.dm.some(d => d.id === item.id);
+                const marker = dmMarkers[item.id];
+                if (!marker) return;
+                const img = document.createElement('img');
+                img.src = active
+                    ? "{{ asset('public/assets/admin/img/delivery_boy_active.png') }}"
+                    : "{{ asset('public/assets/admin/img/delivery_boy_map_inactive.png') }}";
+                img.style.cssText = 'width:36px;height:36px;border-radius:50%;';
+                marker.content = img;
+                if (active && first) {
+                    map.panTo(marker.position); map.setZoom(16); first = false;
+                    infowindow.setContent(`<strong>${item.name}</strong><br><small>${item.location}</small>`);
+                    infowindow.open(map, marker);
+                }
+            });
+        }
+    });
+});
+
+// Gráfica crecimiento de clientes
+new ApexCharts(document.querySelector('#customer-growth-chart'), {
+    series: [{ name: 'Nuevos clientes', data: [
+        {{ $user_data[1] }}, {{ $user_data[2] }}, {{ $user_data[3] }},
+        {{ $user_data[4] }}, {{ $user_data[5] }}, {{ $user_data[6] }},
+        {{ $user_data[7] }}, {{ $user_data[8] }}, {{ $user_data[9] }},
+        {{ $user_data[10] }}, {{ $user_data[11] }}, {{ $user_data[12] }}
+    ]}],
+    chart: { height: 220, type: 'area', toolbar: { show: false } },
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2 },
+    colors: ['#005555'],
+    fill: { type: 'gradient', colors: ['#005555'], gradient: { opacityFrom: .4, opacityTo: .05 } },
+    xaxis: { categories: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'] },
+    yaxis: { min: 0, tickAmount: 4, labels: { formatter: v => Math.round(v) } },
+    tooltip: { y: { formatter: v => v + ' clientes' } },
+    grid: { borderColor: '#f0f0f0' },
+}).render();
+</script>
 @endpush

@@ -387,9 +387,26 @@ class DeliveryManController extends BaseController
     public function getPreview(Request $request, int|string $id, string $tab = 'info'): View
     {
         $deliveryMan = $this->deliveryManRepo->getFirstWhere(params: ['type' => 'zone_wise', 'id' => $id], relations: ['reviews']);
+
+        // Fallback: buscar sin filtro de type si no se encontró
+        if (! $deliveryMan) {
+            $deliveryMan = \App\Models\DeliveryMan::with('reviews')->find($id);
+        }
+
         if ($tab == 'info') {
             $reviews = $this->dmReviewRepo->getListWhere(searchValue: $request['search'], filters: ['delivery_man_id' => $id], dataLimit: config('default_pagination'));
-            return view(DeliveryManViewPath::INFO[VIEW], compact('deliveryMan', 'reviews'));
+
+            // Perfil gamificado Zarpero
+            $zarperoProfile = null;
+            if ($deliveryMan && $deliveryMan->application_status === 'approved') {
+                try {
+                    $zarperoProfile = \App\Services\DmGamificationService::getProfile($deliveryMan);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('DmGamification getProfile error: ' . $e->getMessage());
+                }
+            }
+
+            return view(DeliveryManViewPath::INFO[VIEW], compact('deliveryMan', 'reviews', 'zarperoProfile'));
         } else if ($tab == 'transaction') {
             $date = $request->query('dates');
             if ($request->has('date_range') && $request->date_range != 'custom') {

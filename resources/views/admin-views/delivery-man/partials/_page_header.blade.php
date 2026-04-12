@@ -21,14 +21,14 @@
                     <div class="btn-container">
                         <a class="btn btn-primary text-capitalize font-weight-medium fs-12" data-toggle="tooltip"
                             data-placement="top" data-original-title="{{ translate('messages.edit') }}"
-                            href="{{ route('admin.users.delivery-man.edit', [$deliveryMan['id']]) }}">
+                            href="{{ route('admin.users.delivery-man.edit', [$deliveryMan?->id]) }}">
                             <i class="tio-edit"></i>
                             {{ translate('messages.edit-information') }}
                         </a>
 
                         @if ($deliveryMan?->application_status != 'denied')
                             <a class="btn btn-danger text-capitalize font-weight-medium request-alert fs-12"
-                                data-url="{{ route('admin.users.delivery-man.application', [$deliveryMan['id'], 'denied']) }}"
+                                data-url="{{ route('admin.users.delivery-man.application', [$deliveryMan?->id, 'denied']) }}"
                                 data-message="{{ translate('messages.you_want_to_deny_this_application') }}"
                                 href="javascript:">
                                 {{ translate('messages.reject') }}
@@ -36,7 +36,7 @@
                         @endif
 
                         <a class="btn btn-success text-capitalize font-weight-medium request-alert fs-12"
-                            data-url="{{ route('admin.users.delivery-man.application', [$deliveryMan['id'], 'approved']) }}"
+                            data-url="{{ route('admin.users.delivery-man.application', [$deliveryMan?->id, 'approved']) }}"
                             data-message="{{ translate('messages.you_want_to_approve_this_application') }}"
                             href="javascript:">
                             {{ translate('messages.approve') }}

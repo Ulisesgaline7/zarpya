@@ -21,6 +21,9 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
         Route::post('/store', 'ExternalConfigurationController@updateConfiguration');
     });
 
+    // Planes de suscripción (público, sin auth)
+    Route::get('customer/subscription/plans', [\App\Http\Controllers\Api\V1\CustomerSubscriptionController::class, 'plans']);
+
     Route::get('/terms-and-conditions', 'HomeController@terms_and_conditions');
     Route::get('/about-us', 'HomeController@about_us');
     Route::get('/privacy-policy', 'HomeController@privacy_policy');
@@ -353,6 +356,13 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             //Remove account
             Route::delete('remove-account', 'CustomerController@remove_account');
 
+            // Suscripciones de cliente (Free / Plus / Premium)
+            Route::group(['prefix' => 'subscription'], function () {
+                Route::get('/',        [\App\Http\Controllers\Api\V1\CustomerSubscriptionController::class, 'current']);
+                Route::post('subscribe', [\App\Http\Controllers\Api\V1\CustomerSubscriptionController::class, 'subscribe']);
+                Route::post('cancel',    [\App\Http\Controllers\Api\V1\CustomerSubscriptionController::class, 'cancel']);
+            });
+
             Route::group(['prefix' => 'address'], function () {
                 Route::get('list', 'CustomerController@address_list');
                 Route::post('add', 'CustomerController@add_new_address');
@@ -523,6 +533,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
 
         Route::get('parcel-category','ParcelCategoryController@index');
         Route::get('advertisement/list', 'AdvertisementController@get_adds');
+        Route::post('advertisement/track-event', 'AdvertisementController@track_event');
 
     });
     Route::get('vehicle/extra_charge', 'ConfigController@extra_charge');
@@ -530,5 +541,65 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
     Route::get('get-parcel-cancellation-reasons', 'ConfigController@parcel_cancellation_reason');
 
     Route::get('get-page-meta-data', [ConfigController::class, 'getPageMetaData']);
+
+    // ---------------------------------------------------------------
+    // Zarpya: Precios de envio por categoria
+    // ---------------------------------------------------------------
+    Route::group(['prefix' => 'delivery'], function () {
+        Route::get('pricing/calculate',    [\App\Http\Controllers\Api\V1\DeliveryPricingController::class, 'calculate']);
+        Route::get('pricing/categories',   [\App\Http\Controllers\Api\V1\DeliveryPricingController::class, 'categories']);
+        Route::get('pricing/multipliers',  [\App\Http\Controllers\Api\V1\DeliveryPricingController::class, 'activeMultipliers']);
+    });
+
+    // ---------------------------------------------------------------
+    // Zarpya: Modulo Taxi (Uber-like)
+    // ---------------------------------------------------------------
+    Route::group(['prefix' => 'taxi'], function () {
+        Route::post('estimate',            [\App\Http\Controllers\Api\V1\TaxiController::class, 'estimate']);
+
+        // Rutas para clientes
+        Route::middleware('auth:api')->group(function () {
+            Route::post('request',         [\App\Http\Controllers\Api\V1\TaxiController::class, 'requestRide']);
+            Route::get('ride/{id}',        [\App\Http\Controllers\Api\V1\TaxiController::class, 'show']);
+            Route::post('ride/{id}/cancel',[\App\Http\Controllers\Api\V1\TaxiController::class, 'cancel']);
+        });
+
+        // Rutas para conductores de taxi (separados de repartidores)
+        Route::prefix('driver')->group(function () {
+            Route::post('login',           [\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'login']);
+            Route::get('profile',          [\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'profile']);
+            Route::post('toggle-available',[\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'toggleAvailable']);
+            Route::post('location',        [\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'updateLocation']);
+            Route::get('pending-rides',    [\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'pendingRides']);
+            Route::post('ride/{id}/accept',[\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'acceptRide']);
+            Route::post('ride/{id}/status',[\App\Http\Controllers\Api\V1\TaxiDriverController::class, 'updateRideStatus']);
+        });
+    });
+
+    // ---------------------------------------------------------------
+    // Zarpya: Modulo Renta de Vehiculos
+    // ---------------------------------------------------------------
+    Route::group(['prefix' => 'rental'], function () {
+        Route::get('vehicles',             [\App\Http\Controllers\Api\V1\RentalController::class, 'index']);
+        Route::middleware('auth:api')->group(function () {
+            Route::post('book',            [\App\Http\Controllers\Api\V1\RentalController::class, 'book']);
+            Route::get('my-bookings',      [\App\Http\Controllers\Api\V1\RentalController::class, 'myBookings']);
+        });
+    });
+
+    // ---------------------------------------------------------------
+    // Zarpya: Modulo Proveedores de Servicios (fontaneria, etc.)
+    // ---------------------------------------------------------------
+    Route::group(['prefix' => 'services'], function () {
+        Route::get('categories',           [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'categories']);
+        Route::get('providers',            [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'providers']);
+        Route::get('providers/{id}',       [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'showProvider']);
+        Route::middleware('auth:api')->group(function () {
+            Route::post('request',                   [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'createRequest']);
+            Route::post('request/{id}/accept-quote', [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'acceptQuote']);
+            Route::post('request/{id}/complete',     [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'complete']);
+            Route::get('my-requests',                [\App\Http\Controllers\Api\V1\ServiceProviderController::class, 'myRequests']);
+        });
+    });
 });
 

@@ -722,6 +722,17 @@
     </div>
 
 
+    {{-- ============================================================
+         PERFIL GAMIFICADO ZARPERO
+         ============================================================ --}}
+    @if($deliveryMan->application_status === 'approved')
+    <div class="content container-fluid pt-0">
+        @if(!empty($zarperoProfile))
+            @include('admin-views.delivery-man.partials._zarpero_profile', ['profile' => $zarperoProfile])
+        @endif
+    </div>
+    @endif
+
     <div class="modal fade" id="work_switcher">
         <div class="modal-dialog modal-dialog-centered max-w-500px">
             <div class="modal-content">

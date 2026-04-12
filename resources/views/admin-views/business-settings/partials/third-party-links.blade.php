@@ -23,6 +23,9 @@
             <li class="nav-item">
                 <a class="nav-link {{ Request::is('admin/business-settings/third-party/storage-connection*') ? 'active' : '' }}" href="{{route('admin.business-settings.third-party.storage_connection_index')}}"  aria-disabled="true">{{translate('Storage_Connection')}}</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ Request::is('admin/business-settings/third-party/weather-api*') ? 'active' : '' }}" href="{{ route('admin.business-settings.third-party.weather-api') }}" aria-disabled="true">APIs de Clima</a>
+            </li>
         </ul>
         <!-- End Nav -->
     </div>

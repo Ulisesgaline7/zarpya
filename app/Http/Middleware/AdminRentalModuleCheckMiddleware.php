@@ -15,7 +15,7 @@ class AdminRentalModuleCheckMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (addon_published_status('Rental') && (config('module.current_module_type') == 'rental' ) ||   $request->is('admin/rental/trip/details/*') ||  $request->is('admin/rental/provider/details/*') ||  $request->is('admin/rental/provider/vehicle/details/*')  ){
+        if (addon_published_status('Rental') && (config('module.current_module_type') == 'rental' ) ||   $request->is('admin/rental/trip/details/*') ||  $request->is('admin/rental/provider/details/*') ||  $request->is('admin/rental/provider/vehicle/details/*') || $request->is('admin/rental/provider/vehicle/list') || $request->is('admin/rental/provider/vehicle/*')  ){
             return $next($request);
         }
 

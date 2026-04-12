@@ -411,6 +411,17 @@
                                     </div>
                                 </div>
 
+                            <!-- Commissions now in modules -->
+                            <div class="alert alert-info d-flex align-items-center mb-3">
+                                <i class="tio-info text-info mr-2"></i>
+                                <div>
+                                    <strong>Las comisiones se configuran por módulo</strong>
+                                    <p class="mb-0 fs-12">
+                                        <a href="{{route('admin.business-settings.module.index')}}" class="font-semibold">
+                                            Ir a Módulos de Negocio
+                                        </a>
+                                    </p>
+                                </div>
                             </div>
 
                             @php($subscription_business_model = \App\Models\BusinessSetting::where('key', 'subscription_business_model')->first())
@@ -418,7 +429,8 @@
 
                             @php($commission_business_model = \App\Models\BusinessSetting::where('key', 'commission_business_model')->first())
                             @php($commission_business_model = $commission_business_model ? $commission_business_model->value : 0)
-                            <div class="shadow-sm p-xxl-20 p-xl-3 p-2 bg-white mb-20" id="business_model_section">
+                            <!-- BUSINESS MODEL SECTION - HIDDEN -->
+                            <div style="display:none;" id="business_model_section">
                                 <div class="mb-20">
                                     <h4 class="mb-1">
                                         {{ translate('Business Model Setup') }}

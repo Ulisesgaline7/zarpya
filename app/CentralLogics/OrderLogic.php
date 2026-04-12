@@ -684,14 +684,25 @@ class OrderLogic
 
     public static function cashbackToWallet($order)
     {
+        $cashbackAmount = $order?->cashback_history?->calculated_amount ?? 0;
 
-        $refer_wallet_transaction = CustomerLogic::create_wallet_transaction($order?->cashback_history?->user_id, $order?->cashback_history?->calculated_amount, 'CashBack', $order->id);
+        // Premium Subscription Cashback (2%)
+        $subscription = $order->customer?->active_subscription();
+        if ($subscription && $subscription->type === 'premium') {
+            $benefits = $subscription->getBenefits();
+            $premiumCashback = ($order->order_amount * $benefits['cashback_percentage']) / 100;
+            $cashbackAmount += $premiumCashback;
+        }
+
+        if ($cashbackAmount <= 0) return true;
+
+        $refer_wallet_transaction = CustomerLogic::create_wallet_transaction($order->user_id, $cashbackAmount, 'CashBack', $order->id);
         if ($refer_wallet_transaction != false) {
-            Helpers::expenseCreate(amount: $order?->cashback_history?->calculated_amount, type: 'CashBack', datetime: now(), created_by: 'admin', order_id: $order->id);
+            Helpers::expenseCreate(amount: $cashbackAmount, type: 'CashBack', datetime: now(), created_by: 'admin', order_id: $order->id);
             $order?->cashback_history?->cashBack?->increment('total_used');
 
             $notification_data = [
-                'title' => translate('messages.Congratulation_you_have_received') . ' ' . $order?->cashback_history?->calculated_amount . ' ' . translate('cashback'),
+                'title' => translate('messages.Congratulation_you_have_received') . ' ' . $cashbackAmount . ' ' . translate('cashback'),
                 'description' => translate('The_cashback_amount_successfully_added_to_your_wallet'),
                 'order_id' => $order->id,
                 'image' => '',

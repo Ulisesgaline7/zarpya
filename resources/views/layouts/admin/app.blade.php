@@ -13,7 +13,6 @@ $countryCode= strtolower($country?$country:'auto');
     <title>@yield('title')</title>
     <!-- Favicon -->
     @php($logo=\App\Models\BusinessSetting::where(['key'=>'icon'])->first())
-    <link rel="shortcut icon" href="">
     <link rel="icon" type="image/x-icon" href="{{\App\CentralLogics\Helpers::get_full_url('business', $logo?->value?? '', $logo?->storage[0]?->value ?? 'public','favicon')}}">
     <!-- Font -->
     <link href="{{asset('public/assets/admin/css/fonts.css')}}" rel="stylesheet">
@@ -69,14 +68,22 @@ $countryCode= strtolower($country?$country:'auto');
 <!-- JS Preview mode only -->
 @include('layouts.admin.partials._header')
 
+@if(!isset($module_type))
+    @php($module_type = 'delivery')
+@endif
+
 @if(Request::is('admin/payment/configuration*') || Request::is('admin/sms/configuration*') || Request::is('taxvat/*'))
 @php($module_type = 'settings')
 @endif
 
     @if($module_type == 'rental')
-        @include("rental::admin.partials._sidebar_{$module_type}")
-    @else
+        @include("rental::admin.partials._sidebar_rental")
+    @elseif(in_array($module_type, ['taxi', 'services']))
         @include("layouts.admin.partials._sidebar_{$module_type}")
+    @elseif(view()->exists("layouts.admin.partials._sidebar_{$module_type}"))
+        @include("layouts.admin.partials._sidebar_{$module_type}")
+    @else
+        @include("layouts.admin.partials._sidebar")
     @endif
 
 <!-- END ONLY DEV -->
@@ -296,6 +303,7 @@ if(in_array(config('module.current_module_type'),config('module.module_type') ))
 
 <!-- ========== END SECONDARY CONTENTS ========== -->
 <script src="{{asset('public/assets/admin')}}/js/vendor.min.js"></script>
+<script src="{{asset('public/assets/admin')}}/js/theme.min.js"></script>
 <script src="{{asset('public/assets/admin')}}/js/jquery.validate.min.js"></script>
 <script src="{{asset('public/assets/admin')}}/js/custom.js"></script>
 <script src="{{asset('public/assets/admin')}}/js/firebase.min.js"></script>
@@ -303,8 +311,6 @@ if(in_array(config('module.current_module_type'),config('module.module_type') ))
 
 @stack('script')
 <!-- JS Front -->
-
-<script src="{{asset('public/assets/admin')}}/js/theme.min.js"></script>
 <script src="{{asset('public/assets/admin')}}/js/sweet_alert.js"></script>
 <script src="{{asset('public/assets/admin')}}/js/bootstrap-tour-standalone.min.js"></script>
 <script src="{{asset('public/assets/admin/js/owl.min.js')}}"></script>
@@ -342,6 +348,7 @@ if(in_array(config('module.current_module_type'),config('module.module_type') ))
     <source src="{{asset('public/assets/admin/sound/notification.mp3')}}" type="audio/mpeg">
 </audio>
 <script>
+    "use strict";
     var audio = document.getElementById("myAudio");
     function playAudio() {
         audio.play();
@@ -350,8 +357,8 @@ if(in_array(config('module.current_module_type'),config('module.module_type') ))
     function pauseAudio() {
         audio.pause();
     }
-"use strict";
-
+</script>
+<script>
 
     @php($hasModules = \App\Models\Module::Active()->exists())
 
@@ -1074,5 +1081,6 @@ $(document).on('keyup', 'input[type="tel"]', function () {
         updateArrows();
 
     </script>
+</main>
 </body>
 </html>

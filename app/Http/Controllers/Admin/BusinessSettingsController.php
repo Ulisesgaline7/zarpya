@@ -192,6 +192,46 @@ class BusinessSettingsController extends Controller
                 compact('messages', 'language')
             );
 
+        case 'ad-surge-settings':
+            $keys = [
+                'ad_cost_impression',
+                'ad_cost_click',
+                'surge_multiplier_weather',
+                'surge_multiplier_peak_hour',
+                'openweather_api_key',
+                'google_maps_traffic_key',
+                'algolia_app_id',
+                'algolia_api_key',
+            ];
+            $data = BusinessSetting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+            return view('admin-views.business-settings.settings.ad-surge-index', compact('data'));
+
+        case 'customer-subscriptions':
+            $keys = [
+                'sub_plus_price',
+                'sub_plus_delivery_threshold',
+                'sub_plus_discount',
+                'sub_plus_free_deliveries',
+                'sub_premium_price',
+                'sub_premium_discount',
+                'sub_premium_cashback',
+            ];
+            $data = BusinessSetting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+            return view('admin-views.business-settings.settings.customer-subscriptions', compact('data'));
+
+        case 'media-settings':
+            $keys = [
+                'cloudinary_cloud_name',
+                'cloudinary_api_key',
+                'cloudinary_api_secret',
+                'aws_s3_bucket',
+                'aws_s3_key',
+                'aws_s3_secret',
+                'aws_s3_region',
+            ];
+            $data = BusinessSetting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+            return view('admin-views.business-settings.settings.media-index', compact('data'));
+
         default:
             abort(404);
     }
@@ -239,6 +279,50 @@ class BusinessSettingsController extends Controller
 
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
 
+        return back();
+    }
+
+    public function update_ad_surge(Request $request)
+    {
+        if (getEnvMode() === 'demo') {
+            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
+            return back();
+        }
+
+        $keys = [
+            'ad_cost_impression',
+            'ad_cost_click',
+            'surge_multiplier_weather',
+            'surge_multiplier_peak_hour',
+            'openweather_api_key',
+            'google_maps_traffic_key',
+            'algolia_app_id',
+            'algolia_api_key',
+            'sub_plus_price',
+            'sub_plus_delivery_threshold',
+            'sub_plus_discount',
+            'sub_plus_free_deliveries',
+            'sub_premium_price',
+            'sub_premium_discount',
+            'sub_premium_cashback',
+            'cloudinary_cloud_name',
+            'cloudinary_api_key',
+            'cloudinary_api_secret',
+            'aws_s3_bucket',
+            'aws_s3_key',
+            'aws_s3_secret',
+            'aws_s3_region',
+        ];
+
+        foreach ($keys as $key) {
+            if ($request->has($key)) {
+                Helpers::businessUpdateOrInsert(['key' => $key], [
+                    'value' => $request->$key,
+                ]);
+            }
+        }
+
+        Toastr::success(translate('messages.successfully_updated'));
         return back();
     }
 
@@ -2115,6 +2199,88 @@ class BusinessSettingsController extends Controller
         return view('admin-views.business-settings.config');
     }
 
+    public function weather_api_index()
+    {
+        $owKey       = BusinessSetting::where('key', 'openweather_api_key')->first()?->value;
+        $lastCheck   = BusinessSetting::where('key', 'weather_last_check')->first();
+        $weatherData = $lastCheck?->value ? json_decode($lastCheck->value, true) : null;
+        $rainActive  = \App\CentralLogics\DeliveryPricingService::isRainActive();
+
+        return view('admin-views.business-settings.weather-api', compact('owKey', 'weatherData', 'rainActive'));
+    }
+
+    public function weather_api_update(Request $request)
+    {
+        if (getEnvMode() === 'demo') {
+            Toastr::info(translate('messages.update_option_is_disable_for_demo'));
+            return back();
+        }
+
+        Helpers::businessUpdateOrInsert(
+            ['key' => 'openweather_api_key'],
+            ['value' => $request->openweather_api_key ?? '']
+        );
+
+        Toastr::success('API key de OpenWeatherMap guardada.');
+        return back();
+    }
+
+    /** Verifica el clima de una zona específica por coordenadas (AJAX) */
+    public function weather_api_zone_check(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $apiKey = BusinessSetting::where('key', 'openweather_api_key')->first()?->value;
+
+        if (! $apiKey) {
+            return response()->json(['success' => false, 'message' => 'API key no configurada.'], 400);
+        }
+
+        // Usar coordenadas enviadas o fallback a ubicación por defecto
+        $lat = $request->lat ?? null;
+        $lng = $request->lng ?? null;
+
+        if (! $lat || ! $lng) {
+            $defaultLocation = BusinessSetting::where('key', 'default_location')->first();
+            $loc = $defaultLocation?->value ? json_decode($defaultLocation->value, true) : null;
+            $lat = $loc['lat'] ?? 14.0818;
+            $lng = $loc['lng'] ?? -87.2068;
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(8)->get(
+                'https://api.openweathermap.org/data/2.5/weather',
+                ['lat' => $lat, 'lon' => $lng, 'appid' => $apiKey, 'units' => 'metric']
+            );
+
+            if (! $response->successful()) {
+                $body = $response->json();
+                $hint = '';
+                if ($response->status() === 401) {
+                    $hint = ' Las keys nuevas tardan hasta 2 horas en activarse. Verifica que la copiaste correctamente desde openweathermap.org/api/keys';
+                }
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error OpenWeatherMap (HTTP '.$response->status().'): '.($body['message'] ?? '').$hint,
+                ], 400);
+            }
+
+            $data      = $response->json();
+            $weatherId = $data['weather'][0]['id'] ?? 800;
+            $isRaining = in_array($weatherId, \App\Jobs\CheckWeatherConditionJob::RAIN_CODES);
+
+            return response()->json([
+                'success'     => true,
+                'is_raining'  => $isRaining,
+                'temp'        => $data['main']['temp'] ?? null,
+                'humidity'    => $data['main']['humidity'] ?? null,
+                'description' => $data['weather'][0]['description'] ?? '',
+                'code'        => $weatherId,
+                'zone_id'     => $request->zone_id,
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+        }
+    }
     public function config_update(Request $request)
     {
         Helpers::businessUpdateOrInsert(['key' => 'map_api_key'], [
@@ -7436,10 +7602,7 @@ class BusinessSettingsController extends Controller
     // Business setup
     private function updateBasicSettings(Request $request): void
     {
-                $settings = [
-                'business_name' => $request->business_name,
-                'currency' => $request->currency,
-                'timezone' => $request->timezone,
+$settings = [
                 'site_direction' => $request->site_direction,
                 'phone' => $request->phone,
                 'email_address' => $request->email_address,
@@ -7447,12 +7610,10 @@ class BusinessSettingsController extends Controller
                 'footer_text' => $request->footer_text,
                 'cookies_text' => $request->cookies_text,
                 'currency_symbol_position' => $request->currency_symbol_position,
-                'admin_commission' => $request->admin_commission,
                 'country' => $request->country,
                 'country_picker_status' => $request->country_picker_status ?? 0,
                 'timeformat' => $request->timeformat,
                 'digit_after_decimal_point' => $request->digit_after_decimal_point,
-                'delivery_charge_comission' => $request->delivery_charge_comission,
             ];
 
             foreach ($settings as $key => $value) {

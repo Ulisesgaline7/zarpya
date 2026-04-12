@@ -139,6 +139,70 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-6" id="pricing_config">
+                                <h6 class="mb-3">Configuración de Precios</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Precio Base (L)</label>
+                                                    <input type="number" name="base_price" class="form-control" value="{{ $module->base_price ?? 25 }}" step="0.01" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Precio por Km (L)</label>
+                                                    <input type="number" name="price_per_km" class="form-control" value="{{ $module->price_per_km ?? 8 }}" step="0.01" min="0">
+                                                </div>
+                                            </div>
+                                            @if($module->module_type == 'taxi')
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Precio por Minuto (L)</label>
+                                                    <input type="number" name="price_per_minute" class="form-control" value="{{ $module->price_per_minute ?? 2 }}" step="0.01" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Tarifa Mínima (L)</label>
+                                                    <input type="number" name="minimum_fare" class="form-control" value="{{ $module->minimum_fare ?? 50 }}" step="0.01" min="0">
+                                                </div>
+                                            </div>
+                                            @endif
+                                            @if($module->module_type == 'rental')
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Precio Mín. Hora (L)</label>
+                                                    <input type="number" name="minimum_fare" class="form-control" value="{{ $module->minimum_fare ?? 150 }}" step="0.01" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Depósito (L)</label>
+                                                    <input type="number" name="deposit" class="form-control" value="{{ $module->deposit ?? 2000 }}" step="0.01" min="0">
+                                                </div>
+                                            </div>
+                                            @endif
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label">Comisión (%)</label>
+                                                    <input type="number" name="commission_percent" class="form-control" value="{{ $module->commission_percent ?? 15 }}" step="0.01" min="0" max="100">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label class="input-label"> Estado</label>
+                                                    <label class="form-check form--check">
+                                                        <input class="form-check-input" type="checkbox" name="status" value="1" {{ ($module->status ?? 1) == 1 ? 'checked' : '' }}>
+                                                        <span class="form-check-label">Activo</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         <div class="col-lg-6">
                             <h6 class="mb-3">{{translate('Chose related images')}}</h6>
                             <div class="card module-logo-card mb-3">

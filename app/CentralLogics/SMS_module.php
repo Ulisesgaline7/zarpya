@@ -9,6 +9,7 @@ class SMS_module
 {
     public static function send($receiver, $otp)
     {
+        $receiver = self::format_phone($receiver);
         $config = self::get_settings('twilio');
         if (isset($config) && $config['status'] == 1) {
             return self::twilio($receiver, $otp);
@@ -34,6 +35,28 @@ class SMS_module
         }
 
         return 'not_found';
+    }
+
+    public static function format_phone($phone): string
+    {
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+        
+        // If it starts with +504, it's correct
+        if (str_starts_with($phone, '+504')) {
+            return $phone;
+        }
+
+        // If it starts with 504, add +
+        if (str_starts_with($phone, '504')) {
+            return '+' . $phone;
+        }
+
+        // If it's 8 digits (Honduras local), add +504
+        if (strlen($phone) == 8) {
+            return '+504' . $phone;
+        }
+
+        return $phone;
     }
 
     public static function twilio($receiver, $otp): string
